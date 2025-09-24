@@ -18,21 +18,23 @@ try:
     # Initialize the API with token
     api = growattServer.OpenApiV1(token=api_token)
 
-    # Get plant list using V1 API
+    # Plant info
     plants = api.plant_list()
+    print(f"Plants: Found {plants['count']} plants")
     plant_id = plants['plants'][0]['plant_id']
 
-    # Get devices in plant
+    # Devices
     devices = api.device_list(plant_id)
 
-    # Iterate over all devices
-    energy_data = None
     for device in devices['devices']:
-        if device['type'] == growattServer.DeviceType.MIN_TLX:
+        print(device)
+        if device['device_type'] == growattServer.DeviceType.MIX_SPH:
             inverter_sn = device['device_sn']
+            device_type = device['device_type']
+            print(f"Processing {device_type.name} inverter: {inverter_sn}")
 
             # Get energy data
-            energy_data = api.min_energy(device_sn=inverter_sn)
+            energy_data = api.device_energy(device_sn=inverter_sn, device_type=device_type)
             with open('energy_data.json', 'w') as f:
                 json.dump(energy_data, f, indent=4, sort_keys=True)
 
@@ -43,7 +45,7 @@ try:
     solar_production_pv1 = f'{float(energy_data["epv1Today"]):.1f}/{float(energy_data["epv1Total"]):.1f}'
     solar_production_pv2 = f'{float(energy_data["epv2Today"]):.1f}/{float(energy_data["epv2Total"]):.1f}'
     energy_output = f'{float(energy_data["eacToday"]):.1f}/{float(energy_data["eacTotal"]):.1f}'
-    system_production = f'{float(energy_data["esystemToday"]):.1f}/{float(energy_data["esystemTotal"]):.1f}'
+    system_production = f'{float(energy_data["esystemtoday"]):.1f}/{float(energy_data["esystemtotal"]):.1f}'
     battery_charged = f'{float(energy_data["echargeToday"]):.1f}/{float(energy_data["echargeTotal"]):.1f}'
     battery_grid_charge = f'{float(energy_data["eacChargeToday"]):.1f}/{float(energy_data["eacChargeTotal"]):.1f}'
     battery_discharged = f'{float(energy_data["edischargeToday"]):.1f}/{float(energy_data["edischargeTotal"]):.1f}'

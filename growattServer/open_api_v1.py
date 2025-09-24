@@ -402,6 +402,7 @@ class OpenApiV1(GrowattApi):
             raise GrowattParameterError(f"Invalid device type: {device_type}")
 
         url_prefix = DeviceType.get_url_prefix(device_type)
+        
         response = self.session.post(
             url=self._get_device_url(device_type, ApiDataType.LAST_DATA),
             data={
