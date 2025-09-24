@@ -2,15 +2,63 @@ import warnings
 from datetime import date, timedelta
 from . import GrowattApi
 import platform
+from enum import Enum
 from .exceptions import GrowattParameterError, GrowattV1ApiError
 
+class DeviceType(Enum):
+    """Enumeration of Growatt device types."""
+    MIX_SPH = 5  # MIX/SPH devices
+    MIN_TLX = 7  # MIN/TLX devices
+
+    @classmethod
+    def get_url_prefix(cls, device_type):
+        """Get the URL prefix for a given device type."""
+        if device_type == cls.MIX_SPH:
+            return 'mix'
+        elif device_type == cls.MIN_TLX:
+            return 'tlx'
+        else:
+            raise GrowattParameterError(f"Unsupported device type: {device_type}")
+
+    @classmethod
+    def get_url_param_action(cls, device_type):
+        """Get the URL param for a given device type."""
+        if device_type == cls.MIX_SPH:
+            return 'data'
+        elif device_type == cls.MIN_TLX:
+            return 'set'
+        else:
+            raise GrowattParameterError(f"Unsupported device type: {device_type}")    
+
+    @classmethod
+    def get_url_read_param(cls, device_type):
+        """Get the URL param for a given device type."""
+        if device_type == cls.MIX_SPH:
+            return 'readMixParam'
+        elif device_type == cls.MIN_TLX:
+            return 'readMinParam'
+        else:
+            raise GrowattParameterError(f"Unsupported device type: {device_type}")  
 
 class OpenApiV1(GrowattApi):
     """
     Extended Growatt API client with V1 API support.
-    This class extends the base GrowattApi class with methods for MIN inverters using
+    This class extends the base GrowattApi class with methods for MIN/TLX and MIX/SPH inverters using
     the public V1 API described here: https://www.showdoc.com.cn/262556420217021/0
     """
+
+    DEVICE_ENDPOINTS = {
+        DeviceType.MIX_SPH: {
+            'energy': 'device/mix/mix_energy',
+            'settings': 'device/mix/mix_set_info',
+            'system_status': 'device/mix/mix_system_status',
+        },
+        DeviceType.MIN_TLX: {
+            'energy': 'device/tlx/tlx_energy',
+            'settings': 'device/tlx/tlx_set_info',
+            'system_status': 'device/tlx/tlx_system_status',
+        }
+    }
 
     def _create_user_agent(self):
         python_version = platform.python_version()
@@ -64,6 +112,25 @@ class OpenApiV1(GrowattApi):
         Simple helper function to get the page URL for v1 API.
         """
         return self.api_url + page
+
+    def _get_device_url(self, device_type, operation):
+        """Get the API URL for a specific device type and operation.
+        
+        Args:
+            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH)
+            operation (str): The operation to perform ('energy', 'settings', etc.)
+            
+        Returns:
+            str: The complete API URL for the operation
+
+        Raises:
+            GrowattParameterError: If the device type or operation is not supported
+        """
+        if device_type not in self.DEVICE_ENDPOINTS:
+            raise GrowattParameterError(f"Unsupported device type: {device_type}")
+        if operation not in self.DEVICE_ENDPOINTS[device_type]:
+            raise GrowattParameterError(f"Unsupported operation '{operation}' for device type {device_type}")
+        return self.api_url + self.DEVICE_ENDPOINTS[device_type][operation]
 
     def plant_list(self):
         """
@@ -236,109 +303,189 @@ class OpenApiV1(GrowattApi):
 
     def device_list(self, plant_id):
         """
-        Get devices associated with plant.
-
-        Note:
-            returned "device_type" mappings:
-             1: inverter (including MAX)
-             2: storage
-             3: other
-             4: max (single MAX)
-             5: sph
-             6: spa
-             7: min (including TLX)
-             8: pcs
-             9: hps
-            10: pbd
+        Get a list of devices in a plant. The device list includes type information that maps
+        to the DeviceType enum (5 for MIX_SPH, 7 for MIN_TLX).
 
         Args:
-            plant_id (int): Power Station ID
+            plant_id (int): The plant ID to get devices for.
 
         Returns:
-            DeviceList
-            e.g.
-            {
-                "data": {
-                    "count": 3,
-                    "devices": [
-                        {
-                            "device_sn": "ZT00100001",
-                            "last_update_time": "2018-12-13 11:03:52",
-                            "model": "A0B0D0T0PFU1M3S4",
-                            "lost": True,
-                            "status": 0,
-                            "manufacturer": "Growatt",
-                            "device_id": 116,
-                            "datalogger_sn": "CRAZT00001",
-                            "type": 1
-                        },
-                    ]
-                },
-                "error_code": 0,
-                "error_msg": ""
-            }
-        """
-        response = self.session.get(
-            url=self._get_url("device/list"),
-            params={
-                "plant_id": plant_id,
-                "page": "",
-                "perpage": "",
-            },
-        )
-        return self._process_response(response.json(), "getting device list")
-
-    def min_detail(self, device_sn):
-        """
-        Get detailed data for a MIN inverter.
-
-        Args:
-            device_sn (str): The serial number of the MIN inverter.
-
-        Returns:
-            dict: A dictionary containing the MIN inverter details.
+            dict: A dictionary containing device information with 'count' and 'devices' fields.
+                 Each device includes a 'type' field that maps to DeviceType enum values.
 
         Raises:
             GrowattV1ApiError: If the API returns an error response.
             requests.exceptions.RequestException: If there is an issue with the HTTP request.
         """
-
         response = self.session.get(
-            self._get_url('device/tlx/tlx_data_info'),
+            url=self._get_url('device/list'),
+            params={
+                'plant_id': plant_id
+            }
+        )
+
+        data = self._process_response(response.json(), "getting device list")
+
+        print(data)
+        
+        # Add device_type mapping for each device based on type
+        if 'devices' in data:
+            for device in data['devices']:
+                try:
+                    device_type = device.get('type')
+                    if device_type:
+                        device['device_type'] = DeviceType(device_type)
+                except ValueError:
+                    device['device_type'] = None
+        return data
+
+    def get_device_details(self, device_sn, device_type):
+        """
+        Get detailed data for a device.
+
+        Args:
+            device_sn (str): The serial number of the device.
+            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+
+        Returns:
+            dict: A dictionary containing the device details.
+
+        Raises:
+            GrowattParameterError: If the device type is not supported.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException: If there is an issue with the HTTP request.
+        """
+        if not isinstance(device_type, DeviceType):
+            raise GrowattParameterError(f"Invalid device type: {device_type}")
+
+        url_prefix = DeviceType.get_url_prefix(device_type)
+        response = self.session.get(
+            # self._get_url(f'device/{url_prefix}/{url_prefix}_data_info'),
+            self._get_device_url(device_type, 'settings'),
             params={
                 'device_sn': device_sn
             }
         )
 
-        return self._process_response(response.json(), "getting MIN inverter details")
+        return self._process_response(response.json(), f"getting {device_type.name} details")
 
-    def min_energy(self, device_sn):
+    def get_device_energy(self, device_sn, device_type):
         """
-        Get energy data for a MIN inverter.
+        Get energy data for a device.
 
         Args:
-            device_sn (str): The serial number of the MIN inverter.
+            device_sn (str): The serial number of the device.
+            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
 
         Returns:
-            dict: A dictionary containing the MIN inverter energy data.
+            dict: A dictionary containing the device energy data.
 
         Raises:
+            GrowattParameterError: If the device type is not supported.
             GrowattV1ApiError: If the API returns an error response.
             requests.exceptions.RequestException: If there is an issue with the HTTP request.
         """
+        if not isinstance(device_type, DeviceType):
+            raise GrowattParameterError(f"Invalid device type: {device_type}")
 
+        url_prefix = DeviceType.get_url_prefix(device_type)
         response = self.session.post(
-            url=self._get_url("device/tlx/tlx_last_data"),
+            url=self._get_url(f"device/{url_prefix}/{url_prefix}_last_data"),
+            url=self._get_device_url(device_type, 'energy'),
             data={
-                "tlx_sn": device_sn,
-            },
+                f"{url_prefix}_sn": device_sn
+            }
         )
 
-        return self._process_response(response.json(), "getting MIN inverter energy data")
+        return self._process_response(response.json(), f"getting {device_type.name} energy data")
 
-    def min_energy_history(self, device_sn, start_date=None, end_date=None, timezone=None, page=None, limit=None):
+    
+    def get_device_settings(self, device_sn, device_type):
         """
-        Get MIN inverter data history.
+        Get settings for a device.
+
+        Args:
+            device_sn (str): The serial number of the device.
+            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+
+        Returns:
+            dict: A dictionary containing the device settings.
+
+        Raises:
+            GrowattParameterError: If the device type is not supported.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException: If there is an issue with the HTTP request.
+        """
+        if not isinstance(device_type, DeviceType):
+            raise GrowattParameterError(f"Invalid device type: {device_type}")
+
+        url_prefix = DeviceType.get_url_prefix(device_type)
+
+        url_action = DeviceType.get_url_param_action(device_type)
+
+        response = self.session.get(
+            self._get_url(f'device/{url_prefix}/{url_prefix}_{url_action}_info'),
+            params={
+                'device_sn': device_sn
+            }
+        )
+
+        return self._process_response(response.json(), f"getting {device_type.name} settings")
+
+    def get_device_energy_history(self, device_sn, device_type, start_date=None, end_date=None, timezone=None, page=None, limit=None):
+        """
+        Get device energy history data.
+
+        Args:
+            device_sn (str): The ID of the device.
+            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            start_date (date, optional): Start date. Defaults to today.
+            end_date (date, optional): End date. Defaults to today.
+            timezone (str, optional): Timezone ID.
+            page (int, optional): Page number.
+            limit (int, optional): Results per page.
+
+        Returns:
+            dict: A dictionary containing the device history data.
+
+        Raises:
+            GrowattParameterError: If device type is invalid or date interval exceeds 7 days.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException: If there is an issue with the HTTP request.
+        """
+        if not isinstance(device_type, DeviceType):
+            raise GrowattParameterError(f"Invalid device type: {device_type}")
+
+        if start_date is None and end_date is None:
+            start_date = date.today()
+            end_date = date.today()
+        elif start_date is None:
+            start_date = end_date
+        elif end_date is None:
+            end_date = start_date
+
+        # check interval validity
+        if end_date - start_date > timedelta(days=7):
+            raise GrowattParameterError("date interval must not exceed 7 days")
+
+        url_prefix = DeviceType.get_url_prefix(device_type)
+        response = self.session.post(
+            url=self._get_url(f'device/{url_prefix}/{url_prefix}_data'),
+            data={
+                f"{url_prefix}_sn": device_sn,
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "timezone_id": timezone,
+                "page": page,
+                "perpage": limit,
+            }
+        )
+
+        return self._process_response(response.json(), f"getting {device_type.name} energy history")
+    
+    def mix_energy_history(self, device_sn, start_date=None, end_date=None, timezone=None, page=None, limit=None):
+        """
+        Get MIX inverter data history.
 
         Args:
             device_sn (str): The ID of the MIN inverter.
@@ -370,7 +517,7 @@ class OpenApiV1(GrowattApi):
             raise GrowattParameterError("date interval must not exceed 7 days")
 
         response = self.session.post(
-            url=self._get_url('device/tlx/tlx_data'),
+            url=self._get_url('device/mix/mix_data'),
             data={
                 "tlx_sn": device_sn,
                 "start_date": start_date.strftime("%Y-%m-%d"),
@@ -381,7 +528,7 @@ class OpenApiV1(GrowattApi):
             }
         )
 
-        return self._process_response(response.json(), "getting MIN inverter energy history")
+        return self._process_response(response.json(), "getting MIX inverter energy history")
 
     def min_settings(self, device_sn):
         """
@@ -406,8 +553,8 @@ class OpenApiV1(GrowattApi):
         )
 
         return self._process_response(response.json(), "getting MIN inverter settings")
-
-    def min_read_parameter(self, device_sn, parameter_id, start_address=None, end_address=None):
+    
+    def common_read_parameter(self, device_sn, device_type, parameter_id, start_address=None, end_address=None):
         """
         Read setting from MIN inverter.
 
@@ -425,6 +572,9 @@ class OpenApiV1(GrowattApi):
             GrowattV1ApiError: If the API returns an error response.
             requests.exceptions.RequestException: If there is an issue with the HTTP request.
         """
+
+        if not isinstance(device_type, DeviceType):
+            raise GrowattParameterError(f"Invalid device type: {device_type}")
 
         if parameter_id is None and start_address is None:
             raise GrowattParameterError(
@@ -445,8 +595,10 @@ class OpenApiV1(GrowattApi):
             if end_address is None:
                 end_address = start_address
 
+        read_param = DeviceType.get_url_read_param(device_type)
+
         response = self.session.post(
-            self._get_url('readMinParam'),
+            self._get_url(read_param),
             data={
                 "device_sn": device_sn,
                 "paramId": parameter_id,
@@ -610,6 +762,121 @@ class OpenApiV1(GrowattApi):
         if settings_data is None:
             # Fetch settings if not provided
             settings_data = self.min_settings(device_sn=device_sn)
+
+        # Define mode names
+        mode_names = {
+            0: "Load First",
+            1: "Battery First",
+            2: "Grid First"
+        }
+
+        segments = []
+
+        # Process each time segment
+        for i in range(1, 10):  # Segments 1-9
+            # Get raw time values
+            start_time_raw = settings_data.get(f'forcedTimeStart{i}', "0:0")
+            end_time_raw = settings_data.get(f'forcedTimeStop{i}', "0:0")
+
+            # Handle 'null' string values
+            if start_time_raw == 'null' or not start_time_raw:
+                start_time_raw = "0:0"
+            if end_time_raw == 'null' or not end_time_raw:
+                end_time_raw = "0:0"
+
+            # Format times with leading zeros (HH:MM)
+            try:
+                start_parts = start_time_raw.split(":")
+                start_hour = int(start_parts[0])
+                start_min = int(start_parts[1])
+                start_time = f"{start_hour:02d}:{start_min:02d}"
+            except (ValueError, IndexError):
+                start_time = "00:00"
+
+            try:
+                end_parts = end_time_raw.split(":")
+                end_hour = int(end_parts[0])
+                end_min = int(end_parts[1])
+                end_time = f"{end_hour:02d}:{end_min:02d}"
+            except (ValueError, IndexError):
+                end_time = "00:00"
+
+            # Get the mode value safely
+            mode_raw = settings_data.get(f'time{i}Mode')
+            if mode_raw == 'null' or mode_raw is None:
+                batt_mode = None
+            else:
+                try:
+                    batt_mode = int(mode_raw)
+                except (ValueError, TypeError):
+                    batt_mode = None
+
+            # Get the enabled status safely
+            enabled_raw = settings_data.get(f'forcedStopSwitch{i}', 0)
+            if enabled_raw == 'null' or enabled_raw is None:
+                enabled = False
+            else:
+                try:
+                    enabled = int(enabled_raw) == 1
+                except (ValueError, TypeError):
+                    enabled = False
+
+            segment = {
+                'segment_id': i,
+                'batt_mode': batt_mode,
+                'mode_name': mode_names.get(batt_mode, "Unknown"),
+                'start_time': start_time,
+                'end_time': end_time,
+                'enabled': enabled
+            }
+
+            segments.append(segment)
+
+        return segments
+    
+
+    def get_read_time_segments(self, device_sn, device_type, settings_data=None):
+        """
+        Read Time-of-Use (TOU) settings from a Growatt MIN/TLX inverter.
+
+        Retrieves all 9 time segments from a Growatt MIN/TLX inverter and
+        parses them into a structured format.
+
+        Note that this function uses min_settings() internally to get the settings data,
+        To avoid endpoint rate limit, you can pass the settings_data parameter
+        with the data returned from min_settings().
+
+        Args:
+            device_sn (str): The device serial number of the inverter
+            settings_data (dict, optional): Settings data from min_settings call to avoid repeated API calls.
+                                            Can be either the complete response or just the data portion.
+
+        Returns:
+            list: A list of dictionaries, each containing details for one time segment:
+                - segment_id (int): The segment number (1-9)
+                - batt_mode (int): 0=Load First, 1=Battery First, 2=Grid First
+                - mode_name (str): String representation of the mode
+                - start_time (str): Start time in format "HH:MM"
+                - end_time (str): End time in format "HH:MM"
+                - enabled (bool): Whether the segment is enabled
+
+        Example:
+            # Option 1: Make a single call
+            tou_settings = api.min_read_time_segments("DEVICE_SERIAL_NUMBER")
+
+            # Option 2: Reuse existing settings data
+            settings_response = api.min_settings("DEVICE_SERIAL_NUMBER")
+            tou_settings = api.min_read_time_segments("DEVICE_SERIAL_NUMBER", settings_response)
+
+        Raises:
+            GrowattV1ApiError: If the API request fails
+            requests.exceptions.RequestException: If there is an issue with the HTTP request.
+        """
+
+        # Process the settings data
+        if settings_data is None:
+            # Fetch settings if not provided
+            settings_data = self.get_device_settings(device_sn, device_type=device_type)
 
         # Define mode names
         mode_names = {

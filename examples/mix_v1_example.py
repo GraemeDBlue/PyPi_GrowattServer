@@ -10,10 +10,10 @@ import os
 """
 
 # Get the API token from user input or environment variable
-# api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
+api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
 
 # test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
-api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+# api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
 
 try:
     # Initialize the API with token instead of using login
@@ -29,7 +29,7 @@ try:
 
     for device in devices['devices']:
         print(device)
-        if device['device_type'] == growattServer.DeviceType.MIN_TLX:
+        if device['device_type'] == growattServer.DeviceType.MIX_SPH:
             inverter_sn = device['device_sn']
             device_type = device['device_type']
             print(f"Processing {device_type.name} inverter: {inverter_sn}")
@@ -64,13 +64,15 @@ try:
                 json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
-            tou = api.get_read_time_segments(device_sn=inverter_sn, device_type=device_type, settings_data=settings_data)
+            tou_data = api.get_read_time_segments(device_sn=inverter_sn, device_type=device_type, settings_data=settings_data)
             print("Time-of-Use Segments:")
-            print(json.dumps(tou, indent=2))
-
+            with open('time_of_use_data.json', 'w') as f:
+                json.dump(tou_data, f, indent=4, sort_keys=True)
+      
             # Read discharge power
             discharge_power = api.common_read_parameter(
-                device_sn=inverter_sn, 
+                device_sn=inverter_sn,
+                device_type=device_type,
                 parameter_id='discharge_power'
             )
             print(f"Current discharge power: {discharge_power}%")
