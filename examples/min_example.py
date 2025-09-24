@@ -35,13 +35,19 @@ try:
             print(f"Processing {device_type.name} inverter: {inverter_sn}")
 
             # Get device details
-            inverter_data = api.get_device_details(device_sn=inverter_sn, device_type=device_type)
+            inverter_data = api.get_device_details(
+                device_sn=inverter_sn, 
+                device_type=device_type
+            )
             print("Saving inverter data to inverter_data.json")
             with open('inverter_data.json', 'w') as f:
                 json.dump(inverter_data, f, indent=4, sort_keys=True)
 
             # Get energy data
-            energy_data = api.get_device_energy(device_sn=inverter_sn, device_type=device_type)
+            energy_data = api.get_device_energy(
+                device_sn=inverter_sn, 
+                device_type=device_type
+            )
             print("Saving energy data to energy_data.json")
             with open('energy_data.json', 'w') as f:
                 json.dump(energy_data, f, indent=4, sort_keys=True)
@@ -58,19 +64,28 @@ try:
                 json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
 
             # Get settings
-            settings_data = api.get_device_settings(device_sn=inverter_sn, device_type=device_type)
+            settings_data = api.get_device_settings(
+                 device_sn=inverter_sn, 
+                 device_type=device_type
+            )
             print("Saving settings data to settings_data.json")
             with open('settings_data.json', 'w') as f:
                 json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
-            tou = api.get_read_time_segments(device_sn=inverter_sn, device_type=device_type, settings_data=settings_data)
+            tou = api.get_read_time_segments(
+                 device_sn=inverter_sn, 
+                 device_type=device_type, 
+                 settings_data=settings_data
+            )
             print("Time-of-Use Segments:")
-            print(json.dumps(tou, indent=2))
+            with open('tou_data.json', 'w') as f:
+                json.dump(tou, f, indent=4, sort_keys=True)
 
             # Read discharge power
             discharge_power = api.common_read_parameter(
                 device_sn=inverter_sn, 
+                device_type=device_type, 
                 parameter_id='discharge_power'
             )
             print(f"Current discharge power: {discharge_power}%")

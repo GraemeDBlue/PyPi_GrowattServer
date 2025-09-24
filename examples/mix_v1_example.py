@@ -58,13 +58,20 @@ try:
                 json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
 
             # Get settings
-            settings_data = api.get_device_settings(device_sn=inverter_sn, device_type=device_type)
+            settings_data = api.get_device_settings(
+                device_sn=inverter_sn, 
+                device_type=device_type
+            )
             print("Saving settings data to settings_data.json")
             with open('settings_data.json', 'w') as f:
                 json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
-            tou_data = api.get_read_time_segments(device_sn=inverter_sn, device_type=device_type, settings_data=settings_data)
+            tou_data = api.get_read_time_segments(
+                device_sn=inverter_sn, 
+                device_type=device_type, 
+                settings_data=settings_data
+            )
             print("Time-of-Use Segments:")
             with open('time_of_use_data.json', 'w') as f:
                 json.dump(tou_data, f, indent=4, sort_keys=True)
@@ -73,7 +80,7 @@ try:
             discharge_power = api.common_read_parameter(
                 device_sn=inverter_sn,
                 device_type=device_type,
-                parameter_id='discharge_power'
+                parameter_id='pv_on_off'
             )
             print(f"Current discharge power: {discharge_power}%")
 
