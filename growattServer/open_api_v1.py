@@ -58,6 +58,7 @@ class OpenApiV1(GrowattApi):
             ApiDataType.HISTORY_DATA: 'device/mix/mix_data',
             # https://www.showdoc.com.cn/262556420217021/6129763571291058
             ApiDataType.DEVICE_SETTINGS: 'device/mix/mix_data_info',
+            # https://www.showdoc.com.cn/262556420217021/6129766954561259
             ApiDataType.READ_PARAM: 'readMixParam'
         },
         DeviceType.MIN_TLX: {
@@ -69,6 +70,7 @@ class OpenApiV1(GrowattApi):
             ApiDataType.HISTORY_DATA: 'device/tlx/tlx_data',
             # https://www.showdoc.com.cn/262556420217021/8696815667375182
             ApiDataType.DEVICE_SETTINGS: 'device/tlx/tlx_set_info',
+            # https://www.showdoc.com.cn/262556420217021/6129828239577315
             ApiDataType.READ_PARAM: 'readMinParam'
         }
     }
@@ -352,7 +354,7 @@ class OpenApiV1(GrowattApi):
                     device['device_type'] = None
         return data
 
-    def get_device_details(self, device_sn, device_type):
+    def device_details(self, device_sn, device_type):
         """
         Get detailed data for a device.
 
@@ -380,7 +382,7 @@ class OpenApiV1(GrowattApi):
 
         return self._process_response(response.json(), f"getting {device_type.name} details")
 
-    def get_device_energy(self, device_sn, device_type):
+    def device_energy(self, device_sn, device_type):
         """
         Get energy data for a device.
 
@@ -412,7 +414,7 @@ class OpenApiV1(GrowattApi):
     def min_energy(self, device_sn):
         """
         Get energy data for a MIN inverter.             
-        return self.get_device_energy(device_sn, DeviceType.MIN_TLX)
+        return self.device_energy(device_sn, DeviceType.MIN_TLX)
         Args:
             device_sn (str): The serial number of the MIN inverter.
         Returns:
@@ -422,9 +424,9 @@ class OpenApiV1(GrowattApi):
             requests.exceptions.RequestException: If there is an issue with the HTTP request.
         """
 
-        return self.get_device_energy(device_sn, DeviceType.MIN_TLX)
+        return self.device_energy(device_sn, DeviceType.MIN_TLX)
 
-    def get_device_settings(self, device_sn, device_type):
+    def device_settings(self, device_sn, device_type):
 
         """
         Get settings for a device.
@@ -468,9 +470,9 @@ class OpenApiV1(GrowattApi):
             requests.exceptions.RequestException: If there is an issue with the HTTP request.
         """
 
-        return self.get_device_settings(device_sn, DeviceType.MIN_TLX)
+        return self.device_settings(device_sn, DeviceType.MIN_TLX)
 
-    def get_device_energy_history(self, device_sn, device_type, start_date=None, end_date=None, timezone=None, page=None, limit=None):
+    def device_energy_history(self, device_sn, device_type, start_date=None, end_date=None, timezone=None, page=None, limit=None):
         """
         Get device energy history data.
 
@@ -799,21 +801,21 @@ class OpenApiV1(GrowattApi):
 
         return segments
     
-    def get_read_time_segments(self, device_sn, device_type, settings_data=None):
+    def read_time_segments(self, device_sn, device_type, settings_data=None):
         """
         Read Time-of-Use (TOU) settings from a Growatt MIN/TLX or MIX/SPH inverter.
 
         Retrieves all 9 time segments from a Growatt MIN/TLX or MIX/SPH inverter and
         parses them into a structured format.   
 
-        Note that this function uses get_device_settings() internally to get the settings data,
+        Note that this function uses device_settings() internally to get the settings data,
         To avoid endpoint rate limit, you can pass the settings_data parameter
-        with the data returned from get_device_settings().  
+        with the data returned from device_settings().  
 
         Args:
             device_sn (str): The device serial number of the inverter
             device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
-            settings_data (dict, optional): Settings data from get_device_settings call to avoid repeated API calls.
+            settings_data (dict, optional): Settings data from device_settings call to avoid repeated API calls.
                                             Can be either the complete response or just the data portion.
         Returns:
             list: A list of dictionaries, each containing details for one time segment:
@@ -825,10 +827,10 @@ class OpenApiV1(GrowattApi):
                 - enabled (bool): Whether the segment is enabled    
         Example:
             # Option 1: Make a single call
-            tou_settings = api.get_read_time_segments("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX)       
+            tou_settings = api.read_time_segments("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX)       
             # Option 2: Reuse existing settings data
-            settings_response = api.get_device_settings("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX)
-            tou_settings = api.get_read_time_segments("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX, settings_response)
+            settings_response = api.device_settings("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX)
+            tou_settings = api.read_time_segments("DEVICE_SERIAL_NUMBER", DeviceType.MIN_TLX, settings_response)
         Raises:
             GrowattParameterError: If device type is invalid.
             GrowattV1ApiError: If the API request fails     
@@ -838,7 +840,7 @@ class OpenApiV1(GrowattApi):
         # Process the settings data
         if settings_data is None:
             # Fetch settings if not provided
-            settings_data = self.get_device_settings(device_sn, device_type=device_type)
+            settings_data = self.device_settings(device_sn, device_type=device_type)
 
         # Define mode names
         mode_names = {
