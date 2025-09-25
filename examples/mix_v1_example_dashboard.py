@@ -1,5 +1,5 @@
 
-import growattServer
+from . import growattServer
 import json
 import requests
 import os
@@ -66,10 +66,8 @@ try:
     if energy_data is None:
         raise Exception("No MIX_SPH device found to get energy data from.")
 
-    # energy data does not contain epvToday for some reason, so we need to calculate it
-    epv_today = energy_data.get('epv1Today') + energy_data.get("epv2Today")
 
-    solar_production = f'{safe_float(epv_today):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
+    solar_production = f'{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
     solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
     solar_production_pv2 = f'{safe_float(energy_data.get("epv2Today")):.1f}/{safe_float(energy_data.get("epv2Total")):.1f}'
     energy_output = f'{safe_float(energy_data.get("eacToday")):.1f}/{safe_float(energy_data.get("eacTotal")):.1f}'

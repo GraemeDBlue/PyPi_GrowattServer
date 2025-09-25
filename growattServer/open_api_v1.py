@@ -410,6 +410,11 @@ class OpenApiV1(GrowattApi):
             }
         )
 
+
+        # responseHydrated = self._process_response(response.json(), f"getting {device_type.name} energy data")
+
+        # responseHydrated['epvToday'] = responseHydrated.get('epv1Today', 0) + responseHydrated.get("epv2Today", 0)
+        
         return self._process_response(response.json(), f"getting {device_type.name} energy data")
     
     def min_energy(self, device_sn):
