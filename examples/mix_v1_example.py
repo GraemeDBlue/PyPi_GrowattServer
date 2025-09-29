@@ -5,7 +5,7 @@ import requests
 import os
 
 """
-# Example script controlling a MID/TLX Growatt (MID-30KTL3-XH + APX battery) system using the public growatt API 
+# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API 
 # You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
