@@ -25,8 +25,8 @@ def safe_float(val, default=0.0):
 
 
 """
-Example script fetching key power and today+total energy metrics from a Growatt MID-30KTL3-XH (TLX) + APX battery hybrid system
-using the V1 API with token-based authentication.
+# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API 
+# You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
 
