@@ -4,6 +4,7 @@ from . import GrowattApi
 import platform
 from enum import Enum
 from .exceptions import GrowattParameterError, GrowattV1ApiError
+import json
 
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
@@ -114,6 +115,11 @@ class OpenApiV1(GrowattApi):
         Raises:
             GrowattV1ApiError: If the API returns an error response
         """
+                    
+        with open('raw_response_data.json', 'w') as f:
+            json.dump(response, f, indent=4, sort_keys=True)
+
+
         if response.get('error_code', 1) != 0:
             raise GrowattV1ApiError(
                 f"Error during {operation_name}",
@@ -797,7 +803,7 @@ class OpenApiV1(GrowattApi):
             segment = {
                 'segment_id': i,
                 'batt_mode': batt_mode,
-                'mode_name': mode_names.get(batt_mode, "Unknown"),
+                'mode_name': mode_names.get(batt_mode if batt_mode is not None else -1, "Unknown"),
                 'start_time': start_time,
                 'end_time': end_time,
                 'enabled': enabled

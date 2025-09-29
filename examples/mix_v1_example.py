@@ -24,6 +24,11 @@ try:
     print(f"Plants: Found {plants['count']} plants")
     plant_id = plants['plants'][0]['plant_id']
 
+    plant_energy_overview = api.plant_energy_overview(plant_id=plant_id)
+    print(f"Plant Energy Overview: {plant_energy_overview}")
+    with open('plant_energy_overview.json', 'w') as f:
+        json.dump(plant_energy_overview, f, indent=4, sort_keys=True)
+
     # Devices
     devices = api.device_list(plant_id)
 
@@ -34,72 +39,73 @@ try:
             device_type = device['device_type']
             print(f"Processing {device_type.name} inverter: {inverter_sn}")
 
-            # Get device details
-            inverter_data = api.device_details(device_sn=inverter_sn, device_type=device_type)
-            print("Saving inverter data to inverter_data.json")
-            with open('inverter_data.json', 'w') as f:
-                json.dump(inverter_data, f, indent=4, sort_keys=True)
+            # # Get device details
+            # inverter_data = api.device_details(device_sn=inverter_sn, device_type=device_type)
+            # print("Saving inverter data to inverter_data.json")
+            # with open('inverter_data.json', 'w') as f:
+            #     json.dump(inverter_data, f, indent=4, sort_keys=True)
 
-            # Get energy data
-            energy_data = api.device_energy(device_sn=inverter_sn, device_type=device_type)
-            print("Saving energy data to energy_data.json")
-            with open('energy_data.json', 'w') as f:
-                json.dump(energy_data, f, indent=4, sort_keys=True)
+            # # Get energy data
+            # energy_data = api.device_energy(device_sn=inverter_sn, device_type=device_type)
+            # print("Saving energy data to energy_data.json")
+            # with open('energy_data.json', 'w') as f:
+            #     json.dump(energy_data, f, indent=4, sort_keys=True)
 
-            # Get energy history
-            energy_history_data = api.device_energy_history(
-                device_sn=inverter_sn,
-                device_type=device_type,
-                start_date=datetime.date.today(),
-                end_date=datetime.date.today()
-            )
-            print("Saving energy history data to energy_history.json")
-            with open('energy_history.json', 'w') as f:
-                json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
+            # # Get energy history
+            # energy_history_data = api.device_energy_history(
+            #     device_sn=inverter_sn,
+            #     device_type=device_type,
+            #     start_date=datetime.date.today(),
+            #     end_date=datetime.date.today()
+            # )
+            # print("Saving energy history data to energy_history.json")
+            # with open('energy_history.json', 'w') as f:
+            #     json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
 
-            # Get settings
-            settings_data = api.device_settings(
-                device_sn=inverter_sn, 
-                device_type=device_type
-            )
-            print("Saving settings data to settings_data.json")
-            with open('settings_data.json', 'w') as f:
-                json.dump(settings_data, f, indent=4, sort_keys=True)
+            # # Get settings
+            # settings_data = api.device_settings(
+            #     device_sn=inverter_sn, 
+            #     device_type=device_type
+            # )
+            # print("Saving settings data to settings_data.json")
+            # with open('settings_data.json', 'w') as f:
+            #     json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
             tou_data = api.read_time_segments(
                 device_sn=inverter_sn, 
-                device_type=device_type, 
-                settings_data=settings_data
+                device_type=device_type
             )
             print("Time-of-Use Segments:")
             with open('time_of_use_data.json', 'w') as f:
                 json.dump(tou_data, f, indent=4, sort_keys=True)
       
-            # Read discharge power
-            discharge_power = api.common_read_parameter(
+            # Read PV on/off status
+            read_parameter = api.common_read_parameter(
                 device_sn=inverter_sn,
                 device_type=device_type,
                 parameter_id='pv_on_off'
             )
-            print(f"Current discharge power: {discharge_power}%")
+            print(f"PV on/off status: {read_parameter}")
+            with open('read_parameter_data.json', 'w') as f:
+                json.dump(read_parameter, f, indent=4, sort_keys=True)
 
-            # Settings parameters - Uncomment to test
+        #     Settings parameters - Uncomment to test
 
-            # Turn on AC charging
-#            api.min_write_parameter(inverter_sn, 'ac_charge', 1)
-#            print("AC charging enabled successfully")
+        #     Turn on AC charging
+        #    api.min_write_parameter(inverter_sn, 'ac_charge', 1)
+        #    print("AC charging enabled successfully")
 
-            # Enable Load First between 00:00 and 11:59 using time segment 1
-#            api.min_write_time_segment(
-#                device_sn=inverter_sn,
-#                segment_id=1,
-#                batt_mode=growattServer.BATT_MODE_BATTERY_FIRST,
-#                start_time=datetime.time(0, 0),
-#                end_time=datetime.time(00, 59),
-#                enabled=True
-#            )
-#            print("Time segment updated successfully")
+        #     Enable Load First between 00:00 and 11:59 using time segment 1
+        #    api.min_write_time_segment(
+        #        device_sn=inverter_sn,
+        #        segment_id=1,
+        #        batt_mode=growattServer.BATT_MODE_BATTERY_FIRST,
+        #        start_time=datetime.time(0, 0),
+        #        end_time=datetime.time(00, 59),
+        #        enabled=True
+        #    )
+        #    print("Time segment updated successfully")
 
 
 except growattServer.GrowattV1ApiError as e:
