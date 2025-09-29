@@ -387,7 +387,22 @@ class OpenApiV1(GrowattApi):
         )
 
         return self._process_response(response.json(), f"getting {device_type.name} details")
+    
+    def min_detailt(self, device_sn):
+        """
+        Get detailed data for a MIN inverter.
 
+        Args:
+            device_sn (str): The serial number of the MIN inverter.
+        Returns:
+            dict: A dictionary containing the MIN inverter details. 
+        Raises:
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException: If there is an issue with the HTTP request.
+        """
+
+        return self.device_details(device_sn, DeviceType.MIN_TLX)
+    
     def device_energy(self, device_sn, device_type):
         """
         Get energy data for a device.
