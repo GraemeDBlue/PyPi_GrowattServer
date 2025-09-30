@@ -21,8 +21,6 @@ class DeviceType(Enum):
         else:
             raise GrowattParameterError(f"Unsupported device type: {device_type}")
 
-
-
     @classmethod
     def get_url_read_param(cls, device_type):
         """Get the URL param for a given device type."""

@@ -1,7 +1,8 @@
-import growattServer
+from . import growattServer
 import datetime
 import getpass
 import pprint
+import json
 
 """
 This is a very trivial script that logs into a user's account and prints out useful data for a "Mix" system (Hybrid).
@@ -76,7 +77,16 @@ for plant in plant_list['data']:
     #These two API calls return lots of duplicated information, but each also holds unique information as well
     mix_info = api.mix_info(device_sn, plant_id)
     pp.pprint(mix_info)
+
+    print("Saving inverter data to old_inverter_data.json")
+    with open('old_inverter_data.json', 'w') as f:
+      json.dump(mix_info, f, indent=4, sort_keys=True)
+
     mix_totals = api.mix_totals(device_sn, plant_id)
+    print("Saving energy data to old_energy_data.json")
+    with open('old_energy_data.json', 'w') as f:
+      json.dump(mix_totals, f, indent=4, sort_keys=True)
+
     #pp.pprint(mix_totals)
     indent_print("*TOTAL VALUES*", 4)
     indent_print("==Today Totals==", 4)
@@ -94,6 +104,10 @@ for plant in plant_list['data']:
     print("")
 
     mix_detail = api.mix_detail(device_sn, plant_id)
+
+    print("Saving energy data to old_detail_data.json")
+    with open('old_detail_data.json', 'w') as f:
+      json.dump(mix_detail, f, indent=4, sort_keys=True)
     #pp.pprint(mix_detail)
 
     #Some of the 'totals' values that are returned by this function do not align to what we would expect, however the graph data always seems to be accurate.
