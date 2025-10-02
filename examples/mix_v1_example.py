@@ -23,6 +23,20 @@ try:
     plants = api.plant_list()
     print(f"Plants: Found {plants['count']} plants")
     plant_id = plants['plants'][0]['plant_id']
+    today = datetime.date.today()
+    devices = api.get_devices(plant_id)
+
+    for device in devices:
+        # Works automatically for MIN, MIX, or any future device type!
+        details = device.details()
+        energy = device.energy()
+        settings = device.settings()
+        history = device.energy_history(start_date=today)
+
+    # Plant info
+    plants = api.plant_list()
+    print(f"Plants: Found {plants['count']} plants")
+    plant_id = plants['plants'][0]['plant_id']
 
     plant_energy_overview = api.plant_energy_overview(plant_id=plant_id)
     print(f"Plant Energy Overview: {plant_energy_overview}")

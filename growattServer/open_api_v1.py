@@ -4,7 +4,6 @@ from . import GrowattApi
 import platform
 from enum import Enum
 from .exceptions import GrowattParameterError, GrowattV1ApiError
-import json
 
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
@@ -20,6 +19,8 @@ class DeviceType(Enum):
             return 'tlx'
         else:
             raise GrowattParameterError(f"Unsupported device type: {device_type}")
+
+
 
     @classmethod
     def get_url_read_param(cls, device_type):
@@ -113,11 +114,6 @@ class OpenApiV1(GrowattApi):
         Raises:
             GrowattV1ApiError: If the API returns an error response
         """
-                    
-        with open('raw_response_data.json', 'w') as f:
-            json.dump(response, f, indent=4, sort_keys=True)
-
-
         if response.get('error_code', 1) != 0:
             raise GrowattV1ApiError(
                 f"Error during {operation_name}",
@@ -385,22 +381,7 @@ class OpenApiV1(GrowattApi):
         )
 
         return self._process_response(response.json(), f"getting {device_type.name} details")
-    
-    def min_detailt(self, device_sn):
-        """
-        Get detailed data for a MIN inverter.
 
-        Args:
-            device_sn (str): The serial number of the MIN inverter.
-        Returns:
-            dict: A dictionary containing the MIN inverter details. 
-        Raises:
-            GrowattV1ApiError: If the API returns an error response.
-            requests.exceptions.RequestException: If there is an issue with the HTTP request.
-        """
-
-        return self.device_details(device_sn, DeviceType.MIN_TLX)
-    
     def device_energy(self, device_sn, device_type):
         """
         Get energy data for a device.
@@ -816,7 +797,7 @@ class OpenApiV1(GrowattApi):
             segment = {
                 'segment_id': i,
                 'batt_mode': batt_mode,
-                'mode_name': mode_names.get(batt_mode if batt_mode is not None else -1, "Unknown"),
+                'mode_name': mode_names.get(batt_mode, "Unknown"),
                 'start_time': start_time,
                 'end_time': end_time,
                 'enabled': enabled
