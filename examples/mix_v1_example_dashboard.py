@@ -2,6 +2,7 @@
 from . import growattServer
 import json
 import requests
+import datetime
 import os
 
 
@@ -29,14 +30,11 @@ def safe_float(val, default=0.0):
 # You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
-
 # Get the API token from user input or environment variable
 api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
 
-
 # test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
 # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
-
 
 try:
     # Initialize the API with token
@@ -46,26 +44,17 @@ try:
     plants = api.plant_list()
     print(f"Plants: Found {plants['count']} plants")
     plant_id = plants['plants'][0]['plant_id']
+    today = datetime.date.today()
+    devices = api.get_devices(plant_id)
 
-    # Devices
-    devices = api.device_list(plant_id)
-
-    # Iterate over all devices
     energy_data = None
-    for device in devices['devices']:
-        print(device)
-        if device['device_type'] == growattServer.DeviceType.MIX_SPH:
-            inverter_sn = device['device_sn']
-            device_type = device['device_type']
-            print(f"Processing {device_type.name} inverter: {inverter_sn}")
-            # Get energy data
-            energy_data = api.device_energy(device_sn=inverter_sn, device_type=device_type)
-            with open('energy_data.json', 'w') as f:
-                json.dump(energy_data, f, indent=4, sort_keys=True)
-
+    for device in devices:
+        # Works automatically for MIN, MIX, or any future device type!
+        energy_data = device.energy()
+        print(f"Energy: {energy_data}")
+        
     if energy_data is None:
         raise Exception("No MIX_SPH device found to get energy data from.")
-
 
     solar_production = f'{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
     solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'

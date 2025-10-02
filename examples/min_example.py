@@ -55,9 +55,7 @@ try:
             # Get energy history
             energy_history_data = api.device_energy_history(
                 device_sn=inverter_sn,
-                device_type=device_type,
-                start_date=datetime.date.today(),
-                end_date=datetime.date.today()
+                device_type=device_type
             )
             print("Saving energy history data to energy_history.json")
             with open('energy_history.json', 'w') as f:
