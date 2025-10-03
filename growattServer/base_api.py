@@ -168,6 +168,18 @@ class GrowattApi:
         )
 
         return response.json().get('back', [])
+    
+    def plant_energy_overview(self, plant_id: str) -> dict:
+        """
+        Fetches energy overview for a plant.
+        Replace this stub with actual API logic.
+        """
+        # Example return structure
+        return {
+            "today_energy": 0.0,
+            "total_energy": 0.0,
+            "current_power": 0.0,
+        }
 
     def plant_detail(self, plant_id, timespan, date=None):
         """

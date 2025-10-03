@@ -1261,3 +1261,18 @@ class GrowattDevice:
         return self._api.read_time_segments(
             self.device_sn, self.device_type, settings_data
         )
+    
+    def read_parameter(
+        self,
+        parameter_id: str,
+        start_address: int | None = None,
+        end_address: int | None = None
+    ) -> dict:
+        """Read a parameter from the device."""
+        return self._api.common_read_parameter(
+            self.device_sn,
+            self.device_type,
+            parameter_id,
+            start_address,
+            end_address
+        )

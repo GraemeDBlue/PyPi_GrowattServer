@@ -1,40 +1,59 @@
-import growattServer
+from . import growattServer
 import json
 import requests
+import datetime
 import os
 
+
+def safe_float(val, default=0.0):
+    try:
+        # If already a float, return as is
+        if isinstance(val, float):
+            return val
+        # If it's an int, convert to float
+        if isinstance(val, int):
+            return float(val)
+        # If it's a string, try to parse
+        if isinstance(val, str):
+            # Remove any commas, spaces, etc.
+            val = val.replace(',', '').strip()
+            return float(val)
+        # If it's a type that can be cast to float (e.g., numpy.float64)
+        return float(val)
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return default
+
+
 """
-Example script fetching key power and today+total energy metrics from a Growatt MID-30KTL3-XH (TLX) + APX battery hybrid system
-using the V1 API with token-based authentication.
+# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API 
+# You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
 # Get the API token from user input or environment variable
-api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
+# api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
 
 # test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
-# api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
 
 try:
     # Initialize the API with token
     api = growattServer.OpenApiV1(token=api_token)
 
-    # Get plant list using V1 API
+    # Plant info
     plants = api.plant_list()
+    print(f"Plants: Found {plants['count']} plants")
     plant_id = plants['plants'][0]['plant_id']
+    today = datetime.date.today()
+    devices = api.get_devices(plant_id)
 
-    # Get devices in plant
-    devices = api.device_list(plant_id)
-
-    # Iterate over all devices
     energy_data = None
-    for device in devices['devices']:
-        if device['type'] == growattServer.DeviceType.MIN_TLX:
-            inverter_sn = device['device_sn']
-
-            # Get energy data
-            energy_data = api.min_energy(device_sn=inverter_sn)
-            with open('energy_data.json', 'w') as f:
-                json.dump(energy_data, f, indent=4, sort_keys=True)
+    for device in devices:
+        # Works automatically for MIN, MIX, or any future device type!
+        energy_data = device.energy()
+        print(f"Energy: {energy_data}")
+        
+    if energy_data is None:
+        raise Exception("No MIN_TLX device found to get energy data from.")
 
     # energy data does not contain epvToday for some reason, so we need to calculate it
     epv_today = energy_data["epv1Today"] + energy_data["epv2Today"]
@@ -93,4 +112,6 @@ except growattServer.GrowattParameterError as e:
 except requests.exceptions.RequestException as e:
     print(f"Network Error: {e}")
 except Exception as e:
+    import traceback
     print(f"Unexpected error: {e}")
+    traceback.print_exc()

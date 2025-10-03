@@ -28,6 +28,9 @@ try:
 
     for device in devices:
         # Works automatically for MIN, MIX, or any future device type!
+        device_type = device.device_type
+        device_sn = device.device_sn
+        print(f"Device: {device_type} SN: {device_sn}")
         details = device.details()
         energy = device.energy()
         settings = device.settings()
