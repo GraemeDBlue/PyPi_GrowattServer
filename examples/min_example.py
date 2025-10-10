@@ -29,42 +29,38 @@ try:
 
     for device in devices['devices']:
         print(device)
-        if device['device_type'] == growattServer.DeviceType.MIN_TLX:
+        if device['device_type'] == growattServer.DeviceType.MIN_TLX.value:
             inverter_sn = device['device_sn']
             device_type = device['device_type']
             print(f"Processing {device_type.name} inverter: {inverter_sn}")
 
             # Get device details
-            inverter_data = api.device_details(
-                device_sn=inverter_sn, 
-                device_type=device_type
+            inverter_data = api.min_detail(
+                device_sn=inverter_sn,
             )
             print("Saving inverter data to inverter_data.json")
             with open('inverter_data.json', 'w') as f:
                 json.dump(inverter_data, f, indent=4, sort_keys=True)
 
             # Get energy data
-            energy_data = api.device_energy(
+            energy_data = api.min_energy(
                 device_sn=inverter_sn, 
-                device_type=device_type
             )
             print("Saving energy data to energy_data.json")
             with open('energy_data.json', 'w') as f:
                 json.dump(energy_data, f, indent=4, sort_keys=True)
 
             # Get energy history
-            energy_history_data = api.device_energy_history(
+            energy_history_data = api.min_energy_history(
                 device_sn=inverter_sn,
-                device_type=device_type
             )
             print("Saving energy history data to energy_history.json")
             with open('energy_history.json', 'w') as f:
                 json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
 
             # Get settings
-            settings_data = api.device_settings(
-                 device_sn=inverter_sn, 
-                 device_type=device_type
+            settings_data = api.min_settings(
+                 device_sn=inverter_sn,
             )
             print("Saving settings data to settings_data.json")
             with open('settings_data.json', 'w') as f:

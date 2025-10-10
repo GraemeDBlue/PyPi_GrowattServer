@@ -514,6 +514,21 @@ class OpenApiV1(GrowattApi):
             response.json(),
             f"getting {device_type.name} details"
         )
+    
+    def min_detail(self, device_sn: str) -> dict:
+        """
+        Get detailed data for a MIN inverter.
+
+        Args:
+            device_sn (str): The serial number of the MIN inverter. 
+        Returns:
+            dict: A dictionary containing the MIN inverter details.
+        Raises:
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException:
+                If there is an issue with the HTTP request.
+        """
+        return self.device_details(device_sn, DeviceType.MIN_TLX) 
 
     def device_energy(self, device_sn: str, device_type: DeviceType) -> dict:
         """
@@ -722,6 +737,65 @@ class OpenApiV1(GrowattApi):
             response.json(),
             f"getting {device_type.name} energy history"
         )
+    
+    def min_energy_history(
+        self,
+        device_sn: str,
+        params: Optional["DeviceEnergyHistoryParams"] = None
+    ) -> dict:
+        """
+        Get energy history data for a MIN inverter.
+
+        Args:
+            device_sn (str): The ID of the MIN inverter.
+            params (DeviceEnergyHistoryParams, optional):
+                Grouped parameters for energy history query.        
+        Returns:
+            dict: A dictionary containing the MIN inverter history data.
+        Raises:
+
+            GrowattParameterError: If date interval exceeds 7 days.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException:
+            If there is an issue with the HTTP request.
+        """        
+        return self.device_energy_history(
+                device_sn,
+                DeviceType.MIN_TLX,
+                params
+            )
+    
+    def min_read_parameter(
+            self,
+            device_sn: str,
+            params: dict
+        ) -> dict:
+            """
+            Read setting from MIN inverter.
+    
+            Args:
+                device_sn (str): The ID of the TLX inverter.
+                params (dict): Parameters for reading the setting.
+                    Should include either 'parameter_id' or 'start_address' and 'end_address'.
+    
+            Returns:
+                dict: A dictionary containing the setting value.
+    
+            Raises:
+                GrowattParameterError: If parameters are invalid.
+                GrowattV1ApiError: If the API returns an error response.
+                requests.exceptions.RequestException:
+                    If there is an issue with the HTTP request.
+    
+            """
+            return self.common_read_parameter(
+                device_sn,
+                DeviceType.MIN_TLX,
+                params.get("parameter_id"),
+                params.get("start_address"),
+                params.get("end_address")
+            )
+        
 
     def common_read_parameter(
         self,
