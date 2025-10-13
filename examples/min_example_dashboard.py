@@ -59,7 +59,7 @@ try:
     # Dynamically calculate epvToday by summing all epvXToday fields
     epv_today = sum(
         safe_float(energy_data.get(f"epv{i}Today"), 0.0)
-        for i in range(1, 10)  # Assuming a maximum of 9 devices
+        for i in range(1, 4)  # Assuming a maximum of 4 devices
         if f"epv{i}Today" in energy_data
     )
 
