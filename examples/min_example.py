@@ -60,7 +60,7 @@ try:
 
             # Get settings
             settings_data = api.min_settings(
-                 device_sn=inverter_sn, 
+                 device_sn=inverter_sn,
             )
             print("Saving settings data to settings_data.json")
             with open('settings_data.json', 'w') as f:
