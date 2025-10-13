@@ -9,18 +9,23 @@ from typing import ClassVar, NamedTuple, Optional
 from . import GrowattApi
 from .exceptions import GrowattParameterError, GrowattV1ApiError
 
-DEBUG = 1
-
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
-
-    MIX_SPH = 5  # MIX/SPH devices
-    MIN_TLX = 7  # MIN/TLX devices
+    INVERTER = 1
+    STORAGE = 2
+    OTHER = 3
+    MAX = 4
+    SPH_MIX = 5
+    SPA = 6
+    MIN_TLX = 7
+    PCS = 8
+    HPS = 9
+    PBD = 10
 
     @classmethod
     def get_url_prefix(cls, device_type) -> str:  # noqa: ANN001
         """Get the URL prefix for a given device type."""
-        if device_type == cls.MIX_SPH:
+        if device_type == cls.SPH_MIX:
             return "mix"
         elif device_type == cls.MIN_TLX:  # noqa: RET505
             return "tlx"
@@ -31,7 +36,7 @@ class DeviceType(Enum):
     @classmethod
     def get_url_read_param(cls, device_type: "DeviceType") -> str:
         """Get the URL param for a given device type."""
-        if device_type == cls.MIX_SPH:
+        if device_type == cls.SPH_MIX:
             return "readMixParam"
         elif device_type == cls.MIN_TLX:  # noqa: RET505
             return "readMinParam"
@@ -57,7 +62,7 @@ class OpenApiV1(GrowattApi):
     """
 
     DEVICE_ENDPOINTS: ClassVar = {
-        DeviceType.MIX_SPH: {
+        DeviceType.SPH_MIX: {
             # https://www.showdoc.com.cn/262556420217021/6129764434976910
             ApiDataType.LAST_DATA: "device/mix/mix_last_data",
             # https://www.showdoc.com.cn/262556420217021/6129763571291058
@@ -149,10 +154,6 @@ class OpenApiV1(GrowattApi):
             GrowattV1ApiError: If the API returns an error response
 
         """
-        if DEBUG >= 1:
-            print(f"Saving {self.slugify(operation_name)}_data.json")  # noqa: T201
-            with open(f"{self.slugify(operation_name)}_data.json", "w") as f:  # noqa: PTH123
-                json.dump(response, f, indent=4, sort_keys=True)
 
         if response.get("error_code", 1) != 0:
             msg = f"Error during {operation_name}"
@@ -173,7 +174,7 @@ class OpenApiV1(GrowattApi):
         Get the API URL for a specific device type and operation.
 
         Args:
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH)
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX)
             operation (str): The operation to perform ('energy', 'settings', etc.)
 
         Returns:
@@ -444,7 +445,7 @@ class OpenApiV1(GrowattApi):
         Get a list of devices in a plant.
 
         The device list includes type information that maps to the DeviceType enum
-        (5 for MIX_SPH, 7 for MIN_TLX).
+        (5 for SPH_MIX, 7 for MIN_TLX).
 
         Args:
             plant_id (int): The plant ID to get devices for.
@@ -487,7 +488,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The serial number of the device.
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
 
         Returns:
             dict: A dictionary containing the device details.
@@ -536,7 +537,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The serial number of the device.
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
 
         Returns:
             dict: A dictionary containing the device energy data.
@@ -597,7 +598,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The serial number of the device.
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
 
         Returns:
             dict: A dictionary containing the device settings.
@@ -663,7 +664,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The ID of the device.
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
             params (DeviceEnergyHistoryParams, optional):
                 Grouped parameters for energy history query.
 
@@ -810,7 +811,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The ID of the TLX inverter.
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
             parameter_id (str): Parameter ID to read.
                 Don't use start_address and end_address if this is set.
             start_address (int, optional): Register start address (for set_any_reg).
@@ -1156,7 +1157,7 @@ class OpenApiV1(GrowattApi):
 
         Args:
             device_sn (str): The device serial number of the inverter
-            device_type (DeviceType): The type of device (MIN_TLX or MIX_SPH).
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
             settings_data (dict, optional): Settings data from device_settings call to
                 avoid repeated API calls. Can be either the complete response or
                 just the data portion.

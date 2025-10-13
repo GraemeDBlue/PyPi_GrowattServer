@@ -57,7 +57,7 @@ try:
         print(f"Energy: {energy_data}")
         
     if energy_data is None:
-        raise Exception("No MIX_SPH device found to get energy data from.")
+        raise Exception("No SPH_MIX device found to get energy data from.")
 
     solar_production = f'{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
     solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
