@@ -56,11 +56,16 @@ try:
         raise Exception("No MIN_TLX device found to get energy data from.")
 
     # energy data does not contain epvToday for some reason, so we need to calculate it
-    epv_today = energy_data["epv1Today"] + energy_data["epv2Today"]
+    # Dynamically calculate epvToday by summing all epvXToday fields
+    epv_today = sum(
+        safe_float(energy_data.get(f"epv{i}Today"), 0.0)
+        for i in range(1, 10)  # Assuming a maximum of 9 devices
+        if f"epv{i}Today" in energy_data
+    )
 
-    solar_production = f'{float(epv_today):.1f}/{float(energy_data["epvTotal"]):.1f}'
-    solar_production_pv1 = f'{float(energy_data["epv1Today"]):.1f}/{float(energy_data["epv1Total"]):.1f}'
-    solar_production_pv2 = f'{float(energy_data["epv2Today"]):.1f}/{float(energy_data["epv2Total"]):.1f}'
+    solar_production = f'{safe_float(epv_today):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
+    solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
+    solar_production_pv2 = f'{safe_float(energy_data.get("epv2Today")):.1f}/{safe_float(energy_data.get("epv2Total")):.1f}'
     energy_output = f'{float(energy_data["eacToday"]):.1f}/{float(energy_data["eacTotal"]):.1f}'
     system_production = f'{float(energy_data["esystemToday"]):.1f}/{float(energy_data["esystemTotal"]):.1f}'
     battery_charged = f'{float(energy_data["echargeToday"]):.1f}/{float(energy_data["echargeTotal"]):.1f}'
@@ -88,22 +93,22 @@ try:
     print(f'Export to grid            {exported_to_grid:>22}')
 
     print("\nPower overview                          (Watts)")
-    print(f'AC Power                 {float(energy_data["pac"]):>22.1f}')
-    print(f'Self power               {float(energy_data["pself"]):>22.1f}')
+    print(f'AC Power                  {float(energy_data["pac"]):>22.1f}')
+    print(f'Self power                {float(energy_data["pself"]):>22.1f}')
     print(
-        f'Export power             {float(energy_data["pacToGridTotal"]):>22.1f}')
+        f'Export power                {float(energy_data["pacToGridTotal"]):>22.1f}')
     print(
-        f'Import power             {float(energy_data["pacToUserTotal"]):>22.1f}')
+        f'Import power                {float(energy_data["pacToUserTotal"]):>22.1f}')
     print(
-        f'Local load power         {float(energy_data["pacToLocalLoad"]):>22.1f}')
-    print(f'PV power                 {float(energy_data["ppv"]):>22.1f}')
-    print(f'PV #1 power              {float(energy_data["ppv1"]):>22.1f}')
-    print(f'PV #2 power              {float(energy_data["ppv2"]):>22.1f}')
+        f'Local load power            {float(energy_data["pacToLocalLoad"]):>22.1f}')
+    print(f'PV power                  {float(energy_data["ppv"]):>22.1f}')
+    print(f'PV #1 power               {float(energy_data["ppv1"]):>22.1f}')
+    print(f'PV #2 power               {float(energy_data["ppv2"]):>22.1f}')
     print(
-        f'Battery charge power     {float(energy_data["bdc1ChargePower"]):>22.1f}')
+        f'Battery charge power        {float(energy_data["bdc1ChargePower"]):>22.1f}')
     print(
-        f'Battery discharge power  {float(energy_data["bdc1DischargePower"]):>22.1f}')
-    print(f'Battery SOC              {int(energy_data["bdc1Soc"]):>21}%')
+        f'Battery discharge power     {float(energy_data["bdc1DischargePower"]):>22.1f}')
+    print(f'Battery SOC               {int(energy_data["bdc1Soc"]):>21}%')
 
 except growattServer.GrowattV1ApiError as e:
     print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")
