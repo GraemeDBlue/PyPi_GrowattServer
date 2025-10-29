@@ -87,8 +87,8 @@ try:
             # Settings parameters - Uncomment to test
 
             # Turn on AC charging
-            api.min_write_parameter(inverter_sn, 'ac_charge', 1)
-            print("AC charging enabled successfully")
+            # api.min_write_parameter(inverter_sn, 'ac_charge', 1)
+            # print("AC charging enabled successfully")
             # # Enable Load First between 00:00 and 11:59 using time segment 1
             # params = {
             #     'segment_id': 1,
