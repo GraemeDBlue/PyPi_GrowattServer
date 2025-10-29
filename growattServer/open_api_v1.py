@@ -1,6 +1,7 @@
 import json  # noqa: D100
 import platform
 import re
+from unittest import case
 import warnings
 from datetime import UTC, date, datetime, time, timedelta
 from enum import Enum
@@ -11,6 +12,7 @@ from .exceptions import GrowattParameterError, GrowattV1ApiError
 
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
+
     INVERTER = 1
     STORAGE = 2
     OTHER = 3
@@ -44,6 +46,23 @@ class DeviceType(Enum):
             msg = f"Unsupported device type: {device_type}"
             raise GrowattParameterError(msg)
 
+class DeviceFieldTemplates:
+    """Template strings for device field names."""
+    
+    MIN_TLX_TEMPLATES = {
+        "start_time": "forcedTimeStart{segment_id}",
+        "stop_time": "forcedTimeStop{segment_id}",
+        "mode": "time{segment_id}Mode",
+        "enabled": "forcedStopSwitch{segment_id}"
+    }
+    
+    SPH_MIX_TEMPLATES = {
+        "start_time": "forcedChargeTimeStart{segment_id}",
+        "stop_time": "forcedChargeTimeStop{segment_id}",
+        "mode": "None",
+        "enabled": "forcedChargeStopSwitch{segment_id}"
+    }
+
 class ApiDataType(Enum):
     """Enumeration of Growatt device types."""
 
@@ -52,6 +71,8 @@ class ApiDataType(Enum):
     BASIC_INFO = "basic_info"
     DEVICE_SETTINGS = "settings"
     READ_PARAM = "read_param"
+    SET_PARAM = "set_param"
+
 class OpenApiV1(GrowattApi):
     """
     Extended Growatt API client with V1 API support.
@@ -152,9 +173,10 @@ class OpenApiV1(GrowattApi):
 
         Raises:
             GrowattV1ApiError: If the API returns an error response
+            requests.exceptions.RequestException:
+                If there is an issue with the HTTP request.
 
         """
-
         if response.get("error_code", 1) != 0:
             msg = f"Error during {operation_name}"
             raise GrowattV1ApiError(
@@ -245,12 +267,12 @@ class OpenApiV1(GrowattApi):
 
         return self._process_response(response.json(), "getting plant details")
 
-    def plant_energy_overview(self, plant_id: int) -> dict:
+    def plant_energy_overview(self, plant_id: str) -> dict:
         """
         Get an overview of a plant's energy data.
 
         Args:
-            plant_id (int): Power Station ID
+            plant_id (str): Power Station ID
 
         Returns:
             dict: A dictionary containing the plant energy overview.
@@ -515,21 +537,24 @@ class OpenApiV1(GrowattApi):
             response.json(),
             f"getting {device_type.name} details"
         )
-    
+
     def min_detail(self, device_sn: str) -> dict:
         """
         Get detailed data for a MIN inverter.
 
         Args:
-            device_sn (str): The serial number of the MIN inverter. 
+            device_sn (str): The serial number of the MIN inverter.
+
         Returns:
             dict: A dictionary containing the MIN inverter details.
+
         Raises:
             GrowattV1ApiError: If the API returns an error response.
             requests.exceptions.RequestException:
                 If there is an issue with the HTTP request.
+
         """
-        return self.device_details(device_sn, DeviceType.MIN_TLX) 
+        return self.device_details(device_sn, DeviceType.MIN_TLX)
 
     def device_energy(self, device_sn: str, device_type: DeviceType) -> dict:
         """
@@ -738,7 +763,7 @@ class OpenApiV1(GrowattApi):
             response.json(),
             f"getting {device_type.name} energy history"
         )
-    
+
     def min_energy_history(
         self,
         device_sn: str,
@@ -750,22 +775,24 @@ class OpenApiV1(GrowattApi):
         Args:
             device_sn (str): The ID of the MIN inverter.
             params (DeviceEnergyHistoryParams, optional):
-                Grouped parameters for energy history query.        
+                Grouped parameters for energy history query.
+
         Returns:
             dict: A dictionary containing the MIN inverter history data.
-        Raises:
 
+        Raises:
             GrowattParameterError: If date interval exceeds 7 days.
             GrowattV1ApiError: If the API returns an error response.
             requests.exceptions.RequestException:
             If there is an issue with the HTTP request.
-        """        
+
+        """
         return self.device_energy_history(
                 device_sn,
                 DeviceType.MIN_TLX,
                 params
             )
-    
+
     def min_read_parameter(
             self,
             device_sn: str,
@@ -773,30 +800,35 @@ class OpenApiV1(GrowattApi):
         ) -> dict:
             """
             Read setting from MIN inverter.
-    
+
             Args:
                 device_sn (str): The ID of the TLX inverter.
                 params (dict): Parameters for reading the setting.
                     Should include either 'parameter_id' or 'start_address' and 'end_address'.
-    
+
             Returns:
                 dict: A dictionary containing the setting value.
-    
+
             Raises:
                 GrowattParameterError: If parameters are invalid.
                 GrowattV1ApiError: If the API returns an error response.
                 requests.exceptions.RequestException:
                     If there is an issue with the HTTP request.
-    
+
             """
+            parameter_id = (
+                str(params.get("parameter_id"))
+                if params.get("parameter_id") is not None
+                else ""
+            )
             return self.common_read_parameter(
                 device_sn,
                 DeviceType.MIN_TLX,
-                params.get("parameter_id"),
+                parameter_id,
                 params.get("start_address"),
-                params.get("end_address")
+                params.get("end_address"),
             )
-        
+
 
     def common_read_parameter(
         self,
@@ -1194,6 +1226,16 @@ class OpenApiV1(GrowattApi):
                 If there is an issue with the HTTP request.
 
         """
+
+         # Select appropriate templates
+        if device_type == DeviceType.MIN_TLX:
+            templates = DeviceFieldTemplates.MIN_TLX_TEMPLATES
+        elif device_type == DeviceType.SPH_MIX:
+            templates = DeviceFieldTemplates.SPH_MIX_TEMPLATES
+        else:
+            msg = f"Unsupported device type: {device_type}"
+            raise GrowattParameterError(msg)
+
         # Process the settings data
         if settings_data is None:
             # Fetch settings if not provided
@@ -1210,10 +1252,18 @@ class OpenApiV1(GrowattApi):
 
         # Process each time segment
         for i in range(1, 10):  # Segments 1-9
-            # Get raw time values
-            start_time_raw = settings_data.get(f"forcedTimeStart{i}", "0:0")
-            end_time_raw = settings_data.get(f"forcedTimeStop{i}", "0:0")
+            # Format field names using templates
+            start_field = templates["start_time"].format(segment_id=i)
+            stop_field = templates["stop_time"].format(segment_id=i)
+            mode_field = templates["mode"].format(segment_id=i)
+            enabled_field = templates["enabled"].format(segment_id=i)
 
+            # Get values using formatted field names
+            start_time_raw = settings_data.get(start_field, "0:0")
+            end_time_raw = settings_data.get(stop_field, "0:0")
+            mode_raw = settings_data.get(mode_field)
+            enabled_raw = settings_data.get(enabled_field, 0)
+            
             # Handle 'null' string values
             if start_time_raw == "null" or not start_time_raw:
                 start_time_raw = "0:0"
@@ -1238,7 +1288,6 @@ class OpenApiV1(GrowattApi):
                 end_time = "00:00"
 
             # Get the mode value safely
-            mode_raw = settings_data.get(f"time{i}Mode")
             if mode_raw == "null" or mode_raw is None:
                 batt_mode = None
             else:
@@ -1249,6 +1298,7 @@ class OpenApiV1(GrowattApi):
 
             # Get the enabled status safely
             enabled_raw = settings_data.get(f"forcedStopSwitch{i}", 0)
+
             if enabled_raw == "null" or enabled_raw is None:
                 enabled = False
             else:
@@ -1336,7 +1386,7 @@ class GrowattDevice:
         return self._api.read_time_segments(
             self.device_sn, self.device_type, settings_data
         )
-    
+
     def read_parameter(
         self,
         parameter_id: str,

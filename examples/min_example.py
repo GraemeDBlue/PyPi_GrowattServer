@@ -87,19 +87,21 @@ try:
             # Settings parameters - Uncomment to test
 
             # Turn on AC charging
-#            api.min_write_parameter(inverter_sn, 'ac_charge', 1)
-#            print("AC charging enabled successfully")
-
-            # Enable Load First between 00:00 and 11:59 using time segment 1
-#            api.min_write_time_segment(
-#                device_sn=inverter_sn,
-#                segment_id=1,
-#                batt_mode=growattServer.BATT_MODE_BATTERY_FIRST,
-#                start_time=datetime.time(0, 0),
-#                end_time=datetime.time(00, 59),
-#                enabled=True
-#            )
-#            print("Time segment updated successfully")
+            # api.min_write_parameter(inverter_sn, 'ac_charge', 1)
+            # print("AC charging enabled successfully")
+            # # Enable Load First between 00:00 and 11:59 using time segment 1
+            # params = {
+            #     'segment_id': 1,
+            #     'start_time': datetime.time(0, 0),
+            #     'end_time': datetime.time(00, 59),
+            #     'enabled': True
+            # }
+            # api.min_write_time_segment(
+            #     device_sn=inverter_sn,
+            #     params=params
+            # )
+        
+            # print("Time segment updated successfully")
 
 
 except growattServer.GrowattV1ApiError as e:
