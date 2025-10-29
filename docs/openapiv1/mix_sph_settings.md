@@ -15,7 +15,26 @@ For MIX/SPH systems, the public V1 API provides a way to read and write inverter
   * parameters:
     * `device_sn`: The device serial number
     * `device_type`: Use `DeviceType.SPH_MIX` for MIX/SPH inverters
-    * `parameter_id`: Parameter ID to read (e.g., "ac_charge", "discharge_power")
+    * `parameter_id`: Parameter ID to read (e.g., "pv_on_off", "mix_ac_discharge_time_period")
+
+
+List:
+  mix_ac_discharge_time_period
+	mix_ac_charge_time_period	
+  backflow_setting	
+  pv_on_off	
+  pf_sys_year	
+  pv_grid_voltage_high	
+  pv_grid_voltage_low	
+  mix_off_grid_enable	
+  mix_ac_discharge_frequency	
+  mix_ac_discharge_voltage	
+  v_reactive_p_rate	
+  pv_power_factor	
+  mix_load_flast_value_multi	
+  mix_load_first_control	
+  mix_single_export
+
 
 * **Time Segments**
   * function: `api.read_time_segments`
