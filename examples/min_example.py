@@ -21,9 +21,8 @@ try:
 
     # Plant info
     plants = api.plant_list()
-    print(f"Plants: {plants}")
     print(f"Plants: Found {plants['count']} plants")
-    plant_id = 80; #plants['plants'][0]['plant_id']
+    plant_id = plants['plants'][0]['plant_id']
 
     # Devices
     devices = api.device_list(plant_id)
@@ -90,20 +89,19 @@ try:
             # Turn on AC charging
             api.min_write_parameter(inverter_sn, 'ac_charge', 1)
             print("AC charging enabled successfully")
-            # Enable Load First between 00:00 and 11:59 using time segment 1
-            # Enable Load First between 00:00 and 11:59 using time segment 1
-            params = {
-                'segment_id': 1,
-                'start_time': datetime.time(0, 0),
-                'end_time': datetime.time(00, 59),
-                'enabled': True
-            }
-            api.min_write_time_segment(
-                device_sn=inverter_sn,
-                params=params
-            )
+            # # Enable Load First between 00:00 and 11:59 using time segment 1
+            # params = {
+            #     'segment_id': 1,
+            #     'start_time': datetime.time(0, 0),
+            #     'end_time': datetime.time(00, 59),
+            #     'enabled': True
+            # }
+            # api.min_write_time_segment(
+            #     device_sn=inverter_sn,
+            #     params=params
+            # )
         
-            print("Time segment updated successfully")
+            # print("Time segment updated successfully")
 
 
 except growattServer.GrowattV1ApiError as e:

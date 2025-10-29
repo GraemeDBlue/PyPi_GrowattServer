@@ -92,19 +92,19 @@ for device in devices:
 
 # Examples of updating settings, uncomment to use
 
-Set charging power to 95%
-res = api.update_tlx_inverter_setting(inverter_sn, 'charge_power', 95)
-print(res)
+# Set charging power to 95%
+# res = api.update_tlx_inverter_setting(inverter_sn, 'charge_power', 95)
+# print(res)
 
-Turn on AC charging
-res = api.update_tlx_inverter_setting(inverter_sn, 'ac_charge', 1)
-print(res)
+# Turn on AC charging
+# res = api.update_tlx_inverter_setting(inverter_sn, 'ac_charge', 1)
+# print(res)
 
-Enable Load First between 00:01 and 11:59 using time segment 1
-res = api.update_tlx_inverter_time_segment(serial_number = inverter_sn,
-                                          segment_id = 1,
-                                          batt_mode = growattServer.BATT_MODE_LOAD_FIRST,
-                                          start_time = datetime.time(00, 1),
-                                          end_time = datetime.time(11, 59),
-                                          enabled=True)
-print(res)
+# Enable Load First between 00:01 and 11:59 using time segment 1
+# res = api.update_tlx_inverter_time_segment(serial_number = inverter_sn,
+#                                           segment_id = 1,
+#                                           batt_mode = growattServer.BATT_MODE_LOAD_FIRST,
+#                                           start_time = datetime.time(00, 1),
+#                                           end_time = datetime.time(11, 59),
+#                                           enabled=True)
+# print(res)

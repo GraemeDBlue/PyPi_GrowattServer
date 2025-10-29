@@ -70,7 +70,6 @@ try:
     exported_to_grid = f'{safe_float(energy_data.get("etoGridToday")):.1f}/{safe_float(energy_data.get("etogridTotal")):.1f}'
     imported_from_grid = f'{safe_float(energy_data.get("etoUserToday")):.1f}/{safe_float(energy_data.get("etoUserTotal")):.1f}'
     load_consumption = f'{safe_float(energy_data.get("elocalLoadToday")):.1f}/{safe_float(energy_data.get("elocalLoadTotal")):.1f}'
-    # self_consumption = f'{safe_float(energy_data.get("elocalLoadToday")):.1f}/{safe_float(energy_data.get("elocalLoadTotal")):.1f}'
     self_consumption = f'{safe_float(energy_data.get("eselfToday")):.1f}/{safe_float(energy_data.get("eselfTotal")):.1f}'
 
     # Output the dashboard

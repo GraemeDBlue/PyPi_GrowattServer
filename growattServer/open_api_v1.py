@@ -646,9 +646,6 @@ class OpenApiV1(GrowattApi):
             }
         )
 
-        with open('device_settings.json', 'w') as f:
-            json.dump(response.json(), f, indent=4, sort_keys=True)
-
         return self._process_response(
             response.json(),
             f"getting {device_type.name} settings"
@@ -1302,8 +1299,6 @@ class OpenApiV1(GrowattApi):
             # Get the enabled status safely
             enabled_raw = settings_data.get(f"forcedStopSwitch{i}", 0)
 
-            print(f"Enabled raw value for segment {i}: {enabled_raw}")
-
             if enabled_raw == "null" or enabled_raw is None:
                 enabled = False
             else:
@@ -1312,8 +1307,6 @@ class OpenApiV1(GrowattApi):
                 except (ValueError, TypeError):
                     enabled = False
 
-
-            print(f"batt_mode {i}: {batt_mode}, enabled: {enabled}")
             segment = {
                 "segment_id": i,
                 "batt_mode": batt_mode,
