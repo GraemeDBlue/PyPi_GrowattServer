@@ -63,6 +63,23 @@ class DeviceFieldTemplates:
         "enabled": "forcedChargeStopSwitch{segment_id}"
     }
 
+class DeviceFieldParamTemplates:
+    """Template strings for device field names."""
+    
+    MIN_TLX_TEMPLATES = {
+        "start_time": "forcedTimeStart{segment_id}",
+        "stop_time": "forcedTimeStop{segment_id}",
+        "mode": "time{segment_id}Mode",
+        "enabled": "forcedStopSwitch{segment_id}"
+    }
+    
+    SPH_MIX_TEMPLATES = {
+        "start_time": "forcedChargeTimeStart{segment_id}",
+        "stop_time": "forcedChargeTimeStop{segment_id}",
+        "mode": "None",
+        "enabled": "forcedChargeStopSwitch{segment_id}"
+    }    
+
 class ApiDataType(Enum):
     """Enumeration of Growatt device types."""
 
@@ -93,7 +110,9 @@ class OpenApiV1(GrowattApi):
             # https://www.showdoc.com.cn/262556420217021/6129763571291058
             ApiDataType.DEVICE_SETTINGS: "device/mix/mix_data_info",
             # https://www.showdoc.com.cn/262556420217021/6129766954561259
-            ApiDataType.READ_PARAM: "readMixParam"
+            ApiDataType.READ_PARAM: "readMixParam",
+            # https://www.showdoc.com.cn/262556420217021/6129761750718760
+            ApiDataType.SET_PARAM: "mixSet"
         },
         DeviceType.MIN_TLX: {
             # https://www.showdoc.com.cn/262556420217021/6129822090975531
@@ -105,9 +124,215 @@ class OpenApiV1(GrowattApi):
             # https://www.showdoc.com.cn/262556420217021/8696815667375182
             ApiDataType.DEVICE_SETTINGS: "device/tlx/tlx_set_info",
             # https://www.showdoc.com.cn/262556420217021/6129828239577315
-            ApiDataType.READ_PARAM: "readMinParam"
+            ApiDataType.READ_PARAM: "readMinParam",
+            # https://www.showdoc.com.cn/262556420217021/6129826876191828
+            ApiDataType.SET_PARAM: "tlxSet"
         }
     }
+
+    class TimeSegmentParams(NamedTuple):
+        """
+        Parameters for a time segment in a MIN inverter.
+
+        segment_id (int): Segment number (1-9).
+        batt_mode (int): Battery mode (0=Load First, 1=Battery First, 2=Grid First).
+        start_time (object): Start time (should be datetime.time).
+        end_time (object): End time (should be datetime.time).
+        enabled (bool): Whether the segment is enabled.
+        """
+
+        segment_id: int
+        batt_mode: int
+        start_time: time  # Should be datetime.time
+        end_time: time    # Should be datetime.time
+        enabled: bool = True
+
+    class MixAcDischargeTimeParams(NamedTuple):
+        """Parameters for SPH_MIX AC discharge time period."""
+        discharge_power: int  # 0-100
+        discharge_stop_soc: int  # 0-100
+        start_hour: int  # 0-23
+        start_minute: int  # 0-59
+        end_hour: int  # 0-23
+        end_minute: int  # 0-59
+        enabled: bool = True
+
+    class MixAcChargeTimeParams(NamedTuple):
+        """Parameters for SPH_MIX AC charge time period."""
+        charge_power: int  # 0-100
+        charge_stop_soc: int  # 0-100
+        mains_enabled: bool  # True=enable, False=disable
+        start_hour: int  # 0-23
+        start_minute: int  # 0-59
+        end_hour: int  # 0-23
+        end_minute: int  # 0-59
+        enabled: bool = True
+
+    class BackflowSettingParams(NamedTuple):
+        """Parameters for backflow prevention setting."""
+        backflow_enabled: bool  # True=on, False=off
+        anti_reverse_power_percentage: int = 0  # 0-100 (for SPH_MIX)
+        backflow_mode: int = 0  # 0=disable, 1=enable meter, 2=enable CT (for MIN_TLX)
+
+    class PvOnOffParams(NamedTuple):
+        """Parameters for PV on/off setting."""
+        pv_enabled: bool  # True=on (0001), False=off (0000)
+
+    class GridVoltageParams(NamedTuple):
+        """Parameters for grid voltage limits."""
+        voltage_high: int = 270  # Upper limit
+        voltage_low: int = 180   # Lower limit
+
+    class OffGridParams(NamedTuple):
+        """Parameters for off-grid settings."""
+        off_grid_enabled: bool  # True=enabled, False=disabled
+        frequency: int = 0  # 0=50HZ, 1=60HZ
+        voltage: int = 0    # 0=230V, 1=208V, 2=240V
+
+    class PowerParams(NamedTuple):
+        """Parameters for power settings."""
+        active_power: int = 0     # 0-100
+        reactive_power: int = 0   # 0-100
+        power_factor: float = 1.0 # -0.8 to -1 or 0.8 to 1
+
+    class ChargeDischargeParams(NamedTuple):
+        """Parameters for charge/discharge settings."""
+        charge_power: int = 0          # 0-100
+        charge_stop_soc: int = 0       # 0-100
+        discharge_power: int = 0       # 0-100
+        discharge_stop_soc: int = 0    # 0-100
+        ac_charge_enabled: bool = False # Mains charging enabled
+
+    class WriteParamsInterface:
+        """Interface for converting parameter objects to API format."""
+        
+        @staticmethod
+        def time_segment_to_params(params: "OpenApiV1.TimeSegmentParams") -> dict:
+            """Convert TimeSegmentParams to API parameters for MIN_TLX."""
+            return {
+                "param1": str(params.batt_mode),
+                "param2": str(params.start_time.hour),
+                "param3": str(params.start_time.minute),
+                "param4": str(params.end_time.hour),
+                "param5": str(params.end_time.minute),
+                "param6": "1" if params.enabled else "0",
+            }
+
+        @staticmethod
+        def mix_discharge_to_params(params: "OpenApiV1.MixAcDischargeTimeParams", segment: int = 1) -> dict:
+            """Convert MixAcDischargeTimeParams to API parameters for SPH_MIX."""
+            base_param = (segment - 1) * 6  # Each segment uses 6 parameters
+            return {
+                f"param{base_param + 1}": str(params.discharge_power),
+                f"param{base_param + 2}": str(params.discharge_stop_soc),
+                f"param{base_param + 3}": str(params.start_hour),
+                f"param{base_param + 4}": str(params.start_minute),
+                f"param{base_param + 5}": str(params.end_hour),
+                f"param{base_param + 6}": str(params.end_minute),
+                f"param{base_param + 7}": "1" if params.enabled else "0",
+            }
+
+        @staticmethod
+        def mix_charge_to_params(params: "OpenApiV1.MixAcChargeTimeParams", segment: int = 1) -> dict:
+            """Convert MixAcChargeTimeParams to API parameters for SPH_MIX."""
+            base_param = (segment - 1) * 6  # Each segment uses 6 parameters
+            return {
+                f"param{base_param + 1}": str(params.charge_power),
+                f"param{base_param + 2}": str(params.charge_stop_soc),
+                f"param{base_param + 3}": "1" if params.mains_enabled else "0",
+                f"param{base_param + 4}": str(params.start_hour),
+                f"param{base_param + 5}": str(params.start_minute),
+                f"param{base_param + 6}": str(params.end_hour),
+                f"param{base_param + 7}": str(params.end_minute),
+                f"param{base_param + 8}": "1" if params.enabled else "0",
+            }
+
+        @staticmethod
+        def backflow_to_params(params: "OpenApiV1.BackflowSettingParams", device_type: DeviceType) -> dict:
+            """Convert BackflowSettingParams to API parameters."""
+            if device_type == DeviceType.SPH_MIX:
+                return {
+                    "param1": "1" if params.backflow_enabled else "0",
+                    "param2": str(params.anti_reverse_power_percentage),
+                }
+            elif device_type == DeviceType.MIN_TLX:
+                return {
+                    "param1": str(params.backflow_mode),
+                }
+            else:
+                msg = f"Unsupported device type: {device_type}"
+                raise GrowattParameterError(msg)
+
+        @staticmethod
+        def pv_onoff_to_params(params: "OpenApiV1.PvOnOffParams") -> dict:
+            """Convert PvOnOffParams to API parameters."""
+            return {
+                "param1": "0001" if params.pv_enabled else "0000",
+            }
+
+        @staticmethod
+        def grid_voltage_to_params(params: "OpenApiV1.GridVoltageParams") -> dict:
+            """Convert GridVoltageParams to API parameters."""
+            return {
+                "param1": str(params.voltage_high),  # For high voltage
+                # OR
+                "param1": str(params.voltage_low),   # For low voltage (different command)
+            }
+
+        @staticmethod
+        def off_grid_to_params(params: "OpenApiV1.OffGridParams") -> dict:
+            """Convert OffGridParams to API parameters."""
+            return {
+                "param1": "1" if params.off_grid_enabled else "0",
+                # OR for frequency/voltage (different commands)
+                "param1": str(params.frequency),
+                # OR
+                "param1": str(params.voltage),
+            }
+
+        @staticmethod
+        def power_to_params(params: "OpenApiV1.PowerParams") -> dict:
+            """Convert PowerParams to API parameters."""
+            return {
+                "param1": str(params.active_power),     # For active power
+                # OR
+                "param1": str(params.reactive_power),   # For reactive power
+                # OR
+                "param1": str(params.power_factor),     # For power factor
+            }
+
+        @staticmethod
+        def charge_discharge_to_params(params: "OpenApiV1.ChargeDischargeParams") -> dict:
+            """Convert ChargeDischargeParams to API parameters."""
+            return {
+                "param1": str(params.charge_power),      # For charge_power command
+                # OR
+                "param1": str(params.charge_stop_soc),   # For charge_stop_soc command
+                # OR
+                "param1": str(params.discharge_power),   # For discharge_power command
+                # OR
+                "param1": str(params.discharge_stop_soc), # For discharge_stop_soc command
+                # OR
+                "param1": "1" if params.ac_charge_enabled else "0", # For ac_charge command
+            }
+
+    class DeviceEnergyHistoryParams(NamedTuple):
+        """Parameters for querying device energy history."""
+
+        start_date: date | None = None
+        end_date: date | None = None
+        timezone: str | None = None
+        page: int | None = None
+        limit: int | None = None    
+
+    class PlantEnergyHistoryParams(NamedTuple):
+        """Parameters for querying plant energy history."""
+
+        start_date: date | None = None
+        end_date: date | None = None
+        time_unit: str = "day"
+        page: int | None = None
+        perpage: int | None = None    
 
     def _create_user_agent(self) -> str:
         python_version = platform.python_version()
@@ -336,15 +561,6 @@ class OpenApiV1(GrowattApi):
         )
 
         return self._process_response(response.json(), "getting plant power overview")
-
-    class PlantEnergyHistoryParams(NamedTuple):
-        """Parameters for querying plant energy history."""
-
-        start_date: date | None = None
-        end_date: date | None = None
-        time_unit: str = "day"
-        page: int | None = None
-        perpage: int | None = None
 
     def plant_energy_history(
         self,
@@ -669,15 +885,6 @@ class OpenApiV1(GrowattApi):
         """
         return self.device_settings(device_sn, DeviceType.MIN_TLX)
 
-    class DeviceEnergyHistoryParams(NamedTuple):
-        """Parameters for querying device energy history."""
-
-        start_date: date | None = None
-        end_date: date | None = None
-        timezone: str | None = None
-        page: int | None = None
-        limit: int | None = None
-
     def device_energy_history(
         self,
         device_sn: str,
@@ -829,7 +1036,6 @@ class OpenApiV1(GrowattApi):
                 params.get("end_address"),
             )
 
-
     def common_read_parameter(
         self,
         device_sn: str,
@@ -967,24 +1173,6 @@ class OpenApiV1(GrowattApi):
             response.json(),
             f"writing parameter {parameter_id}"
         )
-    # This line has been removed to eliminate dead code.
-
-    class TimeSegmentParams(NamedTuple):
-        """
-        Parameters for a time segment in a MIN inverter.
-
-        segment_id (int): Segment number (1-9).
-        batt_mode (int): Battery mode (0=Load First, 1=Battery First, 2=Grid First).
-        start_time (object): Start time (should be datetime.time).
-        end_time (object): End time (should be datetime.time).
-        enabled (bool): Whether the segment is enabled.
-        """
-
-        segment_id: int
-        batt_mode: int
-        start_time: time  # Should be datetime.time
-        end_time: time    # Should be datetime.time
-        enabled: bool = True
 
     def min_write_time_segment(
         self,
@@ -1043,6 +1231,237 @@ class OpenApiV1(GrowattApi):
         return self._process_response(
             response.json(),
             f"writing time segment {params.segment_id}"
+        )
+
+    """
+    # MIN_TLX time segment
+    params = api.TimeSegmentParams(
+        segment_id=1,
+        batt_mode=1,  # Battery First
+        start_time=time(8, 0),
+        end_time=time(16, 0),
+        enabled=True
+    )
+    api.write_time_segment(device_sn, DeviceType.MIN_TLX, "time_segment1", params)
+
+    # SPH_MIX discharge time
+    params = api.MixAcDischargeTimeParams(
+        discharge_power=50,
+        discharge_stop_soc=10,
+        start_hour=8,
+        start_minute=0,
+        end_hour=16,
+        end_minute=0,
+        enabled=True
+    )
+    api.write_parameter(device_sn, DeviceType.SPH_MIX, "mix_ac_discharge_time_period", params)
+
+    # Backflow setting
+    params = api.BackflowSettingParams(
+        backflow_enabled=True,
+        anti_reverse_power_percentage=50
+    )
+    api.write_parameter(device_sn, DeviceType.SPH_MIX, "backflow_setting", params)
+    """
+
+    def write_time_segment(
+        self,
+        device_sn: str,
+        device_type: DeviceType,
+        command: str,
+        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams"
+    ) -> dict:
+        """
+        Set a time segment for a MIN/TLX or SPH/MIX inverter.
+
+        Args:
+            device_sn (str): The serial number of the inverter.
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
+            command (str): The command type to execute.
+            params: Parameter object appropriate for the command type.
+
+        Returns:
+            dict: The server response.
+
+        Raises:
+            GrowattParameterError: If parameters are invalid.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException:
+                If there is an issue with the HTTP request.
+
+        """
+        url_prefix = DeviceType.get_url_prefix(device_type)
+
+        # Convert parameter object to API format based on type
+        if isinstance(params, self.TimeSegmentParams):
+            if not 1 <= params.segment_id <= 9:  # noqa: PLR2004
+                msg = "segment_id must be between 1 and 9"
+                raise GrowattParameterError(msg)
+            if not 0 <= params.batt_mode <= 2:  # noqa: PLR2004
+                msg = "batt_mode must be between 0 and 2"
+                raise GrowattParameterError(msg)
+            
+            api_params = self.WriteParamsInterface.time_segment_to_params(params)
+            command = f"time_segment{params.segment_id}"
+            
+        elif isinstance(params, self.MixAcDischargeTimeParams):
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(params)
+            
+        elif isinstance(params, self.MixAcChargeTimeParams):
+            api_params = self.WriteParamsInterface.mix_charge_to_params(params)
+            
+        else:
+            msg = f"Unsupported parameter type: {type(params)}"
+            raise GrowattParameterError(msg)
+
+        # Initialize ALL 19 parameters as empty strings
+        all_params = {
+            f"{url_prefix}_sn": device_sn,
+            "type": command
+        }
+
+        # Add the converted parameters
+        all_params.update(api_params)
+
+        # Add empty strings for all unused parameters (1-19)
+        for i in range(1, 20):
+            param_key = f"param{i}"
+            if param_key not in all_params:
+                all_params[param_key] = ""
+
+        # Send the request
+        response = self.session.post(
+            url=self._get_device_url(device_type, ApiDataType.SET_PARAM),
+            data=all_params
+        )
+
+        return self._process_response(
+            response.json(),
+            f"writing time segment command {command}"
+        )
+
+    def write_parameter(
+        self,
+        device_sn: str,
+        device_type: DeviceType,
+        command: str,
+        params: object
+    ) -> dict:
+        """
+        Universal parameter writing method for both MIN_TLX and SPH_MIX devices.
+
+        Args:
+            device_sn (str): The serial number of the device.
+            device_type (DeviceType): The type of device (MIN_TLX or SPH_MIX).
+            command (str): The command type to execute.
+            params: Parameter object appropriate for the command type.
+
+        Returns:
+            dict: The server response.
+
+        Raises:
+            GrowattParameterError: If parameters are invalid.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException:
+                If there is an issue with the HTTP request.
+
+        Examples:
+            # Time segment for MIN_TLX
+            params = api.TimeSegmentParams(
+                segment_id=1,
+                batt_mode=1,
+                start_time=time(8, 0),
+                end_time=time(16, 0),
+                enabled=True
+            )
+            api.write_parameter(device_sn, DeviceType.MIN_TLX, "time_segment1", params)
+
+            # Discharge time for SPH_MIX
+            params = api.MixAcDischargeTimeParams(
+                discharge_power=50,
+                discharge_stop_soc=10,
+                start_hour=8,
+                start_minute=0,
+                end_hour=16,
+                end_minute=0,
+                enabled=True
+            )
+            api.write_parameter(device_sn, DeviceType.SPH_MIX, "mix_ac_discharge_time_period", params)
+
+            # Backflow setting
+            params = api.BackflowSettingParams(
+                backflow_enabled=True,
+                anti_reverse_power_percentage=50
+            )
+            api.write_parameter(device_sn, DeviceType.SPH_MIX, "backflow_setting", params)
+
+        """
+        url_prefix = DeviceType.get_url_prefix(device_type)
+
+        # Convert parameter object to API format based on type
+        api_params = {}
+        
+        if isinstance(params, self.TimeSegmentParams):
+            if not 1 <= params.segment_id <= 9:  # noqa: PLR2004
+                msg = "segment_id must be between 1 and 9"
+                raise GrowattParameterError(msg)
+            if not 0 <= params.batt_mode <= 2:  # noqa: PLR2004
+                msg = "batt_mode must be between 0 and 2"
+                raise GrowattParameterError(msg)
+            api_params = self.WriteParamsInterface.time_segment_to_params(params)
+            
+        elif isinstance(params, self.MixAcDischargeTimeParams):
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(params)
+            
+        elif isinstance(params, self.MixAcChargeTimeParams):
+            api_params = self.WriteParamsInterface.mix_charge_to_params(params)
+            
+        elif isinstance(params, self.BackflowSettingParams):
+            api_params = self.WriteParamsInterface.backflow_to_params(params, device_type)
+            
+        elif isinstance(params, self.PvOnOffParams):
+            api_params = self.WriteParamsInterface.pv_onoff_to_params(params)
+            
+        elif isinstance(params, self.GridVoltageParams):
+            api_params = self.WriteParamsInterface.grid_voltage_to_params(params)
+            
+        elif isinstance(params, self.OffGridParams):
+            api_params = self.WriteParamsInterface.off_grid_to_params(params)
+            
+        elif isinstance(params, self.PowerParams):
+            api_params = self.WriteParamsInterface.power_to_params(params)
+            
+        elif isinstance(params, self.ChargeDischargeParams):
+            api_params = self.WriteParamsInterface.charge_discharge_to_params(params)
+            
+        else:
+            msg = f"Unsupported parameter type: {type(params)}"
+            raise GrowattParameterError(msg)
+
+        # Initialize ALL 19 parameters as empty strings
+        all_params = {
+            f"{url_prefix}_sn": device_sn,
+            "type": command
+        }
+
+        # Add the converted parameters
+        all_params.update(api_params)
+
+        # Add empty strings for all unused parameters (1-19)
+        for i in range(1, 20):
+            param_key = f"param{i}"
+            if param_key not in all_params:
+                all_params[param_key] = ""
+
+        # Send the request
+        response = self.session.post(
+            url=self._get_device_url(device_type, ApiDataType.SET_PARAM),
+            data=all_params
+        )
+
+        return self._process_response(
+            response.json(),
+            f"writing parameter command {command}"
         )
 
     def min_read_time_segments(
