@@ -63,23 +63,6 @@ class DeviceFieldTemplates:
         "enabled": "forcedChargeStopSwitch{segment_id}"
     }
 
-class DeviceFieldParamTemplates:
-    """Template strings for device field names."""
-    
-    MIN_TLX_TEMPLATES = {
-        "start_time": "forcedTimeStart{segment_id}",
-        "stop_time": "forcedTimeStop{segment_id}",
-        "mode": "time{segment_id}Mode",
-        "enabled": "forcedStopSwitch{segment_id}"
-    }
-    
-    SPH_MIX_TEMPLATES = {
-        "start_time": "forcedChargeTimeStart{segment_id}",
-        "stop_time": "forcedChargeTimeStop{segment_id}",
-        "mode": "None",
-        "enabled": "forcedChargeStopSwitch{segment_id}"
-    }    
-
 class ApiDataType(Enum):
     """Enumeration of Growatt device types."""
 
