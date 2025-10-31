@@ -1803,3 +1803,29 @@ class GrowattDevice:
             start_address,
             end_address
         )
+
+    def common_write_time_segment(
+        self,
+        command: str,
+        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams"
+    ) -> dict:
+        """Write a time segment parameter to the device."""
+        return self._api.write_time_segment(
+            self.device_sn,
+            self.device_type,
+            command,
+            params
+        )
+    
+    def common_write_parameter(
+        self,
+        command: str,
+        params: object
+    ) -> dict:
+        """Write a parameter to the device."""
+        return self._api.write_parameter(
+            self.device_sn,
+            self.device_type,
+            command,
+            params
+        )
