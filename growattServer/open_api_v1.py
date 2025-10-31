@@ -29,7 +29,11 @@ class DeviceType(Enum):
         """Get the URL prefix for a given device type."""
         if device_type == cls.SPH_MIX:
             return "mix"
+        elif device_type == cls.SPH_MIX.value:  # noqa: RET505
+            return "mix"
         elif device_type == cls.MIN_TLX:  # noqa: RET505
+            return "tlx"
+        elif device_type == cls.MIN_TLX.value:  # noqa: RET505
             return "tlx"
         else:
             msg = f"Unsupported device type: {device_type}"
