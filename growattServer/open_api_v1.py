@@ -1722,10 +1722,8 @@ class OpenApiV1(GrowattApi):
                     batt_mode = int(mode_raw)
                 except (ValueError, TypeError):
                     batt_mode = None
-
+                    
             # Get the enabled status safely
-            # enabled_raw = settings_data.get(f"forcedStopSwitch{i}", 0)
-
             if enabled_raw == "null" or enabled_raw is None:
                 enabled = False
             else:
