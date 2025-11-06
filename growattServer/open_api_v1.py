@@ -143,6 +143,7 @@ class OpenApiV1(GrowattApi):
         end_hour: int  # 0-23
         end_minute: int  # 0-59
         enabled: bool = True
+        segment_id: int = 1  # Period number (1-6)
 
     class MixAcChargeTimeParams(NamedTuple):
         """Parameters for SPH_MIX AC charge time period."""
@@ -154,6 +155,7 @@ class OpenApiV1(GrowattApi):
         end_hour: int  # 0-23
         end_minute: int  # 0-59
         enabled: bool = True
+        segment_id: int = 1  # Period number (1-6)
 
     class BackflowSettingParams(NamedTuple):
         """Parameters for backflow prevention setting."""
@@ -206,12 +208,12 @@ class OpenApiV1(GrowattApi):
             }
 
         @staticmethod
-        def mix_discharge_to_params(params: "OpenApiV1.MixAcDischargeTimeParams", segment: int = 1) -> dict:
+        def mix_discharge_to_params(params: "OpenApiV1.MixAcDischargeTimeParams", period: int = 1) -> dict:
             """Convert MixAcDischargeTimeParams to API parameters for SPH_MIX."""
-            base_param = (segment - 1) * 6  # Each segment uses 6 parameters
+            base_param = (period - 1) * 5 # Each period uses 5 parameters
             return {
-                f"param{base_param + 1}": str(params.discharge_power),
-                f"param{base_param + 2}": str(params.discharge_stop_soc),
+                f"param1": str(params.discharge_power),
+                f"param2": str(params.discharge_stop_soc),
                 f"param{base_param + 3}": str(params.start_hour),
                 f"param{base_param + 4}": str(params.start_minute),
                 f"param{base_param + 5}": str(params.end_hour),
@@ -220,13 +222,13 @@ class OpenApiV1(GrowattApi):
             }
 
         @staticmethod
-        def mix_charge_to_params(params: "OpenApiV1.MixAcChargeTimeParams", segment: int = 1) -> dict:
+        def mix_charge_to_params(params: "OpenApiV1.MixAcChargeTimeParams", period: int = 1) -> dict:
             """Convert MixAcChargeTimeParams to API parameters for SPH_MIX."""
-            base_param = (segment - 1) * 6  # Each segment uses 6 parameters
+            base_param = (period - 1) * 5  # Each period uses 5 parameters
             return {
-                f"param{base_param + 1}": str(params.charge_power),
-                f"param{base_param + 2}": str(params.charge_stop_soc),
-                f"param{base_param + 3}": "1" if params.mains_enabled else "0",
+                f"param1": str(params.charge_power),
+                f"param2": str(params.charge_stop_soc),
+                f"param3": "1" if params.mains_enabled else "0",
                 f"param{base_param + 4}": str(params.start_hour),
                 f"param{base_param + 5}": str(params.start_minute),
                 f"param{base_param + 6}": str(params.end_hour),
@@ -346,7 +348,6 @@ class OpenApiV1(GrowattApi):
         # Set up authentication for V1 API using the provided token
         self.session.headers.update({"token": token})
 
-
     @staticmethod
     def slugify(s: str) -> str:
         """
@@ -366,7 +367,6 @@ class OpenApiV1(GrowattApi):
 
         # Replace all runs of whitespace with a single underscrore
         return re.sub(r"\s+", "_", s)
-
 
     def _process_response(
         self,
@@ -1292,10 +1292,10 @@ class OpenApiV1(GrowattApi):
             command = f"time_segment{params.segment_id}"
             
         elif isinstance(params, self.MixAcDischargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_discharge_to_params(params)
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
             
         elif isinstance(params, self.MixAcChargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_charge_to_params(params)
+            api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
             
         else:
             msg = f"Unsupported parameter type: {type(params)}"
@@ -1398,10 +1398,10 @@ class OpenApiV1(GrowattApi):
             api_params = self.WriteParamsInterface.time_segment_to_params(params)
             
         elif isinstance(params, self.MixAcDischargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_discharge_to_params(params)
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
             
         elif isinstance(params, self.MixAcChargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_charge_to_params(params)
+            api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
             
         elif isinstance(params, self.BackflowSettingParams):
             api_params = self.WriteParamsInterface.backflow_to_params(params, device_type)
