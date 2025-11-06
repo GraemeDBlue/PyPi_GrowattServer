@@ -1,4 +1,5 @@
 import json  # noqa: D100
+import os
 import platform
 import re
 from unittest import case
@@ -7,8 +8,13 @@ from datetime import UTC, date, datetime, time, timedelta
 from enum import Enum
 from typing import ClassVar, NamedTuple, Optional
 
+from dotenv import load_dotenv
+
 from . import GrowattApi
 from .exceptions import GrowattParameterError, GrowattV1ApiError
+
+# Load environment variables from .env file
+load_dotenv()
 
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
@@ -396,8 +402,10 @@ class OpenApiV1(GrowattApi):
                 If there is an issue with the HTTP request.
 
         """
-        with open('response.json', 'w') as f:
-            json.dump(response, f, indent=4, sort_keys=True)
+        # Only write debug output if DEBUG environment variable is set to true
+        if os.getenv('DEBUG', 'false').lower() == 'true':
+            with open('response.json', 'w') as f:
+                json.dump(response, f, indent=4, sort_keys=True)
 
         if response.get("error_code", 1) != 0:
             msg = f"Error during {operation_name}"
@@ -1326,8 +1334,9 @@ class OpenApiV1(GrowattApi):
             if param_key not in all_params:
                 all_params[param_key] = ""
 
-        with open("params.json", "w") as f:
-            json.dump(all_params, f, indent=4, sort_keys=True)
+        if os.getenv('DEBUG', 'false').lower() == 'true':
+            with open("params.json", "w") as f:
+                json.dump(all_params, f, indent=4, sort_keys=True)
 
         # Send the request
         response = self.session.post(
@@ -1650,7 +1659,6 @@ class OpenApiV1(GrowattApi):
             templates = DeviceFieldTemplates.MIN_TLX_TEMPLATES
         elif device_type == DeviceType.SPH_MIX:
             templates = DeviceFieldTemplates.SPH_MIX_TEMPLATES_CHARGE
-            templates_discharge = DeviceFieldTemplates.SPH_MIX_TEMPLATES_DIS_CHARGE
         else:
             msg = f"Unsupported device type: {device_type}"
             raise GrowattParameterError(msg)
