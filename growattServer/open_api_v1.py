@@ -52,14 +52,14 @@ class DeviceType(Enum):
 
 class DeviceFieldTemplates:
     """Template strings for device field names."""
-    
+
     MIN_TLX_TEMPLATES = {
         "start_time": "forcedTimeStart{segment_id}",
         "stop_time": "forcedTimeStop{segment_id}",
         "mode": "time{segment_id}Mode",
         "enabled": "forcedStopSwitch{segment_id}"
     }
-    
+
     SPH_MIX_TEMPLATES = {
         "start_time": "forcedChargeTimeStart{segment_id}",
         "stop_time": "forcedChargeTimeStop{segment_id}",
@@ -194,7 +194,7 @@ class OpenApiV1(GrowattApi):
 
     class WriteParamsInterface:
         """Interface for converting parameter objects to API format."""
-        
+
         @staticmethod
         def time_segment_to_params(params: "OpenApiV1.TimeSegmentParams") -> dict:
             """Convert TimeSegmentParams to API parameters for MIN_TLX."""
@@ -312,7 +312,7 @@ class OpenApiV1(GrowattApi):
         end_date: date | None = None
         timezone: str | None = None
         page: int | None = None
-        limit: int | None = None    
+        limit: int | None = None
 
     class PlantEnergyHistoryParams(NamedTuple):
         """Parameters for querying plant energy history."""
@@ -321,7 +321,7 @@ class OpenApiV1(GrowattApi):
         end_date: date | None = None
         time_unit: str = "day"
         page: int | None = None
-        perpage: int | None = None    
+        perpage: int | None = None
 
     def _create_user_agent(self) -> str:
         python_version = platform.python_version()
@@ -389,6 +389,9 @@ class OpenApiV1(GrowattApi):
                 If there is an issue with the HTTP request.
 
         """
+        with open('response.json', 'w') as f:
+            json.dump(response, f, indent=4, sort_keys=True)
+
         if response.get("error_code", 1) != 0:
             msg = f"Error during {operation_name}"
             raise GrowattV1ApiError(
@@ -1287,16 +1290,16 @@ class OpenApiV1(GrowattApi):
             if not 0 <= params.batt_mode <= 2:  # noqa: PLR2004
                 msg = "batt_mode must be between 0 and 2"
                 raise GrowattParameterError(msg)
-            
+
             api_params = self.WriteParamsInterface.time_segment_to_params(params)
             command = f"time_segment{params.segment_id}"
-            
+
         elif isinstance(params, self.MixAcDischargeTimeParams):
             api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
-            
+
         elif isinstance(params, self.MixAcChargeTimeParams):
             api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
-            
+
         else:
             msg = f"Unsupported parameter type: {type(params)}"
             raise GrowattParameterError(msg)
@@ -1315,6 +1318,9 @@ class OpenApiV1(GrowattApi):
             param_key = f"param{i}"
             if param_key not in all_params:
                 all_params[param_key] = ""
+
+        with open("params.json", "w") as f:
+            json.dump(all_params, f, indent=4, sort_keys=True)
 
         # Send the request
         response = self.session.post(
@@ -1387,7 +1393,7 @@ class OpenApiV1(GrowattApi):
 
         # Convert parameter object to API format based on type
         api_params = {}
-        
+
         if isinstance(params, self.TimeSegmentParams):
             if not 1 <= params.segment_id <= 9:  # noqa: PLR2004
                 msg = "segment_id must be between 1 and 9"
@@ -1396,31 +1402,31 @@ class OpenApiV1(GrowattApi):
                 msg = "batt_mode must be between 0 and 2"
                 raise GrowattParameterError(msg)
             api_params = self.WriteParamsInterface.time_segment_to_params(params)
-            
+
         elif isinstance(params, self.MixAcDischargeTimeParams):
             api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
-            
+
         elif isinstance(params, self.MixAcChargeTimeParams):
             api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
-            
+
         elif isinstance(params, self.BackflowSettingParams):
             api_params = self.WriteParamsInterface.backflow_to_params(params, device_type)
-            
+
         elif isinstance(params, self.PvOnOffParams):
             api_params = self.WriteParamsInterface.pv_onoff_to_params(params)
-            
+
         elif isinstance(params, self.GridVoltageParams):
             api_params = self.WriteParamsInterface.grid_voltage_to_params(params)
-            
+
         elif isinstance(params, self.OffGridParams):
             api_params = self.WriteParamsInterface.off_grid_to_params(params)
-            
+
         elif isinstance(params, self.PowerParams):
             api_params = self.WriteParamsInterface.power_to_params(params)
-            
+
         elif isinstance(params, self.ChargeDischargeParams):
             api_params = self.WriteParamsInterface.charge_discharge_to_params(params)
-            
+
         else:
             msg = f"Unsupported parameter type: {type(params)}"
             raise GrowattParameterError(msg)
@@ -1669,7 +1675,7 @@ class OpenApiV1(GrowattApi):
             end_time_raw = settings_data.get(stop_field, "0:0")
             mode_raw = settings_data.get(mode_field)
             enabled_raw = settings_data.get(enabled_field, 0)
-            
+
             # Handle 'null' string values
             if start_time_raw == "null" or not start_time_raw:
                 start_time_raw = "0:0"
@@ -1703,7 +1709,7 @@ class OpenApiV1(GrowattApi):
                     batt_mode = None
 
             # Get the enabled status safely
-            enabled_raw = settings_data.get(f"forcedStopSwitch{i}", 0)
+            # enabled_raw = settings_data.get(f"forcedStopSwitch{i}", 0)
 
             if enabled_raw == "null" or enabled_raw is None:
                 enabled = False
@@ -1820,7 +1826,7 @@ class GrowattDevice:
             command,
             params
         )
-    
+
     def common_write_parameter(
         self,
         command: str,
