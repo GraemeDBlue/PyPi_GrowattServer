@@ -53,18 +53,25 @@ class DeviceType(Enum):
 class DeviceFieldTemplates:
     """Template strings for device field names."""
 
-    MIN_TLX_TEMPLATES = {
+    MIN_TLX_TEMPLATES: ClassVar = {
         "start_time": "forcedTimeStart{segment_id}",
         "stop_time": "forcedTimeStop{segment_id}",
         "mode": "time{segment_id}Mode",
         "enabled": "forcedStopSwitch{segment_id}"
     }
 
-    SPH_MIX_TEMPLATES = {
+    SPH_MIX_TEMPLATES_CHARGE: ClassVar = {
         "start_time": "forcedChargeTimeStart{segment_id}",
         "stop_time": "forcedChargeTimeStop{segment_id}",
-        "mode": "None",
+        "mode": "Battery First",
         "enabled": "forcedChargeStopSwitch{segment_id}"
+    }
+
+    SPH_MIX_TEMPLATES_DIS_CHARGE: ClassVar = {
+        "start_time": "forcedDischargeTimeStart{segment_id}",
+        "stop_time": "forcedDischargeTimeStop{segment_id}",
+        "mode": "Battery First",
+        "enabled": "forcedDischargeStopSwitch{segment_id}"
     }
 
 class ApiDataType(Enum):
@@ -1638,12 +1645,12 @@ class OpenApiV1(GrowattApi):
                 If there is an issue with the HTTP request.
 
         """
-
-         # Select appropriate templates
+        # Select appropriate templates
         if device_type == DeviceType.MIN_TLX:
             templates = DeviceFieldTemplates.MIN_TLX_TEMPLATES
         elif device_type == DeviceType.SPH_MIX:
-            templates = DeviceFieldTemplates.SPH_MIX_TEMPLATES
+            templates = DeviceFieldTemplates.SPH_MIX_TEMPLATES_CHARGE
+            templates_discharge = DeviceFieldTemplates.SPH_MIX_TEMPLATES_DIS_CHARGE
         else:
             msg = f"Unsupported device type: {device_type}"
             raise GrowattParameterError(msg)
