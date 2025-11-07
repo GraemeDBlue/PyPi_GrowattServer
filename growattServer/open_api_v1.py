@@ -8,13 +8,18 @@ from datetime import UTC, date, datetime, time, timedelta
 from enum import Enum
 from typing import ClassVar, NamedTuple, Optional
 
-from dotenv import load_dotenv
+# Load environment variables from .env file (optional, for development)
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    # dotenv not available, skip loading .env file
+    pass
 
 from . import GrowattApi
 from .exceptions import GrowattParameterError, GrowattV1ApiError
 
-# Load environment variables from .env file
-load_dotenv()
 
 class DeviceType(Enum):
     """Enumeration of Growatt device types."""
@@ -56,6 +61,7 @@ class DeviceType(Enum):
             msg = f"Unsupported device type: {device_type}"
             raise GrowattParameterError(msg)
 
+
 class DeviceFieldTemplates:
     """Template strings for device field names."""
 
@@ -63,22 +69,23 @@ class DeviceFieldTemplates:
         "start_time": "forcedTimeStart{segment_id}",
         "stop_time": "forcedTimeStop{segment_id}",
         "mode": "time{segment_id}Mode",
-        "enabled": "forcedStopSwitch{segment_id}"
+        "enabled": "forcedStopSwitch{segment_id}",
     }
 
     SPH_MIX_TEMPLATES_CHARGE: ClassVar = {
         "start_time": "forcedChargeTimeStart{segment_id}",
         "stop_time": "forcedChargeTimeStop{segment_id}",
         "mode": "Battery First",
-        "enabled": "forcedChargeStopSwitch{segment_id}"
+        "enabled": "forcedChargeStopSwitch{segment_id}",
     }
 
     SPH_MIX_TEMPLATES_DIS_CHARGE: ClassVar = {
         "start_time": "forcedDischargeTimeStart{segment_id}",
         "stop_time": "forcedDischargeTimeStop{segment_id}",
         "mode": "Battery First",
-        "enabled": "forcedDischargeStopSwitch{segment_id}"
+        "enabled": "forcedDischargeStopSwitch{segment_id}",
     }
+
 
 class ApiDataType(Enum):
     """Enumeration of Growatt device types."""
@@ -89,6 +96,7 @@ class ApiDataType(Enum):
     DEVICE_SETTINGS = "settings"
     READ_PARAM = "read_param"
     SET_PARAM = "set_param"
+
 
 class OpenApiV1(GrowattApi):
     """
@@ -112,7 +120,7 @@ class OpenApiV1(GrowattApi):
             # https://www.showdoc.com.cn/262556420217021/6129766954561259
             ApiDataType.READ_PARAM: "readMixParam",
             # https://www.showdoc.com.cn/262556420217021/6129761750718760
-            ApiDataType.SET_PARAM: "mixSet"
+            ApiDataType.SET_PARAM: "mixSet",
         },
         DeviceType.MIN_TLX: {
             # https://www.showdoc.com.cn/262556420217021/6129822090975531
@@ -126,8 +134,8 @@ class OpenApiV1(GrowattApi):
             # https://www.showdoc.com.cn/262556420217021/6129828239577315
             ApiDataType.READ_PARAM: "readMinParam",
             # https://www.showdoc.com.cn/262556420217021/6129826876191828
-            ApiDataType.SET_PARAM: "tlxSet"
-        }
+            ApiDataType.SET_PARAM: "tlxSet",
+        },
     }
 
     class TimeSegmentParams(NamedTuple):
@@ -144,11 +152,12 @@ class OpenApiV1(GrowattApi):
         segment_id: int
         batt_mode: int
         start_time: time  # Should be datetime.time
-        end_time: time    # Should be datetime.time
+        end_time: time  # Should be datetime.time
         enabled: bool = True
 
     class MixAcDischargeTimeParams(NamedTuple):
         """Parameters for SPH_MIX AC discharge time period."""
+
         discharge_power: int  # 0-100
         discharge_stop_soc: int  # 0-100
         start_hour: int  # 0-23
@@ -160,6 +169,7 @@ class OpenApiV1(GrowattApi):
 
     class MixAcChargeTimeParams(NamedTuple):
         """Parameters for SPH_MIX AC charge time period."""
+
         charge_power: int  # 0-100
         charge_stop_soc: int  # 0-100
         mains_enabled: bool  # True=enable, False=disable
@@ -172,38 +182,44 @@ class OpenApiV1(GrowattApi):
 
     class BackflowSettingParams(NamedTuple):
         """Parameters for backflow prevention setting."""
+
         backflow_enabled: bool  # True=on, False=off
         anti_reverse_power_percentage: int = 0  # 0-100 (for SPH_MIX)
         backflow_mode: int = 0  # 0=disable, 1=enable meter, 2=enable CT (for MIN_TLX)
 
     class PvOnOffParams(NamedTuple):
         """Parameters for PV on/off setting."""
+
         pv_enabled: bool  # True=on (0001), False=off (0000)
 
     class GridVoltageParams(NamedTuple):
         """Parameters for grid voltage limits."""
+
         voltage_high: int = 270  # Upper limit
-        voltage_low: int = 180   # Lower limit
+        voltage_low: int = 180  # Lower limit
 
     class OffGridParams(NamedTuple):
         """Parameters for off-grid settings."""
+
         off_grid_enabled: bool  # True=enabled, False=disabled
         frequency: int = 0  # 0=50HZ, 1=60HZ
-        voltage: int = 0    # 0=230V, 1=208V, 2=240V
+        voltage: int = 0  # 0=230V, 1=208V, 2=240V
 
     class PowerParams(NamedTuple):
         """Parameters for power settings."""
-        active_power: int = 0     # 0-100
-        reactive_power: int = 0   # 0-100
-        power_factor: float = 1.0 # -0.8 to -1 or 0.8 to 1
+
+        active_power: int = 0  # 0-100
+        reactive_power: int = 0  # 0-100
+        power_factor: float = 1.0  # -0.8 to -1 or 0.8 to 1
 
     class ChargeDischargeParams(NamedTuple):
         """Parameters for charge/discharge settings."""
-        charge_power: int = 0          # 0-100
-        charge_stop_soc: int = 0       # 0-100
-        discharge_power: int = 0       # 0-100
-        discharge_stop_soc: int = 0    # 0-100
-        ac_charge_enabled: bool = False # Mains charging enabled
+
+        charge_power: int = 0  # 0-100
+        charge_stop_soc: int = 0  # 0-100
+        discharge_power: int = 0  # 0-100
+        discharge_stop_soc: int = 0  # 0-100
+        ac_charge_enabled: bool = False  # Mains charging enabled
 
     class WriteParamsInterface:
         """Interface for converting parameter objects to API format."""
@@ -221,9 +237,11 @@ class OpenApiV1(GrowattApi):
             }
 
         @staticmethod
-        def mix_discharge_to_params(params: "OpenApiV1.MixAcDischargeTimeParams", period: int = 1) -> dict:
+        def mix_discharge_to_params(
+            params: "OpenApiV1.MixAcDischargeTimeParams", period: int = 1
+        ) -> dict:
             """Convert MixAcDischargeTimeParams to API parameters for SPH_MIX."""
-            base_param = (period - 1) * 5 # Each period uses 5 parameters
+            base_param = (period - 1) * 5  # Each period uses 5 parameters
             return {
                 f"param1": str(params.discharge_power),
                 f"param2": str(params.discharge_stop_soc),
@@ -235,7 +253,9 @@ class OpenApiV1(GrowattApi):
             }
 
         @staticmethod
-        def mix_charge_to_params(params: "OpenApiV1.MixAcChargeTimeParams", period: int = 1) -> dict:
+        def mix_charge_to_params(
+            params: "OpenApiV1.MixAcChargeTimeParams", period: int = 1
+        ) -> dict:
             """Convert MixAcChargeTimeParams to API parameters for SPH_MIX."""
             base_param = (period - 1) * 5  # Each period uses 5 parameters
             return {
@@ -250,7 +270,9 @@ class OpenApiV1(GrowattApi):
             }
 
         @staticmethod
-        def backflow_to_params(params: "OpenApiV1.BackflowSettingParams", device_type: DeviceType) -> dict:
+        def backflow_to_params(
+            params: "OpenApiV1.BackflowSettingParams", device_type: DeviceType
+        ) -> dict:
             """Convert BackflowSettingParams to API parameters."""
             if device_type == DeviceType.SPH_MIX:
                 return {
@@ -278,7 +300,9 @@ class OpenApiV1(GrowattApi):
             return {
                 "param1": str(params.voltage_high),  # For high voltage
                 # OR
-                "param1": str(params.voltage_low),   # For low voltage (different command)
+                "param1": str(
+                    params.voltage_low
+                ),  # For low voltage (different command)
             }
 
         @staticmethod
@@ -296,26 +320,32 @@ class OpenApiV1(GrowattApi):
         def power_to_params(params: "OpenApiV1.PowerParams") -> dict:
             """Convert PowerParams to API parameters."""
             return {
-                "param1": str(params.active_power),     # For active power
+                "param1": str(params.active_power),  # For active power
                 # OR
-                "param1": str(params.reactive_power),   # For reactive power
+                "param1": str(params.reactive_power),  # For reactive power
                 # OR
-                "param1": str(params.power_factor),     # For power factor
+                "param1": str(params.power_factor),  # For power factor
             }
 
         @staticmethod
-        def charge_discharge_to_params(params: "OpenApiV1.ChargeDischargeParams") -> dict:
+        def charge_discharge_to_params(
+            params: "OpenApiV1.ChargeDischargeParams",
+        ) -> dict:
             """Convert ChargeDischargeParams to API parameters."""
             return {
-                "param1": str(params.charge_power),      # For charge_power command
+                "param1": str(params.charge_power),  # For charge_power command
                 # OR
-                "param1": str(params.charge_stop_soc),   # For charge_stop_soc command
+                "param1": str(params.charge_stop_soc),  # For charge_stop_soc command
                 # OR
-                "param1": str(params.discharge_power),   # For discharge_power command
+                "param1": str(params.discharge_power),  # For discharge_power command
                 # OR
-                "param1": str(params.discharge_stop_soc), # For discharge_stop_soc command
+                "param1": str(
+                    params.discharge_stop_soc
+                ),  # For discharge_stop_soc command
                 # OR
-                "param1": "1" if params.ac_charge_enabled else "0", # For ac_charge command
+                "param1": "1"
+                if params.ac_charge_enabled
+                else "0",  # For ac_charge command
             }
 
     class DeviceEnergyHistoryParams(NamedTuple):
@@ -382,9 +412,7 @@ class OpenApiV1(GrowattApi):
         return re.sub(r"\s+", "_", s)
 
     def _process_response(
-        self,
-        response: dict,
-        operation_name: str = "API operation"
+        self, response: dict, operation_name: str = "API operation"
     ) -> dict:
         """
         Process API response and handle errors.
@@ -403,8 +431,8 @@ class OpenApiV1(GrowattApi):
 
         """
         # Only write debug output if DEBUG environment variable is set to true
-        if os.getenv('DEBUG', 'false').lower() == 'true':
-            with open('response.json', 'w') as f:
+        if os.getenv("DEBUG", "false").lower() == "true":
+            with open("response.json", "w") as f:
                 json.dump(response, f, indent=4, sort_keys=True)
 
         if response.get("error_code", 1) != 0:
@@ -412,7 +440,7 @@ class OpenApiV1(GrowattApi):
             raise GrowattV1ApiError(
                 msg,
                 error_code=response.get("error_code"),
-                error_msg=response.get("error_msg", "Unknown error")
+                error_msg=response.get("error_msg", "Unknown error"),
             )
 
         return response.get("data") or {}
@@ -463,14 +491,11 @@ class OpenApiV1(GrowattApi):
             "page": "",
             "perpage": "",
             "search_type": "",
-            "search_keyword": ""
+            "search_keyword": "",
         }
 
         # Make the request
-        response = self.session.get(
-            url=self._get_url("plant/list"),
-            data=request_data
-        )
+        response = self.session.get(url=self._get_url("plant/list"), data=request_data)
 
         return self._process_response(response.json(), "getting plant list")
 
@@ -491,8 +516,7 @@ class OpenApiV1(GrowattApi):
 
         """
         response = self.session.get(
-            self._get_url("plant/details"),
-            params={"plant_id": plant_id}
+            self._get_url("plant/details"), params={"plant_id": plant_id}
         )
 
         return self._process_response(response.json(), "getting plant details")
@@ -514,16 +538,13 @@ class OpenApiV1(GrowattApi):
 
         """
         response = self.session.get(
-            self._get_url("plant/data"),
-            params={"plant_id": plant_id}
+            self._get_url("plant/data"), params={"plant_id": plant_id}
         )
 
         return self._process_response(response.json(), "getting plant energy overview")
 
     def plant_power_overview(
-        self,
-        plant_id: int,
-        day: str | date | None = None
+        self, plant_id: int, day: str | date | None = None
     ) -> dict:
         """
         Obtain power data of a certain power station.
@@ -562,15 +583,13 @@ class OpenApiV1(GrowattApi):
             params={
                 "plant_id": plant_id,
                 "date": str(day),
-            }
+            },
         )
 
         return self._process_response(response.json(), "getting plant power overview")
 
     def plant_energy_history(
-        self,
-        plant_id: int,
-        params: Optional["PlantEnergyHistoryParams"] = None
+        self, plant_id: int, params: Optional["PlantEnergyHistoryParams"] = None
     ) -> dict:
         """
         Retrieve plant energy data for multiple days/months/years.
@@ -610,15 +629,11 @@ class OpenApiV1(GrowattApi):
             end_date = today
         elif start_date is None:
             start_date = (
-                end_date
-                if end_date is not None
-                else datetime.now(tz=UTC).date()
+                end_date if end_date is not None else datetime.now(tz=UTC).date()
             )
         elif end_date is None:
             end_date = (
-                start_date
-                if start_date is not None
-                else datetime.now(tz=UTC).date()
+                start_date if start_date is not None else datetime.now(tz=UTC).date()
             )
 
         # Validate date ranges based on time_unit
@@ -629,10 +644,10 @@ class OpenApiV1(GrowattApi):
             and (end_date - start_date).days > 7  # noqa: PLR2004
         ):
             warnings.warn(
-                    "Date interval must not exceed 7 days in 'day' mode.",
-                    RuntimeWarning,
-                    stacklevel=2
-                )
+                "Date interval must not exceed 7 days in 'day' mode.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         elif (
             time_unit == "month"
             and start_date is not None
@@ -640,9 +655,10 @@ class OpenApiV1(GrowattApi):
             and (end_date.year - start_date.year > 1)
         ):
             warnings.warn(
-                    "Start date must be within same or previous year in 'month' mode.",
-                    RuntimeWarning, stacklevel=2
-                )
+                "Start date must be within same or previous year in 'month' mode.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         elif (
             time_unit == "year"
             and start_date is not None
@@ -652,7 +668,7 @@ class OpenApiV1(GrowattApi):
             warnings.warn(
                 "Date interval must not exceed 20 years in 'year' mode.",
                 RuntimeWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         # Ensure start_date and end_date are not None
@@ -677,8 +693,8 @@ class OpenApiV1(GrowattApi):
                 ),
                 "time_unit": time_unit,
                 "page": page,
-                "perpage": perpage
-            }
+                "perpage": perpage,
+            },
         )
 
         return self._process_response(response.json(), "getting plant energy history")
@@ -706,10 +722,7 @@ class OpenApiV1(GrowattApi):
 
         """
         response = self.session.get(
-            url=self._get_url("device/list"),
-            params={
-                "plant_id": plant_id
-            }
+            url=self._get_url("device/list"), params={"plant_id": plant_id}
         )
 
         data = self._process_response(response.json(), "getting device list")
@@ -749,14 +762,11 @@ class OpenApiV1(GrowattApi):
 
         response = self.session.get(
             self._get_device_url(device_type, ApiDataType.BASIC_INFO),
-            params={
-                "device_sn": device_sn
-            }
+            params={"device_sn": device_sn},
         )
 
         return self._process_response(
-            response.json(),
-            f"getting {device_type.name} details"
+            response.json(), f"getting {device_type.name} details"
         )
 
     def min_detail(self, device_sn: str) -> dict:
@@ -803,19 +813,15 @@ class OpenApiV1(GrowattApi):
 
         response = self.session.post(
             url=self._get_device_url(device_type, ApiDataType.LAST_DATA),
-            data={
-                f"{url_prefix}_sn": device_sn
-            }
+            data={f"{url_prefix}_sn": device_sn},
         )
-
 
         # responseHydrated = self._process_response(response.json(), f"getting {device_type.name} energy data")
 
         # responseHydrated['epvToday'] = responseHydrated.get('epv1Today', 0) + responseHydrated.get("epv2Today", 0)
 
         return self._process_response(
-            response.json(),
-            f"getting {device_type.name} energy data"
+            response.json(), f"getting {device_type.name} energy data"
         )
 
     def min_energy(self, device_sn: str) -> dict:
@@ -862,14 +868,11 @@ class OpenApiV1(GrowattApi):
 
         response = self.session.get(
             self._get_device_url(device_type, ApiDataType.DEVICE_SETTINGS),
-            params={
-                "device_sn": device_sn
-            }
+            params={"device_sn": device_sn},
         )
 
         return self._process_response(
-            response.json(),
-            f"getting {device_type.name} settings"
+            response.json(), f"getting {device_type.name} settings"
         )
 
     def min_settings(self, device_sn: str) -> dict:
@@ -894,7 +897,7 @@ class OpenApiV1(GrowattApi):
         self,
         device_sn: str,
         device_type: DeviceType,
-        params: Optional["DeviceEnergyHistoryParams"] = None
+        params: Optional["DeviceEnergyHistoryParams"] = None,
     ) -> dict:
         """
         Get device energy history data.
@@ -934,15 +937,11 @@ class OpenApiV1(GrowattApi):
             end_date = datetime.now(tz=UTC).date()
         elif start_date is None:
             start_date = (
-                end_date
-                if end_date is not None
-                else datetime.now(tz=UTC).date()
+                end_date if end_date is not None else datetime.now(tz=UTC).date()
             )
         elif end_date is None:
             end_date = (
-                start_date
-                if start_date is not None
-                else datetime.now(tz=UTC).date()
+                start_date if start_date is not None else datetime.now(tz=UTC).date()
             )
 
         # check interval validity
@@ -968,18 +967,15 @@ class OpenApiV1(GrowattApi):
                 "timezone_id": timezone,
                 "page": page,
                 "perpage": limit,
-            }
+            },
         )
 
         return self._process_response(
-            response.json(),
-            f"getting {device_type.name} energy history"
+            response.json(), f"getting {device_type.name} energy history"
         )
 
     def min_energy_history(
-        self,
-        device_sn: str,
-        params: Optional["DeviceEnergyHistoryParams"] = None
+        self, device_sn: str, params: Optional["DeviceEnergyHistoryParams"] = None
     ) -> dict:
         """
         Get energy history data for a MIN inverter.
@@ -999,47 +995,39 @@ class OpenApiV1(GrowattApi):
             If there is an issue with the HTTP request.
 
         """
-        return self.device_energy_history(
-                device_sn,
-                DeviceType.MIN_TLX,
-                params
-            )
+        return self.device_energy_history(device_sn, DeviceType.MIN_TLX, params)
 
-    def min_read_parameter(
-            self,
-            device_sn: str,
-            params: dict
-        ) -> dict:
-            """
-            Read setting from MIN inverter.
+    def min_read_parameter(self, device_sn: str, params: dict) -> dict:
+        """
+        Read setting from MIN inverter.
 
-            Args:
-                device_sn (str): The ID of the TLX inverter.
-                params (dict): Parameters for reading the setting.
-                    Should include either 'parameter_id' or 'start_address' and 'end_address'.
+        Args:
+            device_sn (str): The ID of the TLX inverter.
+            params (dict): Parameters for reading the setting.
+                Should include either 'parameter_id' or 'start_address' and 'end_address'.
 
-            Returns:
-                dict: A dictionary containing the setting value.
+        Returns:
+            dict: A dictionary containing the setting value.
 
-            Raises:
-                GrowattParameterError: If parameters are invalid.
-                GrowattV1ApiError: If the API returns an error response.
-                requests.exceptions.RequestException:
-                    If there is an issue with the HTTP request.
+        Raises:
+            GrowattParameterError: If parameters are invalid.
+            GrowattV1ApiError: If the API returns an error response.
+            requests.exceptions.RequestException:
+                If there is an issue with the HTTP request.
 
-            """
-            parameter_id = (
-                str(params.get("parameter_id"))
-                if params.get("parameter_id") is not None
-                else ""
-            )
-            return self.common_read_parameter(
-                device_sn,
-                DeviceType.MIN_TLX,
-                parameter_id,
-                params.get("start_address"),
-                params.get("end_address"),
-            )
+        """
+        parameter_id = (
+            str(params.get("parameter_id"))
+            if params.get("parameter_id") is not None
+            else ""
+        )
+        return self.common_read_parameter(
+            device_sn,
+            DeviceType.MIN_TLX,
+            parameter_id,
+            params.get("start_address"),
+            params.get("end_address"),
+        )
 
     def common_read_parameter(
         self,
@@ -1047,7 +1035,7 @@ class OpenApiV1(GrowattApi):
         device_type: DeviceType,
         parameter_id: str,
         start_address: int | None = None,
-        end_address: int | None = None
+        end_address: int | None = None,
     ) -> dict:
         """
         Read setting from MIN inverter.
@@ -1078,13 +1066,10 @@ class OpenApiV1(GrowattApi):
 
         if parameter_id is None and start_address is None:
             msg = "specify either parameter_id or start_address/end_address"
-            raise GrowattParameterError(
-                msg)
+            raise GrowattParameterError(msg)
         elif parameter_id is not None and start_address is not None:  # noqa: RET506
             msg = "specify either parameter_id or start_address/end_address - not both."
-            raise GrowattParameterError(
-                msg
-            )
+            raise GrowattParameterError(msg)
         elif parameter_id is not None:
             # named parameter
             start_address = 0
@@ -1104,19 +1089,15 @@ class OpenApiV1(GrowattApi):
                 "paramId": parameter_id,
                 "startAddr": start_address,
                 "endAddr": end_address,
-            }
+            },
         )
 
         return self._process_response(
-            response.json(),
-            f"reading parameter {parameter_id}"
+            response.json(), f"reading parameter {parameter_id}"
         )
 
     def min_write_parameter(
-        self,
-        device_sn: str,
-        parameter_id: str,
-        parameter_values: object = None
+        self, device_sn: str, parameter_id: str, parameter_values: object = None
     ) -> dict:
         """
         Set parameters on a MIN inverter.
@@ -1155,34 +1136,27 @@ class OpenApiV1(GrowattApi):
                 # Dict maps param positions to values
                 for pos, value in parameter_values.items():
                     param_pos = int(pos) if not isinstance(pos, int) else pos
-                    if 1 <= param_pos <= 19:  # Validate parameter positions  # noqa: E501, PLR2004
+                    if (
+                        1 <= param_pos <= 19
+                    ):  # Validate parameter positions  # noqa: E501, PLR2004
                         parameters[param_pos] = str(value)
 
         # IMPORTANT: Create a data dictionary with ALL parameters explicitly included
-        request_data = {
-            "tlx_sn": device_sn,
-            "type": parameter_id
-        }
+        request_data = {"tlx_sn": device_sn, "type": parameter_id}
 
         # Add all 19 parameters to the request
         for i in range(1, 20):
             request_data[f"param{i}"] = str(parameters[i])
 
         # Send the request
-        response = self.session.post(
-            self._get_url("tlxSet"),
-            data=request_data
-        )
+        response = self.session.post(self._get_url("tlxSet"), data=request_data)
 
         return self._process_response(
-            response.json(),
-            f"writing parameter {parameter_id}"
+            response.json(), f"writing parameter {parameter_id}"
         )
 
     def min_write_time_segment(
-        self,
-        device_sn: str,
-        params: "TimeSegmentParams"
+        self, device_sn: str, params: "TimeSegmentParams"
     ) -> dict:
         """
         Set a time segment for a MIN inverter.
@@ -1210,10 +1184,7 @@ class OpenApiV1(GrowattApi):
             raise GrowattParameterError(msg)
 
         # Initialize ALL 19 parameters as empty strings, not just the ones we need
-        all_params = {
-            "tlx_sn": device_sn,
-            "type": f"time_segment{params.segment_id}"
-        }
+        all_params = {"tlx_sn": device_sn, "type": f"time_segment{params.segment_id}"}
 
         # Add param1 through param19, setting the values we need
         all_params["param1"] = str(params.batt_mode)
@@ -1228,14 +1199,10 @@ class OpenApiV1(GrowattApi):
             all_params[f"param{i}"] = ""
 
         # Send the request
-        response = self.session.post(
-            self._get_url("tlxSet"),
-            data=all_params
-        )
+        response = self.session.post(self._get_url("tlxSet"), data=all_params)
 
         return self._process_response(
-            response.json(),
-            f"writing time segment {params.segment_id}"
+            response.json(), f"writing time segment {params.segment_id}"
         )
 
     """
@@ -1274,7 +1241,7 @@ class OpenApiV1(GrowattApi):
         device_sn: str,
         device_type: DeviceType,
         command: str,
-        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams"
+        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams",
     ) -> dict:
         """
         Set a time segment for a MIN/TLX or SPH/MIX inverter.
@@ -1310,20 +1277,21 @@ class OpenApiV1(GrowattApi):
             command = f"time_segment{params.segment_id}"
 
         elif isinstance(params, self.MixAcDischargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(
+                params, params.segment_id
+            )
 
         elif isinstance(params, self.MixAcChargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
+            api_params = self.WriteParamsInterface.mix_charge_to_params(
+                params, params.segment_id
+            )
 
         else:
             msg = f"Unsupported parameter type: {type(params)}"
             raise GrowattParameterError(msg)
 
         # Initialize ALL 19 parameters as empty strings
-        all_params = {
-            f"{url_prefix}_sn": device_sn,
-            "type": command
-        }
+        all_params = {f"{url_prefix}_sn": device_sn, "type": command}
 
         # Add the converted parameters
         all_params.update(api_params)
@@ -1334,27 +1302,22 @@ class OpenApiV1(GrowattApi):
             if param_key not in all_params:
                 all_params[param_key] = ""
 
-        if os.getenv('DEBUG', 'false').lower() == 'true':
+        if os.getenv("DEBUG", "false").lower() == "true":
             with open("params.json", "w") as f:
                 json.dump(all_params, f, indent=4, sort_keys=True)
 
         # Send the request
         response = self.session.post(
             url=self._get_device_url(device_type, ApiDataType.SET_PARAM),
-            data=all_params
+            data=all_params,
         )
 
         return self._process_response(
-            response.json(),
-            f"writing time segment command {command}"
+            response.json(), f"writing time segment command {command}"
         )
 
     def write_parameter(
-        self,
-        device_sn: str,
-        device_type: DeviceType,
-        command: str,
-        params: object
+        self, device_sn: str, device_type: DeviceType, command: str, params: object
     ) -> dict:
         """
         Universal parameter writing method for both MIN_TLX and SPH_MIX devices.
@@ -1420,13 +1383,19 @@ class OpenApiV1(GrowattApi):
             api_params = self.WriteParamsInterface.time_segment_to_params(params)
 
         elif isinstance(params, self.MixAcDischargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_discharge_to_params(params, params.segment_id)
+            api_params = self.WriteParamsInterface.mix_discharge_to_params(
+                params, params.segment_id
+            )
 
         elif isinstance(params, self.MixAcChargeTimeParams):
-            api_params = self.WriteParamsInterface.mix_charge_to_params(params, params.segment_id)
+            api_params = self.WriteParamsInterface.mix_charge_to_params(
+                params, params.segment_id
+            )
 
         elif isinstance(params, self.BackflowSettingParams):
-            api_params = self.WriteParamsInterface.backflow_to_params(params, device_type)
+            api_params = self.WriteParamsInterface.backflow_to_params(
+                params, device_type
+            )
 
         elif isinstance(params, self.PvOnOffParams):
             api_params = self.WriteParamsInterface.pv_onoff_to_params(params)
@@ -1448,10 +1417,7 @@ class OpenApiV1(GrowattApi):
             raise GrowattParameterError(msg)
 
         # Initialize ALL 19 parameters as empty strings
-        all_params = {
-            f"{url_prefix}_sn": device_sn,
-            "type": command
-        }
+        all_params = {f"{url_prefix}_sn": device_sn, "type": command}
 
         # Add the converted parameters
         all_params.update(api_params)
@@ -1462,21 +1428,22 @@ class OpenApiV1(GrowattApi):
             if param_key not in all_params:
                 all_params[param_key] = ""
 
+        if os.getenv("DEBUG", "false").lower() == "true":
+            with open("params.json", "w") as f:
+                json.dump(all_params, f, indent=4, sort_keys=True)
+
         # Send the request
         response = self.session.post(
             url=self._get_device_url(device_type, ApiDataType.SET_PARAM),
-            data=all_params
+            data=all_params,
         )
 
         return self._process_response(
-            response.json(),
-            f"writing parameter command {command}"
+            response.json(), f"writing parameter command {command}"
         )
 
     def min_read_time_segments(
-        self,
-        device_sn: str,
-        settings_data: dict | None = None
+        self, device_sn: str, settings_data: dict | None = None
     ) -> list[dict]:
         """
         Read Time-of-Use (TOU) settings from a Growatt MIN/TLX inverter.
@@ -1526,11 +1493,7 @@ class OpenApiV1(GrowattApi):
             settings_data = self.min_settings(device_sn=device_sn)
 
         # Define mode names
-        mode_names = {
-            0: "Load First",
-            1: "Battery First",
-            2: "Grid First"
-        }
+        mode_names = {0: "Load First", 1: "Battery First", 2: "Grid First"}
 
         segments = []
 
@@ -1587,12 +1550,11 @@ class OpenApiV1(GrowattApi):
                 "segment_id": i,
                 "batt_mode": batt_mode,
                 "mode_name": mode_names.get(
-                    batt_mode if isinstance(batt_mode, int) else -1,
-                    "Unknown"
+                    batt_mode if isinstance(batt_mode, int) else -1, "Unknown"
                 ),
                 "start_time": start_time,
                 "end_time": end_time,
-                "enabled": enabled
+                "enabled": enabled,
             }
 
             segments.append(segment)
@@ -1600,10 +1562,7 @@ class OpenApiV1(GrowattApi):
         return segments
 
     def read_time_segments(
-        self,
-        device_sn: str,
-        device_type: DeviceType,
-        settings_data: dict | None = None
+        self, device_sn: str, device_type: DeviceType, settings_data: dict | None = None
     ) -> list[dict]:
         """
         Read Time-of-Use (TOU) settings from a Growatt MIN/TLX or MIX/SPH inverter.
@@ -1669,11 +1628,7 @@ class OpenApiV1(GrowattApi):
             settings_data = self.device_settings(device_sn, device_type=device_type)
 
         # Define mode names
-        mode_names = {
-            0: "Load First",
-            1: "Battery First",
-            2: "Grid First"
-        }
+        mode_names = {0: "Load First", 1: "Battery First", 2: "Grid First"}
 
         segments = []
 
@@ -1722,7 +1677,7 @@ class OpenApiV1(GrowattApi):
                     batt_mode = int(mode_raw)
                 except (ValueError, TypeError):
                     batt_mode = None
-                    
+
             # Get the enabled status safely
             if enabled_raw == "null" or enabled_raw is None:
                 enabled = False
@@ -1736,12 +1691,11 @@ class OpenApiV1(GrowattApi):
                 "segment_id": i,
                 "batt_mode": batt_mode,
                 "mode_name": mode_names.get(
-                    batt_mode if batt_mode is not None else -1,
-                    "Unknown"
+                    batt_mode if batt_mode is not None else -1, "Unknown"
                 ),
                 "start_time": start_time,
                 "end_time": end_time,
-                "enabled": enabled
+                "enabled": enabled,
             }
 
             segments.append(segment)
@@ -1752,6 +1706,7 @@ class OpenApiV1(GrowattApi):
         """Get devices as GrowattDevice objects for easier use."""
         data = self.device_list(plant_id)
         return [GrowattDevice(self, device) for device in data["devices"]]
+
 
 class GrowattDevice:
     """Represents a Growatt device with automatic type handling."""
@@ -1790,7 +1745,7 @@ class GrowattDevice:
         end_date: date | None = None,
         timezone: str | None = None,
         page: int | None = None,
-        limit: int | None = None
+        limit: int | None = None,
     ) -> dict:
         """Get energy history data."""
         params = self._api.DeviceEnergyHistoryParams(
@@ -1798,13 +1753,9 @@ class GrowattDevice:
             end_date=end_date,
             timezone=timezone,
             page=page,
-            limit=limit
+            limit=limit,
         )
-        return self._api.device_energy_history(
-            self.device_sn,
-            self.device_type,
-            params
-        )
+        return self._api.device_energy_history(self.device_sn, self.device_type, params)
 
     def read_time_segments(self, settings_data: dict | None = None) -> list[dict]:
         """Read TOU time segments."""
@@ -1816,39 +1767,25 @@ class GrowattDevice:
         self,
         parameter_id: str,
         start_address: int | None = None,
-        end_address: int | None = None
+        end_address: int | None = None,
     ) -> dict:
         """Read a parameter from the device."""
         return self._api.common_read_parameter(
-            self.device_sn,
-            self.device_type,
-            parameter_id,
-            start_address,
-            end_address
+            self.device_sn, self.device_type, parameter_id, start_address, end_address
         )
 
     def common_write_time_segment(
         self,
         command: str,
-        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams"
+        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams",
     ) -> dict:
         """Write a time segment parameter to the device."""
         return self._api.write_time_segment(
-            self.device_sn,
-            self.device_type,
-            command,
-            params
+            self.device_sn, self.device_type, command, params
         )
 
-    def common_write_parameter(
-        self,
-        command: str,
-        params: object
-    ) -> dict:
+    def common_write_parameter(self, command: str, params: object) -> dict:
         """Write a parameter to the device."""
         return self._api.write_parameter(
-            self.device_sn,
-            self.device_type,
-            command,
-            params
+            self.device_sn, self.device_type, command, params
         )
