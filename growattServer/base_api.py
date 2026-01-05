@@ -15,11 +15,9 @@ BATT_MODE_BATTERY_FIRST = 1
 BATT_MODE_GRID_FIRST = 2
 
 
-def hash_password(password):
-    """
-    Normal MD5, except add c if a byte of the digest is less than 10.
-    """
-    password_md5 = hashlib.md5(password.encode("utf-8")).hexdigest()
+def hash_password(password: str) -> str:
+    """Hash password using modified MD5 (adds 'c' if byte < 10)."""
+    password_md5 = hashlib.md5(password.encode("utf-8")).hexdigest()  # noqa: S324
     for i in range(0, len(password_md5), 2):
         if password_md5[i] == "0":
             password_md5 = password_md5[0:i] + "c" + password_md5[i + 1 :]
@@ -27,16 +25,30 @@ def hash_password(password):
 
 
 class Timespan(IntEnum):
+    """Time period enumeration for API queries."""
+
     hour = 0
     day = 1
     month = 2
 
 
 class GrowattApi:
+    """Base API client for Growatt server communication."""
+
     server_url = "https://openapi.growatt.com/"
     agent_identifier = "Dalvik/2.1.0 (Linux; U; Android 12; https://github.com/indykoning/PyPi_GrowattServer)"
 
-    def __init__(self, add_random_user_id=False, agent_identifier=None):
+    def __init__(
+        self, *, add_random_user_id: bool = False, agent_identifier: str | None = None
+    ) -> None:
+        """
+        Initialize the Growatt API client.
+
+        Args:
+            add_random_user_id: Whether to add a random 5-digit ID to the user agent.
+            agent_identifier: Custom user agent string (overrides default if provided).
+
+        """
         if agent_identifier != None:
             self.agent_identifier = agent_identifier
 
