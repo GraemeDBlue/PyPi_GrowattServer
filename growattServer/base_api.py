@@ -70,10 +70,9 @@ class GrowattApi:
     def __get_date_string(
         self, timespan: Timespan | None = None, date: datetime.datetime | None = None
     ) -> str:
-        if timespan is not None:
-            if timespan not in Timespan:
-                msg = f"Invalid timespan: {timespan}"
-                raise ValueError(msg)
+        if timespan is not None and timespan not in Timespan:
+            msg = f"Invalid timespan: {timespan}"
+            raise ValueError(msg)
 
         if date is None:
             date = datetime.datetime.now(tz=datetime.UTC)
@@ -86,13 +85,13 @@ class GrowattApi:
 
         return date_str
 
-    def get_url(self, page):
-        """
-        Simple helper function to get the page URL.
-        """
+    def get_url(self, page: str) -> str:
+        """Get the full URL for a given page path."""
         return self.server_url + page
 
-    def login(self, username, password, is_password_hashed=False):
+    def login(
+        self, username: str, password: str, *, is_password_hashed: bool = False
+    ) -> dict:
         """
         Log the user in.
 
