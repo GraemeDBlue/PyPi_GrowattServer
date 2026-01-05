@@ -8,6 +8,7 @@ developer portal.
 """
 
 import json
+from pathlib import Path
 
 import requests
 
@@ -41,7 +42,7 @@ try:
                 device_sn=inverter_sn,
             )
             print("Saving inverter data to inverter_data.json")  # noqa: T201
-            with open("inverter_data.json", "w") as f:
+            with Path("inverter_data.json").open("w") as f:
                 json.dump(inverter_data, f, indent=4, sort_keys=True)
 
             # Get energy data
@@ -49,7 +50,7 @@ try:
                 device_sn=inverter_sn,
             )
             print("Saving energy data to energy_data.json")  # noqa: T201
-            with open("energy_data.json", "w") as f:
+            with Path("energy_data.json").open("w") as f:
                 json.dump(energy_data, f, indent=4, sort_keys=True)
 
             # Get energy history
@@ -57,15 +58,20 @@ try:
                 device_sn=inverter_sn,
             )
             print("Saving energy history data to energy_history.json")  # noqa: T201
-            with open("energy_history.json", "w") as f:
-                json.dump(energy_history_data.get("datas", []), f, indent=4, sort_keys=True)
+            with Path("energy_history.json").open("w") as f:
+                json.dump(
+                    energy_history_data.get("datas", []),
+                    f,
+                    indent=4,
+                    sort_keys=True,
+                )
 
             # Get settings
             settings_data = api.min_settings(
                  device_sn=inverter_sn,
             )
             print("Saving settings data to settings_data.json")  # noqa: T201
-            with open("settings_data.json", "w") as f:
+            with Path("settings_data.json").open("w") as f:
                 json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
@@ -75,7 +81,7 @@ try:
                  settings_data=settings_data
             )
             print("Time-of-Use Segments:")  # noqa: T201
-            with open("tou_data.json", "w") as f:
+            with Path("tou_data.json").open("w") as f:
                 json.dump(tou, f, indent=4, sort_keys=True)
 
             # Read discharge power
@@ -85,26 +91,6 @@ try:
                 parameter_id="discharge_power"
             )
             print(f"Current discharge power: {discharge_power}%")  # noqa: T201
-
-            # Settings parameters - Uncomment to test
-
-            # Turn on AC charging
-            # api.min_write_parameter(inverter_sn, 'ac_charge', 1)
-            # print("AC charging enabled successfully")
-            # # Enable Load First between 00:00 and 11:59 using time segment 1
-            # params = {
-            #     'segment_id': 1,
-            #     'start_time': datetime.time(0, 0),
-            #     'end_time': datetime.time(00, 59),
-            #     'enabled': True
-            # }
-            # api.min_write_time_segment(
-            #     device_sn=inverter_sn,
-            #     params=params
-            # )
-        
-            # print("Time segment updated successfully")
-
 
 except growattServer.GrowattV1ApiError as e:
     print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
