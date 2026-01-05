@@ -42,80 +42,6 @@ def demonstrate_sph_mix_parameters(
         )
         print(f"AC charge time period result: {result}")  # noqa: T201
 
-        # # 2. AC Discharge Time Period
-        # print("Setting AC discharge time period...")
-        # discharge_params = api.MixAcDischargeTimeParams(
-        #     discharge_power=60,        # 60% discharge power
-        #     discharge_stop_soc=20,     # Stop at 20% SOC
-        #     start_hour=16,             # Start at 16:00
-        #     start_minute=0,
-        #     end_hour=22,               # End at 22:00
-        #     end_minute=0,
-        #     enabled=True
-        # )
-        # result = api.write_parameter(
-        #     device_sn=device_sn,
-        #     device_type=growattServer.DeviceType.SPH_MIX,
-        #     command="mix_ac_discharge_time_period",
-        #     params=discharge_params
-        # )
-        # print(f"AC discharge time period result: {result}")
-
-        # # 3. Backflow Setting
-        # print("Setting backflow prevention...")
-        # backflow_params = api.BackflowSettingParams(
-        #     backflow_enabled=True,
-        #     anti_reverse_power_percentage=50  # 50% anti-reverse flow
-        # )
-        # result = api.write_parameter(
-        #     device_sn=device_sn,
-        #     device_type=growattServer.DeviceType.SPH_MIX,
-        #     command="backflow_setting",
-        #     params=backflow_params
-        # )
-        # print(f"Backflow setting result: {result}")
-
-        # # 4. PV On/Off Control
-        # print("Turning PV on...")
-        # pv_params = api.PvOnOffParams(pv_enabled=True)
-        # result = api.write_parameter(
-        #     device_sn=device_sn,
-        #     device_type=growattServer.DeviceType.SPH_MIX,
-        #     command="pv_on_off",
-        #     params=pv_params
-        # )
-        # print(f"PV on/off result: {result}")
-
-        # # 5. Grid Voltage Limits
-        # print("Setting grid voltage limits...")
-        # voltage_params = api.GridVoltageParams(
-        #     voltage_high=270,  # Upper limit
-        #     voltage_low=180    # Lower limit
-        # )
-        # # Note: These would be separate commands for high and low voltage
-        # result_high = api.write_parameter(
-        #     device_sn=device_sn,
-        #     device_type=growattServer.DeviceType.SPH_MIX,
-        #     command="pv_grid_voltage_high",
-        #     params=voltage_params
-        # )
-        # print(f"Grid voltage high result: {result_high}")
-
-        # # 6. Off-grid Settings
-        # print("Setting off-grid parameters...")
-        # offgrid_params = api.OffGridParams(
-        #     off_grid_enabled=True,
-        #     frequency=0,  # 50Hz
-        #     voltage=0     # 230V
-        # )
-        # result = api.write_parameter(
-        #     device_sn=device_sn,
-        #     device_type=growattServer.DeviceType.SPH_MIX,
-        #     command="mix_off_grid_enable",
-        #     params=offgrid_params
-        # )
-        # print(f"Off-grid enable result: {result}")
-
     except Exception as e:  # noqa: BLE001
         print(f"Error with SPH_MIX parameters: {e}")  # noqa: T201
 
@@ -216,7 +142,7 @@ def demonstrate_min_tlx_parameters(
         print(f"Error with MIN_TLX parameters: {e}")  # noqa: T201
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0912
     """Run the main demonstration for V1 API parameter writing."""
     # Get the API token from user input or environment variable
     api_token = os.environ.get("GROWATT_API_TOKEN") or input(
@@ -224,7 +150,7 @@ def main() -> None:
     )
 
     # Test token from official API docs (for testing only)
-    # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+    # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow  # noqa: ERA001
 
     try:
         # Initialize the API with token
