@@ -31,16 +31,17 @@ from . import growattServer
 
 pp = pprint.PrettyPrinter(indent=4)
 
-"""
-A really hacky function to allow me to print out things with an indent in-front
-"""
 
+def indent_print(to_output: str, indent: int) -> None:
+    """Print output with leading spaces for indentation.
 
-def indent_print(to_output, indent):
-    indent_string = ""
-    for x in range(indent):
-        indent_string += " "
-    print(indent_string + to_output)
+    Args:
+        to_output: The string to print.
+        indent: The number of spaces to indent.
+
+    """
+    indent_string = " " * indent
+    print(indent_string + to_output)  # noqa: T201
 
 
 # Prompt user for username
@@ -53,13 +54,12 @@ api = growattServer.GrowattApi()
 login_response = api.login(username, user_pass)
 
 plant_list = api.plant_list(login_response["user"]["id"])
-# pp.pprint(plant_list)
 
-print("***Totals for all plants***")
-pp.pprint(plant_list["totalData"])
-print()
+print("***Totals for all plants***")  # noqa: T201
+pp.pprint(plant_list["totalData"])  # noqa: T201
+print()  # noqa: T201
 
-print("***List of plants***")
+print("***List of plants***")  # noqa: T201
 for plant in plant_list["data"]:
     indent_print("ID: %s, Name: %s" % (plant["plantId"], plant["plantName"]), 2)
 print()
