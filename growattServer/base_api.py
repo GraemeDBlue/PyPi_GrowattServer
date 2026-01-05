@@ -49,28 +49,34 @@ class GrowattApi:
             agent_identifier: Custom user agent string (overrides default if provided).
 
         """
-        if agent_identifier != None:
+        if agent_identifier is not None:
             self.agent_identifier = agent_identifier
 
-        # If a random user id is required, generate a 5 digit number and add it to the user agent
+        # Generate and add random 5-digit user ID if requested
         if add_random_user_id:
-            random_number = "".join([f"{randint(0, 9)}" for num in range(5)])
+            random_number = "".join(
+                [f"{randint(0, 9)}" for num in range(5)]  # noqa: S311
+            )
             self.agent_identifier += " - " + random_number
 
         self.session = requests.Session()
         self.session.hooks = {
-            "response": lambda response, *args, **kwargs: response.raise_for_status()
+            "response": lambda response, *_args, **_kwargs: response.raise_for_status()
         }
 
         headers = {"User-Agent": self.agent_identifier}
         self.session.headers.update(headers)
 
-    def __get_date_string(self, timespan=None, date=None):
+    def __get_date_string(
+        self, timespan: Timespan | None = None, date: datetime.datetime | None = None
+    ) -> str:
         if timespan is not None:
-            assert timespan in Timespan
+            if timespan not in Timespan:
+                msg = f"Invalid timespan: {timespan}"
+                raise ValueError(msg)
 
         if date is None:
-            date = datetime.datetime.now()
+            date = datetime.datetime.now(tz=datetime.UTC)
 
         date_str = ""
         if timespan == Timespan.month:
