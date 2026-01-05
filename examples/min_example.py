@@ -98,5 +98,5 @@ except growattServer.GrowattParameterError as e:
     print(f"Parameter Error: {e}")  # noqa: T201
 except requests.exceptions.RequestException as e:
     print(f"Network Error: {e}")  # noqa: T201
-except Exception as e:
+except Exception as e:  # noqa: BLE001
     print(f"Unexpected error: {e}")  # noqa: T201
