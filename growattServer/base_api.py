@@ -235,7 +235,7 @@ class GrowattApi:
 
         return response.json().get("back", {})
 
-    def plant_list_two(self):
+    def plant_list_two(self) -> list:
         """
         Get a list of all plants with detailed information.
 
@@ -259,13 +259,16 @@ class GrowattApi:
 
         return response.json().get("PlantList", [])
 
-    def inverter_data(self, inverter_id, date=None):
+    def inverter_data(
+        self, inverter_id: str, date: datetime.datetime | None = None
+    ) -> dict:
         """
         Get inverter data for specified date or today.
 
         Args:
             inverter_id (str): The ID of the inverter.
-            date (datetime, optional): The date you are interested in. Defaults to datetime.datetime.now().
+            date (datetime, optional): The date you are interested in.
+                Defaults to datetime.datetime.now().
 
         Returns:
             dict: A dictionary containing the inverter data.
@@ -287,7 +290,7 @@ class GrowattApi:
 
         return response.json()
 
-    def inverter_detail(self, inverter_id):
+    def inverter_detail(self, inverter_id: str) -> dict:
         """
         Get detailed data from PV inverter.
 
@@ -308,7 +311,7 @@ class GrowattApi:
 
         return response.json()
 
-    def inverter_detail_two(self, inverter_id):
+    def inverter_detail_two(self, inverter_id: str) -> dict:
         """
         Get detailed data from PV inverter (alternative endpoint).
 
@@ -329,7 +332,7 @@ class GrowattApi:
 
         return response.json()
 
-    def tlx_system_status(self, plant_id, tlx_id):
+    def tlx_system_status(self, plant_id: str, tlx_id: str) -> dict:
         """
         Get status of the system
 
