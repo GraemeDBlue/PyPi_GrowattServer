@@ -586,14 +586,16 @@ class GrowattApi:
         'acChargeEnergyToday' -- ??? 2.7
         'acChargeEnergyTotal' -- ??? 25.3
         'acChargePower' -- ??? 0
-        'capacity': '45' -- The current remaining capacity of the batteries (same as soc but without the % sign)
+        'capacity': '45' -- The current remaining capacity of the batteries
+            (same as soc but without the % sign)
         'eBatChargeToday' -- Battery charged today in kWh
         'eBatChargeTotal' -- Battery charged total (all time) in kWh
         'eBatDisChargeToday' -- Battery discharged today in kWh
         'eBatDisChargeTotal' -- Battery discharged total (all time) in kWh
         'epvToday' -- Energy generated from PVs today in kWh
         'epvTotal' -- Energy generated from PVs total (all time) in kWh
-        'isCharge'-- ??? 0 - Possible a 0/1 based on whether or not the battery is charging
+        'isCharge'-- ??? 0 - Possible a 0/1 based on whether or not
+            the battery is charging
         'pCharge1' -- ??? 0
         'pDischarge1' -- Battery discharging rate in W
         'soc' -- Statement of charge including % symbol
@@ -624,18 +626,26 @@ class GrowattApi:
             plant_id -- The ID of the plant
 
         Returns:
-        'echargetoday' -- Battery charged today in kWh (same as eBatChargeToday from mix_info)
-        'echargetotal' -- Battery charged total (all time) in kWh (same as eBatChargeTotal from mix_info)
-        'edischarge1Today' -- Battery discharged today in kWh (same as eBatDisChargeToday from mix_info)
-        'edischarge1Total' -- Battery discharged total (all time) in kWh (same as eBatDisChargeTotal from mix_info)
+        'echargetoday' -- Battery charged today in kWh
+            (same as eBatChargeToday from mix_info)
+        'echargetotal' -- Battery charged total (all time) in kWh
+            (same as eBatChargeTotal from mix_info)
+        'edischarge1Today' -- Battery discharged today in kWh
+            (same as eBatDisChargeToday from mix_info)
+        'edischarge1Total' -- Battery discharged total (all time) in kWh
+            (same as eBatDisChargeTotal from mix_info)
         'elocalLoadToday' -- Load consumption today in kWh
         'elocalLoadTotal' -- Load consumption total (all time) in kWh
-        'epvToday' -- Energy generated from PVs today in kWh (same as epvToday from mix_info)
-        'epvTotal' -- Energy generated from PVs total (all time) in kWh (same as epvTotal from mix_info)
+        'epvToday' -- Energy generated from PVs today in kWh
+            (same as epvToday from mix_info)
+        'epvTotal' -- Energy generated from PVs total (all time) in kWh
+            (same as epvTotal from mix_info)
         'etoGridToday' -- Energy exported to the grid today in kWh
         'etogridTotal' -- Energy exported to the grid total (all time) in kWh
-        'photovoltaicRevenueToday' -- Revenue earned from PV today in 'unit' currency
-        'photovoltaicRevenueTotal' -- Revenue earned from PV total (all time) in 'unit' currency
+        'photovoltaicRevenueToday' -- Revenue earned from PV today in 'unit'
+            currency
+        'photovoltaicRevenueTotal' -- Revenue earned from PV total (all time)
+            in 'unit' currency
         'unit' -- Unit of currency for 'Revenue'
 
         """
@@ -707,7 +717,8 @@ class GrowattApi:
                 (Default datetime.datetime.now())
 
         Returns:
-        A chartData object where each entry is for a specific 5 minute window e.g. 00:05 and 00:10 respectively (below)
+        A chartData object where each entry is for a specific 5 minute window
+            e.g. 00:05 and 00:10 respectively (below)
         'chartData': {   '00:05': {   'pacToGrid' -- Export rate to grid in kW
                                       'pacToUser' -- Import rate from grid in kW
                                       'pdischarge' -- Battery discharge in kW
