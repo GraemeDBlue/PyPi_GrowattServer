@@ -7,22 +7,31 @@ import json
 import growattServer
 
 """
-# Example script controlling a Growatt MID-30KTL3-XH + APX battery hybrid system by emulating the ShinePhone iOS app.
-# The same API calls are used by the ShinePhone Android app as well. Traffic intercepted using HTTP Toolkit.
-#
-# The plant / energy / device APIs seem to be generic for all Growatt systems, while the inverter and battery APIs use the TLX APIs.
-#
-# The available settings under the 'Control' tab in ShinePhone are created by combining the results from two function calls:
-# tlx_get_all_settings() seem to returns the sum of all settings for all systems while tlx_get_enabled_settings() tells
-# which of these settings are valid for the TLX system.
-#
-# Settings that takes a single parameter can be set using update_tlx_inverter_setting(). A helper function, update_tlx_inverter_time_segment()
-# is provided for updating time segments which take several parameters. The inverter is picky and time intervals can't be overlapping,
-# even if they are disabled.
-#
-# The set functions are commented out in the example, uncomment to test, and use at your own risk. Most likely all settings returned in
-# tlx_get_enabled_settings() can be set using update_tlx_inverter_setting(), but has not been tested.
-#
+Example script controlling a Growatt MID-30KTL3-XH + APX battery.
+
+Hybrid system by emulating the ShinePhone iOS app. The same API calls are
+used by the ShinePhone Android app as well. Traffic intercepted using
+HTTP Toolkit.
+
+The plant / energy / device APIs seem to be generic for all Growatt systems,
+while the inverter and battery APIs use the TLX APIs.  # noqa: E501
+
+The available settings under the 'Control' tab in ShinePhone are created by
+combining the results from two function calls:  # noqa: E501
+tlx_get_all_settings() seem to returns the sum of all settings for all
+systems while tlx_get_enabled_settings() tells which of these settings are  # noqa: E501
+valid for the TLX system.
+
+Settings that takes a single parameter can be set using
+update_tlx_inverter_setting(). A helper function,
+update_tlx_inverter_time_segment() is provided for updating time segments  # noqa: E501
+which take several parameters. The inverter is picky and time intervals can't
+be overlapping, even if they are disabled.  # noqa: E501
+
+The set functions are commented out in the example, uncomment to test, and  # noqa: E501
+use at your own risk. Most likely all settings returned in  # noqa: E501
+tlx_get_enabled_settings() can be set using update_tlx_inverter_setting(),  # noqa: E501
+but has not been tested.
 """
 
 # Prompt user for username
@@ -104,8 +113,8 @@ for device in devices:
 
 # Enable Load First between 00:01 and 11:59 using time segment 1
 # res = api.update_tlx_inverter_time_segment(serial_number = inverter_sn,
-#                                           segment_id = 1,
-#                                           batt_mode = growattServer.BATT_MODE_LOAD_FIRST,
+#                                             segment_id = 1,
+#                                             batt_mode = growattServer.BATT_MODE_LOAD_FIRST,  # noqa: E501
 #                                           start_time = datetime.time(00, 1),
 #                                           end_time = datetime.time(11, 59),
 #                                           enabled=True)

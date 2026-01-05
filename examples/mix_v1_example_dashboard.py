@@ -29,8 +29,10 @@ def safe_float(val: str | float, default: float = 0.0) -> float:
 
 
 """
-# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API
-# You can obtain an API token from the Growatt API documentation or developer portal.
+Example script controlling a MIX/SPH Growatt system.  # noqa: E501
+
+For SPH3~6k TL BL UP + battery systems using the public growatt API.
+You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
 # Get the API token from user input or environment variable
@@ -65,18 +67,18 @@ try:
         msg = "No SPH_MIX device found to get energy data from."
         raise Exception(msg)
 
-    solar_production = f"{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get('epvTotal')):.1f}"
-    solar_production_pv1 = f"{safe_float(energy_data.get('epv1Today')):.1f}/{safe_float(energy_data.get('epv1Total')):.1f}"
-    solar_production_pv2 = f"{safe_float(energy_data.get('epv2Today')):.1f}/{safe_float(energy_data.get('epv2Total')):.1f}"
-    energy_output = f"{safe_float(energy_data.get('eacToday')):.1f}/{safe_float(energy_data.get('eacTotal')):.1f}"
-    system_production = f"{safe_float(energy_data.get('esystemtoday')):.1f}/{safe_float(energy_data.get('esystemtotal')):.1f}"
-    battery_charged = f"{safe_float(energy_data.get('echarge1Today')):.1f}/{safe_float(energy_data.get('echarge1Total')):.1f}"
-    battery_grid_charge = f"{safe_float(energy_data.get('acChargeEnergyToday')):.1f}/{safe_float(energy_data.get('acChargeEnergyTotal')):.1f}"
-    battery_discharged = f"{safe_float(energy_data.get('edischarge1Today')):.1f}/{safe_float(energy_data.get('edischarge1Total')):.1f}"
-    exported_to_grid = f"{safe_float(energy_data.get('etoGridToday')):.1f}/{safe_float(energy_data.get('etogridTotal')):.1f}"
-    imported_from_grid = f"{safe_float(energy_data.get('etoUserToday')):.1f}/{safe_float(energy_data.get('etoUserTotal')):.1f}"
-    load_consumption = f"{safe_float(energy_data.get('elocalLoadToday')):.1f}/{safe_float(energy_data.get('elocalLoadTotal')):.1f}"
-    self_consumption = f"{safe_float(energy_data.get('eselfToday')):.1f}/{safe_float(energy_data.get('eselfTotal')):.1f}"
+    solar_production = f"{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get('epvTotal')):.1f}"  # noqa: E501
+    solar_production_pv1 = f"{safe_float(energy_data.get('epv1Today')):.1f}/{safe_float(energy_data.get('epv1Total')):.1f}"  # noqa: E501
+    solar_production_pv2 = f"{safe_float(energy_data.get('epv2Today')):.1f}/{safe_float(energy_data.get('epv2Total')):.1f}"  # noqa: E501
+    energy_output = f"{safe_float(energy_data.get('eacToday')):.1f}/{safe_float(energy_data.get('eacTotal')):.1f}"  # noqa: E501
+    system_production = f"{safe_float(energy_data.get('esystemtoday')):.1f}/{safe_float(energy_data.get('esystemtotal')):.1f}"  # noqa: E501
+    battery_charged = f"{safe_float(energy_data.get('echarge1Today')):.1f}/{safe_float(energy_data.get('echarge1Total')):.1f}"  # noqa: E501
+    battery_grid_charge = f"{safe_float(energy_data.get('acChargeEnergyToday')):.1f}/{safe_float(energy_data.get('acChargeEnergyTotal')):.1f}"  # noqa: E501
+    battery_discharged = f"{safe_float(energy_data.get('edischarge1Today')):.1f}/{safe_float(energy_data.get('edischarge1Total')):.1f}"  # noqa: E501
+    exported_to_grid = f"{safe_float(energy_data.get('etoGridToday')):.1f}/{safe_float(energy_data.get('etogridTotal')):.1f}"  # noqa: E501
+    imported_from_grid = f"{safe_float(energy_data.get('etoUserToday')):.1f}/{safe_float(energy_data.get('etoUserTotal')):.1f}"  # noqa: E501
+    load_consumption = f"{safe_float(energy_data.get('elocalLoadToday')):.1f}/{safe_float(energy_data.get('elocalLoadTotal')):.1f}"  # noqa: E501
+    self_consumption = f"{safe_float(energy_data.get('eselfToday')):.1f}/{safe_float(energy_data.get('eselfTotal')):.1f}"  # noqa: E501
 
     # Output the dashboard
     print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201

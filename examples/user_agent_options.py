@@ -5,7 +5,8 @@ import getpass
 import growattServer
 
 """
-This is a simple script that demonstrates the various ways to initialise the library to set a User Agent
+This is a simple script that demonstrates the various ways to initialise  # noqa: E501
+the library to set a User Agent.
 """
 
 # Prompt user for username

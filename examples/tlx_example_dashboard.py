@@ -5,11 +5,13 @@ import sys
 
 import growattServer
 
-# Example script fetching key power and today+total energy metrics from a Growatt MID-30KTL3-XH (TLX) + APX battery hybrid system
+# Example script fetching key power and today+total energy metrics from a
+# Growatt MID-30KTL3-XH (TLX) + APX battery hybrid system
 #
 # There is a lot of overlap in what the various Growatt APIs returns.
-# tlx_detail() contains the bulk of the needed data, but some info is missing and is fetched from
-# tlx_system_status(), tlx_energy_overview() and tlx_battery_info_detailed() instead
+# tlx_detail() contains the bulk of the needed data, but some info is
+# missing and is fetched from tlx_system_status(), tlx_energy_overview()
+# and tlx_battery_info_detailed() instead
 
 
 # Prompt user for username
@@ -32,7 +34,8 @@ plant_id = plant_list[0]["id"]
 # Get devices in plant
 devices = api.device_list(plant_id)
 
-# Iterate over all devices. Here we are interested in data from 'tlx' inverters and 'bat' devices
+# Iterate over all devices. Here we are interested in data from 'tlx'
+# inverters and 'bat' devices
 batteries_info = []
 for device in devices:
     if device["deviceType"] == "tlx":
@@ -41,7 +44,8 @@ for device in devices:
         # Inverter detail, contains the bulk of energy and power values
         inverter_detail = api.tlx_detail(inverter_sn).get("data")
 
-        # Energy overview is used to retrieve "epvToday" which is not present in tlx_detail() for some reason
+        # Energy overview is used to retrieve "epvToday" which is not
+        # present in tlx_detail() for some reason
         energy_overview = api.tlx_energy_overview(plant_id, inverter_sn)
 
         # System status, contains power values, not available in inverter_detail()
@@ -81,20 +85,20 @@ for device in devices:
 solar_production = (
     f"{float(energy_overview['epvToday']):.1f}/{float(energy_overview['epvTotal']):.1f}"
 )
-solar_production_pv1 = f"{float(inverter_detail['epv1Today']):.1f}/{float(inverter_detail['epv1Total']):.1f}"
-solar_production_pv2 = f"{float(inverter_detail['epv2Today']):.1f}/{float(inverter_detail['epv2Total']):.1f}"
+solar_production_pv1 = f"{float(inverter_detail['epv1Today']):.1f}/{float(inverter_detail['epv1Total']):.1f}"  # noqa: E501
+solar_production_pv2 = f"{float(inverter_detail['epv2Today']):.1f}/{float(inverter_detail['epv2Total']):.1f}"  # noqa: E501
 energy_output = (
     f"{float(inverter_detail['eacToday']):.1f}/{float(inverter_detail['eacTotal']):.1f}"
 )
-system_production = f"{float(inverter_detail['esystemToday']):.1f}/{float(inverter_detail['esystemTotal']):.1f}"
-battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"
-battery_grid_charge = f"{float(inverter_detail['eacChargeToday']):.1f}/{float(inverter_detail['eacChargeTotal']):.1f}"
-battery_discharged = f"{float(inverter_detail['edischargeToday']):.1f}/{float(inverter_detail['edischargeTotal']):.1f}"
-exported_to_grid = f"{float(inverter_detail['etoGridToday']):.1f}/{float(inverter_detail['etoGridTotal']):.1f}"
-imported_from_grid = f"{float(inverter_detail['etoUserToday']):.1f}/{float(inverter_detail['etoUserTotal']):.1f}"
-load_consumption = f"{float(inverter_detail['elocalLoadToday']):.1f}/{float(inverter_detail['elocalLoadTotal']):.1f}"
-self_consumption = f"{float(inverter_detail['eselfToday']):.1f}/{float(inverter_detail['eselfTotal']):.1f}"
-battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"
+system_production = f"{float(inverter_detail['esystemToday']):.1f}/{float(inverter_detail['esystemTotal']):.1f}"  # noqa: E501
+battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"  # noqa: E501
+battery_grid_charge = f"{float(inverter_detail['eacChargeToday']):.1f}/{float(inverter_detail['eacChargeTotal']):.1f}"  # noqa: E501
+battery_discharged = f"{float(inverter_detail['edischargeToday']):.1f}/{float(inverter_detail['edischargeTotal']):.1f}"  # noqa: E501
+exported_to_grid = f"{float(inverter_detail['etoGridToday']):.1f}/{float(inverter_detail['etoGridTotal']):.1f}"  # noqa: E501
+imported_from_grid = f"{float(inverter_detail['etoUserToday']):.1f}/{float(inverter_detail['etoUserTotal']):.1f}"  # noqa: E501
+load_consumption = f"{float(inverter_detail['elocalLoadToday']):.1f}/{float(inverter_detail['elocalLoadTotal']):.1f}"  # noqa: E501
+self_consumption = f"{float(inverter_detail['eselfToday']):.1f}/{float(inverter_detail['eselfTotal']):.1f}"  # noqa: E501
+battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"  # noqa: E501
 
 print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201
 print(f"Solar production          {solar_production:>22}")  # noqa: T201

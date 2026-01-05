@@ -7,11 +7,15 @@ import pprint
 import growattServer
 
 """
-This is a very trivial script to show how to interface with the configuration settings of a plant and it's inverters
-This has been tested against my personal system (muppet3000) which is a hybrid (aka 'mix') inverter system.
+This is a very trivial script to show how to interface with the  # noqa: E501
+configuration settings of a plant and it's inverters.
+This has been tested against my personal system (muppet3000) which is a  # noqa: E501
+hybrid (aka 'mix') inverter system.
 
-Throughout the script there are points where 'pp.pprint' has been commented out. If you wish to see all the data that is returned from those
-specific library calls, just uncomment them and they will appear as part of the output.
+Throughout the script there are points where 'pp.pprint' has been  # noqa: E501
+commented out. If you wish to see all the data that is returned from those
+specific library calls, just uncomment them and they will appear as part
+of the output.
 """
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -27,7 +31,8 @@ login_response = api.login(username, user_pass)
 plant_list = api.plant_list(login_response["user"]["id"])
 
 # Simple logic to just get the first inverter from the first plant
-# Expand this using a for-loop to perform for more systems (see mix_example for more detail)
+# Expand this using a for-loop to perform for more systems
+# (see mix_example for more detail)
 plant = plant_list["data"][
     0
 ]  # This is an array - we just take the first - would need a for-loop for more systems
@@ -43,7 +48,8 @@ device_sn = device["deviceSn"]
 device_type = device["deviceType"]
 
 
-# Get plant settings - This is performed for us inside 'update_plant_settings' but you can get ALL of the settings using this
+# Get plant settings - This is performed for us inside
+# 'update_plant_settings' but you can get ALL of the settings using this
 current_settings = api.get_plant_settings(plant_id)
 # pp.pprint(current_settings)
 
@@ -67,7 +73,8 @@ print(response)  # noqa: T201
 print()  # noqa: T201
 
 
-# Set inverter schedule (Uses the 'array' method which assumes all parameters are named param1....paramN)
+# Set inverter schedule (Uses the 'array' method which assumes all
+# parameters are named param1....paramN)
 schedule_settings = [
     "100",  # Charging power %
     "100",  # Stop charging SoC %

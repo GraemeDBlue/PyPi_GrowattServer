@@ -88,9 +88,11 @@ for plant in plant_list["data"]:
         device_sn = device["deviceSn"]
         device_type = device["deviceType"]
         indent_print(f"**Device - SN: {device_sn}, Type: {device_type}**", 2)
-        # NOTE - This is the bit where we specifically only handle information on Mix devices - this won't work for non-mix devices
+        # NOTE - This is the bit where we specifically only handle information on Mix devices  # noqa: E501
+        # - this won't work for non-mix devices
 
-        # These two API calls return lots of duplicated information, but each also holds unique information as well
+        # These two API calls return lots of duplicated information,
+        # but each also holds unique information as well
         mix_info = api.mix_info(device_sn, plant_id)
         pp.pprint(mix_info)
 
@@ -126,10 +128,14 @@ for plant in plant_list["data"]:
             json.dump(mix_detail, f, indent=4, sort_keys=True)
         # pp.pprint(mix_detail)
 
-        # Some of the 'totals' values that are returned by this function do not align to what we would expect, however the graph data always seems to be accurate.
-        # Therefore, here we take a moment to calculate the same values provided elsewhere but based on the graph data instead
-        # The particular stats that we question are 'load consumption' (elocalLoad)  and 'import from grid' (etouser) which seem to be calculated from one-another
-        # It would appear that 'etouser' is calculated on the backend incorrectly for systems that use AC battery charged (e.g. during cheap nighttime rates)
+        # Some of the 'totals' values that are returned by this function do not align  # noqa: E501
+        # to what we would expect, however the graph data always seems to be accurate.
+        # Therefore, here we take a moment to calculate the same values provided  # noqa: E501
+        # elsewhere but based on the graph data instead
+        # The particular stats that we question are 'load consumption' (elocalLoad)  # noqa: E501
+        # and 'import from grid' (etouser) which seem to be calculated from one-another
+        # It would appear that 'etouser' is calculated on the backend incorrectly  # noqa: E501
+        # for systems that use AC battery charged (e.g. during cheap nighttime rates)
         pacToGridToday = 0.0
         pacToUserToday = 0.0
         pdischargeToday = 0.0
@@ -138,10 +144,12 @@ for plant in plant_list["data"]:
 
         chartData = mix_detail["chartData"]
         for data_points in chartData.values():
-            # For each time entry convert it's wattage into kWh, this assumes that the wattage value is
-            # the same for the whole 5 minute window (it's the only assumption we can make)
-            # We Multiply the wattage by 5/60 (the number of minutes of the time window divided by the number of minutes in an hour)
-            # to give us the equivalent kWh reading for that 5 minute window
+            # For each time entry convert it's wattage into kWh, this assumes  # noqa: E501
+            # that the wattage value is the same for the whole 5 minute window  # noqa: E501
+            # (it's the only assumption we can make)
+            # We Multiply the wattage by 5/60 (the number of minutes of the time  # noqa: E501
+            # window divided by the number of minutes in an hour) to give us the  # noqa: E501
+            # equivalent kWh reading for that 5 minute window
             pacToGridToday += float(data_points["pacToGrid"]) * (5 / 60)
             pacToUserToday += float(data_points["pacToUser"]) * (5 / 60)
             pdischargeToday += float(data_points["pdischarge"]) * (5 / 60)
@@ -162,18 +170,18 @@ for plant in plant_list["data"]:
 
         indent_print("*TODAY TOTALS BREAKDOWN*", 4)
         indent_print(
-            f"Self generation total (batteries & solar - from API) (kwh): {mix_detail['eCharge']}",
+            f"Self generation total (batteries & solar - from API) (kwh): {mix_detail['eCharge']}",  # noqa: E501
             6,
         )
         indent_print(f"Load consumed from solar (kwh): {mix_detail['eChargeToday']}", 6)
         indent_print(f"Load consumed from batteries (kwh): {mix_detail['echarge1']}", 6)
         indent_print(
-            f"Self consumption total (batteries & solar - from API) (kwh): {mix_detail['eChargeToday1']}",
+            f"Self consumption total (batteries & solar - from API) (kwh): {mix_detail['eChargeToday1']}",  # noqa: E501
             6,
         )
         indent_print(f"Load consumed from grid (kwh): {mix_detail['etouser']}", 6)
         indent_print(
-            f"Total imported from grid (Load + AC charging) (kwh): {dashboard_data['etouser'].replace('kWh', '')}",
+            f"Total imported from grid (Load + AC charging) (kwh): {dashboard_data['etouser'].replace('kWh', '')}",  # noqa: E501
             6,
         )
         calculated_consumption = (
@@ -206,18 +214,18 @@ for plant in plant_list["data"]:
         indent_print(f"mix_totals['etoGridToday']: {mix_totals['etoGridToday']}", 8)
         indent_print(f"mix_detail['eAcCharge']: {mix_detail['eAcCharge']}", 8)
         indent_print(
-            f"mix_detail['calculatedPacToGridTodayKwh']: {mix_detail['calculatedPacToGridTodayKwh']}",
+            f"mix_detail['calculatedPacToGridTodayKwh']: {mix_detail['calculatedPacToGridTodayKwh']}",  # noqa: E501
             8,
         )
         print()  # noqa: T201
 
         indent_print("Imported from Grid (kwh) - TRUSTED:", 6)
         indent_print(
-            f"dashboard_data['etouser']: {dashboard_data['etouser'].replace('kWh', '')}",
+            f"dashboard_data['etouser']: {dashboard_data['etouser'].replace('kWh', '')}",  # noqa: E501
             8,
         )
         indent_print(
-            f"mix_detail['calculatedPacToUserTodayKwh']: {mix_detail['calculatedPacToUserTodayKwh']}",
+            f"mix_detail['calculatedPacToUserTodayKwh']: {mix_detail['calculatedPacToUserTodayKwh']}",  # noqa: E501
             8,
         )
         print()  # noqa: T201
@@ -231,7 +239,7 @@ for plant in plant_list["data"]:
         )
         indent_print(f"mix_detail['echarge1']: {mix_detail['echarge1']}", 8)
         indent_print(
-            f"mix_detail['calculatedPdischargeTodayKwh']: {mix_detail['calculatedPdischargeTodayKwh']}",
+            f"mix_detail['calculatedPdischargeTodayKwh']: {mix_detail['calculatedPdischargeTodayKwh']}",  # noqa: E501
             8,
         )
         print()  # noqa: T201
@@ -240,7 +248,7 @@ for plant in plant_list["data"]:
         indent_print(f"mix_info['epvToday']: {mix_info['epvToday']}", 8)
         indent_print(f"mix_totals['epvToday']: {mix_totals['epvToday']}", 8)
         indent_print(
-            f"mix_detail['calculatedPpvTodayKwh']: {mix_detail['calculatedPpvTodayKwh']}",
+            f"mix_detail['calculatedPpvTodayKwh']: {mix_detail['calculatedPpvTodayKwh']}",  # noqa: E501
             8,
         )
         print()  # noqa: T201
@@ -251,15 +259,17 @@ for plant in plant_list["data"]:
         )
         indent_print(f"mix_detail['elocalLoad']: {mix_detail['elocalLoad']}", 8)
         indent_print(
-            f"mix_detail['calculatedSysOutTodayKwh']: {mix_detail['calculatedSysOutTodayKwh']}",
+            f"mix_detail['calculatedSysOutTodayKwh']: {mix_detail['calculatedSysOutTodayKwh']}",  # noqa: E501
             8,
         )
         print()  # noqa: T201
 
-        # This call gets all of the instantaneous values from the system e.g. current load, generation etc.
+        # This call gets all of the instantaneous values from the system
+        # e.g. current load, generation etc.
         mix_status = api.mix_system_status(device_sn, plant_id)
         # pp.pprint(mix_status)
-        # NOTE - There are some other values available in mix_status, however these are the most useful ones
+        # NOTE - There are some other values available in mix_status,
+        # however these are the most useful ones
         indent_print("*CURRENT VALUES*", 4)
         indent_print("==Batteries==", 4)
         indent_print(f"Charging Batteries at (kw): {mix_status['chargePower']}", 6)

@@ -53,7 +53,8 @@ for plant in plant_list["data"]:
     plant_info = api.plant_info(plant_id)
     # pp.pprint(plant_info)
     print(f"***Info for Plant {plant_id} - {plant_name}***")  # noqa: T201
-    # There are more values in plant_info, but these are some of the useful/interesting ones
+    # There are more values in plant_info, but these are some of the
+    # useful/interesting ones
     indent_print("CO2 Reducion: {}".format(plant_info["Co2Reduction"]), 2)
     indent_print("Nominal Power (w): {}".format(plant_info["nominal_Power"]), 2)
     indent_print("Solar Energy Today (kw): {}".format(plant_info["todayEnergy"]), 2)

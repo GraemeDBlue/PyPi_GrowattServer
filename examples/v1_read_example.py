@@ -8,8 +8,10 @@ import requests
 from . import growattServer
 
 """
-# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API
-# You can obtain an API token from the Growatt API documentation or developer portal.
+Example script controlling a MIX/SPH Growatt system.  # noqa: E501
+
+For SPH3~6k TL BL UP + battery systems using the public growatt API.
+You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
 # Get the API token from user input or environment variable
