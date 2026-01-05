@@ -334,7 +334,7 @@ class GrowattApi:
 
     def tlx_system_status(self, plant_id: str, tlx_id: str) -> dict:
         """
-        Get status of the system
+        Get status of the system..
 
         Args:
             plant_id (str): The ID of the plant.
@@ -355,9 +355,9 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def tlx_energy_overview(self, plant_id, tlx_id):
+    def tlx_energy_overview(self, plant_id: str, tlx_id: str) -> dict:
         """
-        Get energy overview
+        Get energy overview.
 
         Args:
             plant_id (str): The ID of the plant.
@@ -378,13 +378,21 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def tlx_energy_prod_cons(self, plant_id, tlx_id, timespan=Timespan.hour, date=None):
+    def tlx_energy_prod_cons(
+        self,
+        plant_id: str,
+        tlx_id: str,
+        timespan: Timespan = Timespan.hour,
+        date: datetime.datetime | None = None,
+    ) -> dict:
         """
-        Get energy production and consumption (KW)
+        Get energy production and consumption (KW).
 
         Args:
+            plant_id (str): The ID of the plant.
             tlx_id (str): The ID of the TLX inverter.
-            timespan (Timespan): The ENUM value conforming to the time window you want e.g. hours from today, days, or months.
+            timespan (Timespan): The ENUM value conforming to the time
+                window you want e.g. hours from today, days, or months.
             date (datetime): The date you are interested in.
 
         Returns:
@@ -410,13 +418,14 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def tlx_data(self, tlx_id, date=None):
+    def tlx_data(self, tlx_id: str, date: datetime.datetime | None = None) -> dict:
         """
         Get TLX inverter data for specified date or today.
 
         Args:
             tlx_id (str): The ID of the TLX inverter.
-            date (datetime, optional): The date you are interested in. Defaults to datetime.datetime.now().
+            date (datetime, optional): The date you are interested in.
+                Defaults to datetime.datetime.now().
 
         Returns:
             dict: A dictionary containing the TLX inverter data.
@@ -433,7 +442,7 @@ class GrowattApi:
 
         return response.json()
 
-    def tlx_detail(self, tlx_id):
+    def tlx_detail(self, tlx_id: str) -> dict:
         """
         Get detailed data from TLX inverter.
 
@@ -454,7 +463,7 @@ class GrowattApi:
 
         return response.json()
 
-    def tlx_params(self, tlx_id):
+    def tlx_params(self, tlx_id: str) -> dict:
         """
         Get parameters for TLX inverter.
 
@@ -474,7 +483,7 @@ class GrowattApi:
 
         return response.json()
 
-    def tlx_all_settings(self, tlx_id):
+    def tlx_all_settings(self, tlx_id: str) -> dict:
         """
         Get all possible settings from TLX inverter.
 
@@ -496,7 +505,7 @@ class GrowattApi:
 
         return response.json().get("obj", {}).get("tlxSetBean")
 
-    def tlx_enabled_settings(self, tlx_id):
+    def tlx_enabled_settings(self, tlx_id: str) -> dict:
         """
         Get "Enabled settings" from TLX inverter.
 
@@ -510,7 +519,7 @@ class GrowattApi:
             Exception: If the request to the server fails.
 
         """
-        string_time = datetime.datetime.now().strftime("%Y-%m-%d")
+        string_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d")
         response = self.session.post(
             self.get_url("newLoginAPI.do"),
             params={"op": "getSetPass"},
@@ -519,7 +528,7 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def tlx_battery_info(self, serial_num):
+    def tlx_battery_info(self, serial_num: str) -> dict:
         """
         Get battery information.
 
@@ -541,7 +550,7 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def tlx_battery_info_detailed(self, plant_id, serial_num):
+    def tlx_battery_info_detailed(self, plant_id: str, serial_num: str) -> dict:
         """
         Get detailed battery information.
 
@@ -564,13 +573,14 @@ class GrowattApi:
 
         return response.json()
 
-    def mix_info(self, mix_id, plant_id=None):
+    def mix_info(self, mix_id: str, plant_id: str | None = None) -> dict:  # noqa: D417
         """
-        Returns high level values from Mix device
+        Return high level values from Mix device.
 
         Keyword Arguments:
-        mix_id -- The serial number (device_sn) of the inverter
-        plant_id -- The ID of the plant (the mobile app uses this but it does not appear to be necessary) (default None)
+            mix_id -- The serial number (device_sn) of the inverter
+            plant_id -- The ID of the plant (the mobile app uses this
+                but it does not appear to be necessary) (default None)
 
         Returns:
         'acChargeEnergyToday' -- ??? 2.7
@@ -605,13 +615,13 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def mix_totals(self, mix_id, plant_id):
+    def mix_totals(self, mix_id: str, plant_id: str) -> dict:  # noqa: D417
         """
-        Returns "Totals" values from Mix device
+        Return "Totals" values from Mix device.
 
         Keyword Arguments:
-        mix_id -- The serial number (device_sn) of the inverter
-        plant_id -- The ID of the plant
+            mix_id -- The serial number (device_sn) of the inverter
+            plant_id -- The ID of the plant
 
         Returns:
         'echargetoday' -- Battery charged today in kWh (same as eBatChargeToday from mix_info)
@@ -636,13 +646,13 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def mix_system_status(self, mix_id, plant_id):
+    def mix_system_status(self, mix_id: str, plant_id: str) -> dict:  # noqa: D417
         """
-        Returns current "Status" from Mix device
+        Return current "Status" from Mix device.
 
         Keyword Arguments:
-        mix_id -- The serial number (device_sn) of the inverter
-        plant_id -- The ID of the plant
+            mix_id -- The serial number (device_sn) of the inverter
+            plant_id -- The ID of the plant
 
         Returns:
         'SOC' -- Statement of charge (remaining battery %)
@@ -678,15 +688,23 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def mix_detail(self, mix_id, plant_id, timespan=Timespan.hour, date=None):
+    def mix_detail(  # noqa: D417
+        self,
+        mix_id: str,
+        plant_id: str,
+        timespan: Timespan = Timespan.hour,
+        date: datetime.datetime | None = None,
+    ) -> dict:
         """
-        Get Mix details for specified timespan
+        Get Mix details for specified timespan.
 
         Keyword Arguments:
-        mix_id -- The serial number (device_sn) of the inverter
-        plant_id -- The ID of the plant
-        timespan -- The ENUM value conforming to the time window you want e.g. hours from today, days, or months (Default Timespan.hour)
-        date -- The date you are interested in (Default datetime.datetime.now())
+            mix_id -- The serial number (device_sn) of the inverter
+            plant_id -- The ID of the plant
+            timespan -- The ENUM value conforming to the time window you
+                want e.g. hours from today, days, or months (Default Timespan.hour)
+            date -- The date you are interested in
+                (Default datetime.datetime.now())
 
         Returns:
         A chartData object where each entry is for a specific 5 minute window e.g. 00:05 and 00:10 respectively (below)
@@ -743,18 +761,30 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def dashboard_data(self, plant_id, timespan=Timespan.hour, date=None):
+    def dashboard_data(  # noqa: D417
+        self,
+        plant_id: str,
+        timespan: Timespan = Timespan.hour,
+        date: datetime.datetime | None = None,
+    ) -> dict:
         """
-        Get 'dashboard' data for specified timespan
-        NOTE - All numerical values returned by this api call include units e.g. kWh or %
-             - Many of the 'total' values that are returned for a Mix system are inaccurate on the system this was tested against.
-               However, the statistics that are correct are not available on any other interface, plus these values may be accurate for
-               non-mix types of system. Where the values have been proven to be inaccurate they are commented below.
+        Get 'dashboard' data for specified timespan.
+
+        NOTE - All numerical values returned by this api call include
+               units e.g. kWh or %
+             - Many of the 'total' values that are returned for a Mix
+               system are inaccurate on the system this was tested against.
+               However, the statistics that are correct are not available
+               on any other interface, plus these values may be accurate for
+               non-mix types of system. Where the values have been proven
+               to be inaccurate they are commented below.
 
         Keyword Arguments:
-        plant_id -- The ID of the plant
-        timespan -- The ENUM value conforming to the time window you want e.g. hours from today, days, or months (Default Timespan.hour)
-        date -- The date you are interested in (Default datetime.datetime.now())
+            plant_id -- The ID of the plant
+            timespan -- The ENUM value conforming to the time window you
+                want e.g. hours from today, days, or months (Default Timespan.hour)
+            date -- The date you are interested in
+                (Default datetime.datetime.now())
 
         Returns:
         A chartData object where each entry is for a specific 5 minute window e.g. 00:05 and 00:10 respectively (below)
@@ -806,12 +836,12 @@ class GrowattApi:
 
         return response.json()
 
-    def plant_settings(self, plant_id):
+    def plant_settings(self, plant_id: str) -> dict:  # noqa: D417
         """
-        Returns a dictionary containing the settings for the specified plant
+        Return a dictionary containing the settings for the specified plant.
 
         Keyword Arguments:
-        plant_id -- The id of the plant you want the settings of
+            plant_id -- The id of the plant you want the settings of
 
         Returns:
         A python dictionary containing the settings for the specified plant
@@ -824,10 +854,8 @@ class GrowattApi:
 
         return response.json()
 
-    def storage_detail(self, storage_id):
-        """
-        Get "All parameters" from battery storage.
-        """
+    def storage_detail(self, storage_id: str) -> dict:
+        """Get "All parameters" from battery storage."""
         response = self.session.get(
             self.get_url("newStorageAPI.do"),
             params={"op": "getStorageInfo_sacolar", "storageId": storage_id},
@@ -835,10 +863,8 @@ class GrowattApi:
 
         return response.json()
 
-    def storage_params(self, storage_id):
-        """
-        Get much more detail from battery storage.
-        """
+    def storage_params(self, storage_id: str) -> dict:
+        """Get much more detail from battery storage."""
         response = self.session.get(
             self.get_url("newStorageAPI.do"),
             params={"op": "getStorageParams_sacolar", "storageId": storage_id},
@@ -846,10 +872,8 @@ class GrowattApi:
 
         return response.json()
 
-    def storage_energy_overview(self, plant_id, storage_id):
-        """
-        Get some energy/generation overview data.
-        """
+    def storage_energy_overview(self, plant_id: str, storage_id: str) -> dict:
+        """Get some energy/generation overview data."""
         response = self.session.post(
             self.get_url("newStorageAPI.do?op=getEnergyOverviewData_sacolar"),
             params={"plantId": plant_id, "storageSn": storage_id},
@@ -857,20 +881,17 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def inverter_list(self, plant_id):
-        """
-        Use device_list, it's more descriptive since the list contains more than inverters.
-        """
+    def inverter_list(self, plant_id: str) -> list:
+        """Use device_list, it's more descriptive since the list contains more than inverters."""
         warnings.warn(
             "This function may be deprecated in the future because naming is not correct, use device_list instead",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self.device_list(plant_id)
 
-    def __get_all_devices(self, plant_id):
-        """
-        Get basic plant information with device list.
-        """
+    def __get_all_devices(self, plant_id: str) -> dict:
+        """Get basic plant information with device list."""
         response = self.session.get(
             self.get_url("newTwoPlantAPI.do"),
             params={"op": "getAllDeviceList", "plantId": plant_id, "language": 1},
@@ -878,10 +899,8 @@ class GrowattApi:
 
         return response.json().get("deviceList", {})
 
-    def device_list(self, plant_id):
-        """
-        Get a list of all devices connected to plant.
-        """
+    def device_list(self, plant_id: str) -> list:
+        """Get a list of all devices connected to plant."""
         device_list = self.plant_info(plant_id).get("deviceList", [])
 
         if not device_list:
@@ -890,10 +909,8 @@ class GrowattApi:
 
         return device_list
 
-    def plant_info(self, plant_id):
-        """
-        Get basic plant information with device list.
-        """
+    def plant_info(self, plant_id: str) -> dict:
+        """Get basic plant information with device list."""
         response = self.session.get(
             self.get_url("newTwoPlantAPI.do"),
             params={
@@ -906,10 +923,8 @@ class GrowattApi:
 
         return response.json()
 
-    def plant_energy_data(self, plant_id):
-        """
-        Get the energy data used in the 'Plant' tab in the phone
-        """
+    def plant_energy_data(self, plant_id: str) -> dict:
+        """Get the energy data used in the 'Plant' tab in the phone."""
         response = self.session.post(
             self.get_url("newTwoPlantAPI.do"),
             params={"op": "getUserCenterEnertyDataByPlantid"},
@@ -918,12 +933,12 @@ class GrowattApi:
 
         return response.json()
 
-    def is_plant_noah_system(self, plant_id):
+    def is_plant_noah_system(self, plant_id: str) -> dict:  # noqa: D417
         """
-        Returns a dictionary containing if noah devices are configured for the specified plant
+        Return a dictionary containing if noah devices are configured for the specified plant.
 
         Keyword Arguments:
-        plant_id -- The id of the plant you want the noah devices of (str)
+            plant_id -- The id of the plant you want the noah devices of (str)
 
         Returns:
         'msg'
@@ -942,12 +957,13 @@ class GrowattApi:
         )
         return response.json()
 
-    def noah_system_status(self, serial_number):
+    def noah_system_status(self, serial_number: str) -> dict:  # noqa: D417
         """
-        Returns a dictionary containing the status for the specified Noah Device
+        Return a dictionary containing the status for the specified Noah Device.
 
         Keyword Arguments:
-        serial_number -- The Serial number of the noah device you want the status of (str)
+            serial_number -- The Serial number of the noah device you want
+                the status of (str)
 
         Returns:
         'msg'
@@ -977,12 +993,13 @@ class GrowattApi:
         )
         return response.json()
 
-    def noah_info(self, serial_number):
+    def noah_info(self, serial_number: str) -> dict:  # noqa: D417
         """
-        Returns a dictionary containing the informations for the specified Noah Device
+        Return a dictionary containing the informations for the specified Noah Device.
 
         Keyword Arguments:
-        serial_number -- The Serial number of the noah device you want the informations of (str)
+            serial_number -- The Serial number of the noah device you want
+                the informations of (str)
 
         Returns:
         'msg'
@@ -1024,22 +1041,31 @@ class GrowattApi:
         )
         return response.json()
 
-    def update_plant_settings(self, plant_id, changed_settings, current_settings=None):
+    def update_plant_settings(  # noqa: D417
+        self,
+        plant_id: str,
+        changed_settings: dict,
+        current_settings: dict | None = None,
+    ) -> dict:
         """
-        Applies settings to the plant e.g. ID, Location, Timezone
-        See README for all possible settings options
+        Apply settings to the plant e.g. ID, Location, Timezone.
+
+        See README for all possible settings options.
 
         Keyword Arguments:
-        plant_id -- The id of the plant you wish to update the settings for
-        changed_settings -- A python dictionary containing the settings to be changed and their value
-        current_settings -- A python dictionary containing the current settings of the plant (use the response from plant_settings), if None - fetched for you
+            plant_id -- The id of the plant you wish to update the settings for
+            changed_settings -- A python dictionary containing the settings to
+                be changed and their value
+            current_settings -- A python dictionary containing the current settings
+                of the plant (use the response from plant_settings),
+                if None - fetched for you
 
         Returns:
         A response from the server stating whether the configuration was successful or not
 
         """
         # If no existing settings have been provided then get them from the growatt server
-        if current_settings == None:
+        if current_settings is None:
             current_settings = self.plant_settings(plant_id)
 
         # These are the parameters that the form requires, without these an error is thrown. Pre-populate their values with the current values
@@ -1075,18 +1101,23 @@ class GrowattApi:
 
         return response.json()
 
-    def update_inverter_setting(
-        self, serial_number, setting_type, default_parameters, parameters
-    ):
+    def update_inverter_setting(  # noqa: D417
+        self,
+        serial_number: str,  # noqa: ARG002
+        setting_type: str,  # noqa: ARG002
+        default_parameters: dict,
+        parameters: dict | list,
+    ) -> dict:
         """
-        Applies settings for specified system based on serial number
-        See README for known working settings
+        Apply settings for specified system based on serial number.
+
+        See README for known working settings.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the inverter (str)
-        setting_type -- Setting to be configured (str)
-        default_params -- Default set of parameters for the setting call (dict)
-        parameters -- Parameters to be sent to the system (dict or list of str)
+            serial_number -- Serial number (device_sn) of the inverter (str)
+            setting_type -- Setting to be configured (str)
+            default_parameters -- Default set of parameters for the setting call (dict)
+            parameters -- Parameters to be sent to the system (dict or list of str)
                 (array which will be converted to a dictionary)
 
         Returns:
@@ -1109,16 +1140,19 @@ class GrowattApi:
 
         return response.json()
 
-    def update_mix_inverter_setting(self, serial_number, setting_type, parameters):
+    def update_mix_inverter_setting(  # noqa: D417
+        self, serial_number: str, setting_type: str, parameters: dict | list
+    ) -> dict:
         """
-        Alias for setting inverter parameters on a mix inverter
-        See README for known working settings
+        Set inverter parameters on a mix inverter.
+
+        See README for known working settings.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the inverter (str)
-        setting_type -- Setting to be configured (str)
-        parameters -- Parameters to be sent to the system (dict or list of str)
-                (array which will be converted to a dictionary)
+            serial_number -- Serial number (device_sn) of the inverter (str)
+            setting_type -- Setting to be configured (str)
+            parameters -- Parameters to be sent to the system (dict or list of str)
+                    (array which will be converted to a dictionary)
 
         Returns:
         JSON response from the server whether the configuration was successful
@@ -1133,16 +1167,19 @@ class GrowattApi:
             serial_number, setting_type, default_parameters, parameters
         )
 
-    def update_ac_inverter_setting(self, serial_number, setting_type, parameters):
+    def update_ac_inverter_setting(  # noqa: D417
+        self, serial_number: str, setting_type: str, parameters: dict | list
+    ) -> dict:
         """
-        Alias for setting inverter parameters on an AC-coupled inverter
-        See README for known working settings
+        Set inverter parameters on an AC-coupled inverter.
+
+        See README for known working settings.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the inverter (str)
-        setting_type -- Setting to be configured (str)
-        parameters -- Parameters to be sent to the system (dict or list of str)
-                (array which will be converted to a dictionary)
+            serial_number -- Serial number (device_sn) of the inverter (str)
+            setting_type -- Setting to be configured (str)
+            parameters -- Parameters to be sent to the system (dict or list of str)
+                    (array which will be converted to a dictionary)
 
         Returns:
         JSON response from the server whether the configuration was successful
@@ -1157,19 +1194,26 @@ class GrowattApi:
             serial_number, setting_type, default_parameters, parameters
         )
 
-    def update_tlx_inverter_time_segment(
-        self, serial_number, segment_id, batt_mode, start_time, end_time, enabled
-    ):
+    def update_tlx_inverter_time_segment(  # noqa: PLR0913, D417
+        self,
+        serial_number: str,
+        segment_id: int,
+        batt_mode: int,
+        start_time: datetime.time,
+        end_time: datetime.time,
+        *,
+        enabled: bool,
+    ) -> dict:
         """
-        Updates the time segment settings for a TLX hybrid inverter.
+        Update the time segment settings for a TLX hybrid inverter.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the inverter (str)
-        segment_id -- ID of the time segment to be updated (int)
-        batt_mode -- Battery mode (int)
-        start_time -- Start time of the segment (datetime.time)
-        end_time -- End time of the segment (datetime.time)
-        enabled -- Whether the segment is enabled (bool)
+            serial_number -- Serial number (device_sn) of the inverter (str)
+            segment_id -- ID of the time segment to be updated (int)
+            batt_mode -- Battery mode (int)
+            start_time -- Start time of the segment (datetime.time)
+            end_time -- End time of the segment (datetime.time)
+            enabled -- Whether the segment is enabled (bool)
 
         Returns:
         JSON response from the server whether the configuration was successful
@@ -1193,21 +1237,27 @@ class GrowattApi:
         result = response.json()
 
         if not result.get("success", False):
-            raise Exception(
-                f"Failed to update TLX inverter time segment: {result.get('msg', 'Unknown error')}"
+            msg = (
+                f"Failed to update TLX inverter time segment: "
+                f"{result.get('msg', 'Unknown error')}"
             )
+            raise RuntimeError(msg)
 
         return result
 
-    def update_tlx_inverter_setting(self, serial_number, setting_type, parameter):
+    def update_tlx_inverter_setting(  # noqa: D417
+        self, serial_number: str, setting_type: str, parameter: str | dict | list
+    ) -> dict:
         """
-        Alias for setting parameters on a tlx hybrid inverter
-        See README for known working settings
+        Set parameters on a tlx hybrid inverter.
+
+        See README for known working settings.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the inverter (str)
-        setting_type -- Setting to be configured (str)
-        parameter -- Parameter(s) to be sent to the system (str, dict, list of str)
+            serial_number -- Serial number (device_sn) of the inverter (str)
+            setting_type -- Setting to be configured (str)
+            parameter -- Parameter(s) to be sent to the system
+                (str, dict, list of str)
                 (array which will be converted to a dictionary)
 
         Returns:
@@ -1232,16 +1282,19 @@ class GrowattApi:
             serial_number, setting_type, default_parameters, parameter
         )
 
-    def update_noah_settings(self, serial_number, setting_type, parameters):
+    def update_noah_settings(  # noqa: D417
+        self, serial_number: str, setting_type: str, parameters: dict | list
+    ) -> dict:
         """
-        Applies settings for specified noah device based on serial number
-        See README for known working settings
+        Apply settings for specified noah device based on serial number.
+
+        See README for known working settings.
 
         Arguments:
-        serial_number -- Serial number (device_sn) of the noah (str)
-        setting_type -- Setting to be configured (str)
-        parameters -- Parameters to be sent to the system (dict or list of str)
-                (array which will be converted to a dictionary)
+            serial_number -- Serial number (device_sn) of the noah (str)
+            setting_type -- Setting to be configured (str)
+            parameters -- Parameters to be sent to the system (dict or list of str)
+                    (array which will be converted to a dictionary)
 
         Returns:
         JSON response from the server whether the configuration was successful
