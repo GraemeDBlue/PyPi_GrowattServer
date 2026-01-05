@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Simple example of using the Growatt API."""
 
 import growattServer

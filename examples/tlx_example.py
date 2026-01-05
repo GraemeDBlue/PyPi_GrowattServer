@@ -69,7 +69,7 @@ for device in devices:
         print("Inverter info:", json.dumps(inverter_info, indent=4, sort_keys=True))  # noqa: T201
 
         # PV production data
-        data = api.tlx_data(inverter_sn, datetime.datetime.now())
+        data = api.tlx_data(inverter_sn, datetime.datetime.now(tz=datetime.UTC))
         print("PV production data:", json.dumps(data, indent=4, sort_keys=True))  # noqa: T201
 
         # System settings
@@ -104,18 +104,18 @@ for device in devices:
 # Examples of updating settings, uncomment to use
 
 # Set charging power to 95%
-# res = api.update_tlx_inverter_setting(inverter_sn, 'charge_power', 95)
-# print(res)
+# res = api.update_tlx_inverter_setting(inverter_sn, 'charge_power', 95)  # noqa: ERA001
+# print(res)  # noqa: ERA001
 
 # Turn on AC charging
-# res = api.update_tlx_inverter_setting(inverter_sn, 'ac_charge', 1)
-# print(res)
+# res = api.update_tlx_inverter_setting(inverter_sn, 'ac_charge', 1)  # noqa: ERA001
+# print(res)  # noqa: ERA001
 
 # Enable Load First between 00:01 and 11:59 using time segment 1
 # res = api.update_tlx_inverter_time_segment(serial_number = inverter_sn,
-#                                             segment_id = 1,
-#                                             batt_mode = growattServer.BATT_MODE_LOAD_FIRST,  # noqa: E501
-#                                           start_time = datetime.time(00, 1),
-#                                           end_time = datetime.time(11, 59),
+#                                             segment_id = 1,  # noqa: ERA001
+#                                             batt_mode = growattServer.BATT_MODE_LOAD_FIRST,  # noqa: E501, ERA001
+#                                           start_time = datetime.time(00, 1),  # noqa: E501, ERA001
+#                                           end_time = datetime.time(11, 59),  # noqa: E501, ERA001
 #                                           enabled=True)
-# print(res)
+# print(res)  # noqa: ERA001

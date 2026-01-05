@@ -12,7 +12,7 @@ import traceback
 import growattServer
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0915
     """Run the main example for SPH/MIX time segment writing."""
     # Get the API token from user input or environment variable
     api_token = os.environ.get("GROWATT_API_TOKEN") or input(
@@ -20,7 +20,7 @@ def main() -> None:
     )
 
     # Test token from official API docs (for testing only)
-    # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+    # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow  # noqa: ERA001
 
     try:
         # Initialize the API with token
