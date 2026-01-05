@@ -7,14 +7,17 @@ using the write_time_segment method with proper parameter objects.
 """
 
 import os
+import traceback
 
 import growattServer
 
 
 def main() -> None:
-    """Main example function."""
+    """Run the main example for SPH/MIX time segment writing."""
     # Get the API token from user input or environment variable
-    api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
+    api_token = os.environ.get("GROWATT_API_TOKEN") or input(
+        "Enter your Growatt API token: "
+    )
 
     # Test token from official API docs (for testing only)
     # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
@@ -56,21 +59,21 @@ def main() -> None:
         print("\n=== Setting AC Charge Time Period ===")  # noqa: T201
 
         charge_params = api.MixAcChargeTimeParams(
-            charge_power=80,           # 80% charging power
-            charge_stop_soc=95,        # Stop charging at 95% SOC
-            mains_enabled=True,        # Enable mains charging
-            start_hour=23,             # Start at 23:00 (11 PM)
+            charge_power=80,  # 80% charging power
+            charge_stop_soc=95,  # Stop charging at 95% SOC
+            mains_enabled=True,  # Enable mains charging
+            start_hour=23,  # Start at 23:00 (11 PM)
             start_minute=0,
-            end_hour=6,                # End at 06:00 (6 AM)
+            end_hour=6,  # End at 06:00 (6 AM)
             end_minute=0,
-            enabled=True               # Enable this time period
+            enabled=True,  # Enable this time period
         )
 
         result = api.write_time_segment(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.SPH_MIX,
             command="mix_ac_charge_time_period",
-            params=charge_params
+            params=charge_params,
         )
 
         print(f"AC charge time period set successfully: {result}")  # noqa: T201
@@ -80,21 +83,21 @@ def main() -> None:
 
         # Set a different charge time period (off-peak hours)
         charge_params2 = api.MixAcChargeTimeParams(
-            charge_power=100,          # 100% charging power
-            charge_stop_soc=100,       # Charge to full
-            mains_enabled=True,        # Enable mains charging
-            start_hour=1,              # Start at 01:00 (1 AM)
+            charge_power=100,  # 100% charging power
+            charge_stop_soc=100,  # Charge to full
+            mains_enabled=True,  # Enable mains charging
+            start_hour=1,  # Start at 01:00 (1 AM)
             start_minute=30,
-            end_hour=5,                # End at 05:00 (5 AM)
+            end_hour=5,  # End at 05:00 (5 AM)
             end_minute=30,
-            enabled=True
+            enabled=True,
         )
 
         result2 = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.SPH_MIX,
             command="mix_ac_charge_time_period",
-            params=charge_params2
+            params=charge_params2,
         )
 
         print(f"Alternative charge time period set: {result2}")  # noqa: T201
@@ -103,21 +106,21 @@ def main() -> None:
         print("\n=== Disabling Charge Time Period ===")  # noqa: T201
 
         disable_charge_params = api.MixAcChargeTimeParams(
-            charge_power=0,            # No charging power
-            charge_stop_soc=0,         # No stop SOC
-            mains_enabled=False,       # Disable mains charging
-            start_hour=12,             # Noon
+            charge_power=0,  # No charging power
+            charge_stop_soc=0,  # No stop SOC
+            mains_enabled=False,  # Disable mains charging
+            start_hour=12,  # Noon
             start_minute=0,
-            end_hour=18,               # 6 PM
+            end_hour=18,  # 6 PM
             end_minute=0,
-            enabled=False              # Disable this time period
+            enabled=False,  # Disable this time period
         )
 
         result3 = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.SPH_MIX,
             command="mix_ac_charge_time_period",
-            params=disable_charge_params
+            params=disable_charge_params,
         )
 
         print(f"Charge time period disabled: {result3}")  # noqa: T201
@@ -146,7 +149,6 @@ def main() -> None:
         print(f"Parameter Error: {e}")  # noqa: T201
     except Exception as e:  # noqa: BLE001
         print(f"Unexpected error: {e}")  # noqa: T201
-        import traceback
         traceback.print_exc()
 
 
@@ -160,7 +162,7 @@ def demonstrate_other_parameters() -> None:
     # Backflow setting
     backflow_params = growattServer.OpenApiV1.BackflowSettingParams(
         backflow_enabled=True,
-        anti_reverse_power_percentage=50  # 50% anti-reverse flow power
+        anti_reverse_power_percentage=50,  # 50% anti-reverse flow power
     )
     print(f"Backflow params: {backflow_params}")  # noqa: T201
 
@@ -173,7 +175,7 @@ def demonstrate_other_parameters() -> None:
     # Grid voltage limits
     voltage_params = growattServer.OpenApiV1.GridVoltageParams(
         voltage_high=270,  # Upper limit
-        voltage_low=180    # Lower limit
+        voltage_low=180,  # Lower limit
     )
     print(f"Voltage params: {voltage_params}")  # noqa: T201
 
@@ -181,7 +183,7 @@ def demonstrate_other_parameters() -> None:
     offgrid_params = growattServer.OpenApiV1.OffGridParams(
         off_grid_enabled=True,
         frequency=0,  # 50Hz
-        voltage=0     # 230V
+        voltage=0,  # 230V
     )
     print(f"Off-grid params: {offgrid_params}")  # noqa: T201
 

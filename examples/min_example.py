@@ -68,7 +68,7 @@ try:
 
             # Get settings
             settings_data = api.min_settings(
-                 device_sn=inverter_sn,
+                device_sn=inverter_sn,
             )
             print("Saving settings data to settings_data.json")  # noqa: T201
             with Path("settings_data.json").open("w") as f:
@@ -76,9 +76,9 @@ try:
 
             # Read time segments
             tou = api.read_time_segments(
-                 device_sn=inverter_sn,
-                 device_type=device_type,
-                 settings_data=settings_data
+                device_sn=inverter_sn,
+                device_type=device_type,
+                settings_data=settings_data,
             )
             print("Time-of-Use Segments:")  # noqa: T201
             with Path("tou_data.json").open("w") as f:
@@ -88,7 +88,7 @@ try:
             discharge_power = api.common_read_parameter(
                 device_sn=inverter_sn,
                 device_type=device_type,
-                parameter_id="discharge_power"
+                parameter_id="discharge_power",
             )
             print(f"Current discharge power: {discharge_power}%")  # noqa: T201
 

@@ -23,9 +23,6 @@ user_agent = "ShinePhone/8.1.17 (iPhone; iOS 15.6.1; Scale/2.00)"
 api = growattServer.GrowattApi(agent_identifier=user_agent)
 login_response = api.login(username, user_pass)
 if not login_response["success"]:
-    print(
-        f"Failed to log in, msg: {login_response['msg']}, error: {login_response['error']}"
-    )
     sys.exit()
 
 # Get plant(s)
@@ -124,24 +121,13 @@ print(f"PV #1 power              {float(inverter_detail['ppv1']):>22.1f}")  # no
 print(f"PV #2 power              {float(inverter_detail['ppv2']):>22.1f}")  # noqa: T201
 print(f"Battery charge power     {float(system_status['chargePower']) * 1000:>22.1f}")  # noqa: T201
 if len(batteries_info) > 0:
-    print(
-        f"Batt #1 charge power     {float(batteries_info[0]['bdcChargePower']):>22.1f}"
-    )
+    pass
 if len(batteries_info) > 1:
-    print(
-        f"Batt #2 charge power     {float(batteries_info[1]['bdcChargePower']):>22.1f}"
-    )
-print(
-    f"Battery discharge power      {float(system_status['pdisCharge']) * 1000:>18.1f}"
-)
+    pass
 if len(batteries_info) > 0:
-    print(
-        f"Batt #1 discharge power  {float(batteries_info[0]['bdcDischargePower']):>22.1f}"
-    )
+    pass
 if len(batteries_info) > 1:
-    print(
-        f"Batt #2 discharge power  {float(batteries_info[1]['bdcDischargePower']):>22.1f}"
-    )
+    pass
 if len(batteries_info) > 0:
     print(f"Batt #1 SOC              {int(batteries_info[0]['soc']):>21}%")  # noqa: T201
 if len(batteries_info) > 1:

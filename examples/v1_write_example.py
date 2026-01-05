@@ -7,6 +7,7 @@ parameters on both SPH_MIX and MIN_TLX device types using the V1 API.
 """
 
 import os
+import traceback
 from datetime import time
 
 import requests
@@ -216,7 +217,7 @@ def demonstrate_min_tlx_parameters(
 
 
 def main() -> None:
-    """Main demonstration function."""
+    """Run the main demonstration for V1 API parameter writing."""
     # Get the API token from user input or environment variable
     api_token = os.environ.get("GROWATT_API_TOKEN") or input(
         "Enter your Growatt API token: "
@@ -264,29 +265,19 @@ def main() -> None:
             print(f"\n--- Reading current settings for {device_sn} ---")  # noqa: T201
             try:
                 settings = device.settings()
-                print(
-                    f"Settings keys: {list(settings.keys())[:10]}..."
-                )  # Show first 10 keys
 
                 # Show some relevant settings based on device type
                 if device_type == growattServer.DeviceType.SPH_MIX:
                     for i in range(1, 4):
                         start_key = f"forcedChargeTimeStart{i}"
-                        stop_key = f"forcedChargeTimeStop{i}"
                         if start_key in settings:
-                            print(
-                                f"  Charge period {i}: {settings.get(start_key)} - {settings.get(stop_key)}"
-                            )
+                            pass
 
                 elif device_type == growattServer.DeviceType.MIN_TLX:
                     for i in range(1, 4):
                         start_key = f"forcedTimeStart{i}"
-                        stop_key = f"forcedTimeStop{i}"
-                        mode_key = f"time{i}Mode"
                         if start_key in settings:
-                            print(
-                                f"  Time segment {i}: {settings.get(start_key)} - {settings.get(stop_key)} (Mode: {settings.get(mode_key)})"
-                            )
+                            pass
 
             except Exception as e:  # noqa: BLE001
                 print(f"Error reading settings: {e}")  # noqa: T201
@@ -303,8 +294,6 @@ def main() -> None:
         print(f"Network Error: {e}")  # noqa: T201
     except Exception as e:  # noqa: BLE001
         print(f"Unexpected error: {e}")  # noqa: T201
-        import traceback
-
         traceback.print_exc()
 
 

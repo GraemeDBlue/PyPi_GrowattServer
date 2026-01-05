@@ -1,12 +1,19 @@
 """
 Example script for NOAH inverter systems.
 
-This is a very trivial script that logs into a user's account and prints out useful data for a "NOAH" system.
-This has been tested against my personal system (NOAH2000) which is a 2kW Balcony Storage system.
+This is a very trivial script that logs into a user's account and prints out
+useful data for a "NOAH" system. This has been tested against my personal
+system (NOAH2000) which is a 2kW Balcony Storage system.
 
-Throughout the script there are points where 'pp.pprint' has been commented out. If you wish to see all the data that is returned from those
-specific library calls, just uncomment them and they will appear as part of the output.
+Throughout the script there are points where 'pp.pprint' has been commented
+out. If you wish to see all the data that is returned from those specific
+library calls, just uncomment them and they will appear as part of the output.
 """
+
+import getpass
+import pprint
+
+import growattServer
 
 pp = pprint.PrettyPrinter(indent=4)
 

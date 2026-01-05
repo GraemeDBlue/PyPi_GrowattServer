@@ -96,24 +96,9 @@ try:
     print("\nPower overview                          (Watts)")  # noqa: T201
     print(f"AC Power                 {safe_float(energy_data.get('pac')):>22.1f}")  # noqa: T201
     print(f"Self power               {safe_float(energy_data.get('pself')):>22.1f}")  # noqa: T201
-    print(
-        f"Export power             {safe_float(energy_data.get('pacToGridTotal')):>22.1f}"
-    )
-    print(
-        f"Import power             {safe_float(energy_data.get('pacToUserTotal')):>22.1f}"
-    )
-    print(
-        f"Local load power         {safe_float(energy_data.get('pacToLocalLoad')):>22.1f}"
-    )
     print(f"PV power                 {safe_float(energy_data.get('ppv')):>22.1f}")  # noqa: T201
     print(f"PV #1 power              {safe_float(energy_data.get('ppv1')):>22.1f}")  # noqa: T201
     print(f"PV #2 power              {safe_float(energy_data.get('ppv2')):>22.1f}")  # noqa: T201
-    print(
-        f"Battery charge power     {safe_float(energy_data.get('bdc1ChargePower')):>22.1f}"
-    )
-    print(
-        f"Battery discharge power  {safe_float(energy_data.get('bdc1DischargePower')):>22.1f}"
-    )
     print(f"Battery SOC              {int(safe_float(energy_data.get('bmsSOC'))):>21}%")  # noqa: T201
 
 except growattServer.GrowattV1ApiError as e:
