@@ -311,7 +311,7 @@ class OpenApiV1(GrowattApi):
             """
             return {
                 "param1": "1" if params.off_grid_enabled else "0",
-                # Note: frequency and voltage require different commands, not implemented
+                # Note: frequency and voltage require different commands, not implemented  # noqa: E501
             }
 
         @staticmethod
@@ -324,7 +324,7 @@ class OpenApiV1(GrowattApi):
             """
             return {
                 "param1": str(params.active_power),
-                # Note: reactive_power and power_factor require different commands, not implemented
+                # Note: reactive_power and power_factor require different commands, not implemented  # noqa: E501
             }
 
         @staticmethod
@@ -427,7 +427,7 @@ class OpenApiV1(GrowattApi):
         """
         # Only write debug output if DEBUG environment variable is set to true
         if os.getenv("DEBUG", "false").lower() == "true":
-            with open("response.json", "w") as f:
+            with open("response.json", "w") as f:  # noqa: PTH123
                 json.dump(response, f, indent=4, sort_keys=True)
 
         if response.get("error_code", 1) != 0:
@@ -995,7 +995,8 @@ class OpenApiV1(GrowattApi):
         Args:
             device_sn (str): The ID of the TLX inverter.
             params (dict): Parameters for reading the setting.
-                Should include either 'parameter_id' or 'start_address' and 'end_address'.
+                Should include either 'parameter_id' or 'start_address'
+                and 'end_address'.
 
         Returns:
             dict: A dictionary containing the setting value.
@@ -1125,9 +1126,10 @@ class OpenApiV1(GrowattApi):
                         parameters[i] = str(value)
             elif isinstance(parameter_values, dict):
                 # Dict maps param positions to values
+                MAX_PARAMS = 19  # Maximum number of parameters supported
                 for pos, value in parameter_values.items():
                     param_pos = int(pos) if not isinstance(pos, int) else pos
-                    if 1 <= param_pos <= 19:  # Validate parameter positions
+                    if 1 <= param_pos <= MAX_PARAMS:  # Validate parameter positions
                         parameters[param_pos] = str(value)
 
         # IMPORTANT: Create a data dictionary with ALL parameters explicitly included
@@ -1215,7 +1217,9 @@ class OpenApiV1(GrowattApi):
         end_minute=0,
         enabled=True
     )
-    api.write_parameter(device_sn, DeviceType.SPH_MIX, "mix_ac_discharge_time_period", params)
+    api.write_parameter(
+        device_sn, DeviceType.SPH_MIX, "mix_ac_discharge_time_period", params
+    )
 
     # Backflow setting
     params = api.BackflowSettingParams(
@@ -1292,7 +1296,7 @@ class OpenApiV1(GrowattApi):
                 all_params[param_key] = ""
 
         if os.getenv("DEBUG", "false").lower() == "true":
-            with open("params.json", "w") as f:
+            with open("params.json", "w") as f:  # noqa: PTH123
                 json.dump(all_params, f, indent=4, sort_keys=True)
 
         # Send the request
@@ -1305,7 +1309,7 @@ class OpenApiV1(GrowattApi):
             response.json(), f"writing time segment command {command}"
         )
 
-    def write_parameter(
+    def write_parameter(  # noqa: PLR0912
         self, device_sn: str, device_type: DeviceType, command: str, params: object
     ) -> dict:
         """
@@ -1347,14 +1351,21 @@ class OpenApiV1(GrowattApi):
                 end_minute=0,
                 enabled=True
             )
-            api.write_parameter(device_sn, DeviceType.SPH_MIX, "mix_ac_discharge_time_period", params)
+            api.write_parameter(
+                device_sn,
+                DeviceType.SPH_MIX,
+                "mix_ac_discharge_time_period",
+                params,
+            )
 
             # Backflow setting
             params = api.BackflowSettingParams(
                 backflow_enabled=True,
                 anti_reverse_power_percentage=50
             )
-            api.write_parameter(device_sn, DeviceType.SPH_MIX, "backflow_setting", params)
+            api.write_parameter(
+                device_sn, DeviceType.SPH_MIX, "backflow_setting", params
+            )
 
         """
         url_prefix = DeviceType.get_url_prefix(device_type)
@@ -1418,7 +1429,7 @@ class OpenApiV1(GrowattApi):
                 all_params[param_key] = ""
 
         if os.getenv("DEBUG", "false").lower() == "true":
-            with open("params.json", "w") as f:
+            with open("params.json", "w") as f:  # noqa: PTH123
                 json.dump(all_params, f, indent=4, sort_keys=True)
 
         # Send the request
@@ -1550,7 +1561,7 @@ class OpenApiV1(GrowattApi):
 
         return segments
 
-    def read_time_segments(
+    def read_time_segments(  # noqa: PLR0912
         self, device_sn: str, device_type: DeviceType, settings_data: dict | None = None
     ) -> list[dict]:
         """
