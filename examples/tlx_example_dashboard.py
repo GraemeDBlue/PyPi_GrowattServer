@@ -65,17 +65,17 @@ for device in devices:
         )
 
         if float(batt_info["chargeOrDisPower"]) > 0:
-            bdcChargePower = float(batt_info["chargeOrDisPower"])
-            bdcDischargePower = 0
+            bdc_charge_power = float(batt_info["chargeOrDisPower"])
+            bdc_discharge_power = 0
         else:
-            bdcChargePower = 0
-            bdcDischargePower = float(batt_info["chargeOrDisPower"])
-            bdcDischargePower = -bdcDischargePower
+            bdc_charge_power = 0
+            bdc_discharge_power = float(batt_info["chargeOrDisPower"])
+            bdc_discharge_power = -bdc_discharge_power
 
         battery_data = {
             "serialNum": device["deviceSn"],
-            "bdcChargePower": bdcChargePower,
-            "bdcDischargePower": bdcDischargePower,
+            "bdcChargePower": bdc_charge_power,
+            "bdcDischargePower": bdc_discharge_power,
             "dischargeTotal": batt_info["dischargeTotal"],
             "soc": batt_info["soc"],
         }
