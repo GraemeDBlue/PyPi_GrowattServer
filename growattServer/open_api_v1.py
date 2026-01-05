@@ -1126,10 +1126,10 @@ class OpenApiV1(GrowattApi):
                         parameters[i] = str(value)
             elif isinstance(parameter_values, dict):
                 # Dict maps param positions to values
-                MAX_PARAMS = 19  # Maximum number of parameters supported
+                max_params = 19  # Maximum number of parameters supported
                 for pos, value in parameter_values.items():
                     param_pos = int(pos) if not isinstance(pos, int) else pos
-                    if 1 <= param_pos <= MAX_PARAMS:  # Validate parameter positions
+                    if 1 <= param_pos <= max_params:  # Validate parameter positions
                         parameters[param_pos] = str(value)
 
         # IMPORTANT: Create a data dictionary with ALL parameters explicitly included
@@ -1561,7 +1561,7 @@ class OpenApiV1(GrowattApi):
 
         return segments
 
-    def read_time_segments(  # noqa: PLR0912
+    def read_time_segments(  # noqa: PLR0912, PLR0915
         self, device_sn: str, device_type: DeviceType, settings_data: dict | None = None
     ) -> list[dict]:
         """
@@ -1777,7 +1777,7 @@ class GrowattDevice:
     def common_write_time_segment(
         self,
         command: str,
-        params: "TimeSegmentParams | MixAcDischargeTimeParams | MixAcChargeTimeParams",
+        params: "OpenApiV1.TimeSegmentParams | OpenApiV1.MixAcDischargeTimeParams | OpenApiV1.MixAcChargeTimeParams",
     ) -> dict:
         """Write a time segment parameter to the device."""
         return self._api.write_time_segment(
