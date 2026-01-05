@@ -2,7 +2,6 @@ import json  # noqa: D100
 import os
 import platform
 import re
-from unittest import case
 import warnings
 from datetime import UTC, date, datetime, time, timedelta
 from enum import Enum
@@ -38,13 +37,9 @@ class DeviceType(Enum):
     @classmethod
     def get_url_prefix(cls, device_type) -> str:  # noqa: ANN001
         """Get the URL prefix for a given device type."""
-        if device_type == cls.SPH_MIX:
+        if device_type == cls.SPH_MIX or device_type == cls.SPH_MIX.value:
             return "mix"
-        elif device_type == cls.SPH_MIX.value:  # noqa: RET505
-            return "mix"
-        elif device_type == cls.MIN_TLX:  # noqa: RET505
-            return "tlx"
-        elif device_type == cls.MIN_TLX.value:  # noqa: RET505
+        elif device_type == cls.MIN_TLX or device_type == cls.MIN_TLX.value:  # noqa: RET505
             return "tlx"
         else:
             msg = f"Unsupported device type: {device_type}"
@@ -243,8 +238,8 @@ class OpenApiV1(GrowattApi):
             """Convert MixAcDischargeTimeParams to API parameters for SPH_MIX."""
             base_param = (period - 1) * 5  # Each period uses 5 parameters
             return {
-                f"param1": str(params.discharge_power),
-                f"param2": str(params.discharge_stop_soc),
+                "param1": str(params.discharge_power),
+                "param2": str(params.discharge_stop_soc),
                 f"param{base_param + 3}": str(params.start_hour),
                 f"param{base_param + 4}": str(params.start_minute),
                 f"param{base_param + 5}": str(params.end_hour),
@@ -259,9 +254,9 @@ class OpenApiV1(GrowattApi):
             """Convert MixAcChargeTimeParams to API parameters for SPH_MIX."""
             base_param = (period - 1) * 5  # Each period uses 5 parameters
             return {
-                f"param1": str(params.charge_power),
-                f"param2": str(params.charge_stop_soc),
-                f"param3": "1" if params.mains_enabled else "0",
+                "param1": str(params.charge_power),
+                "param2": str(params.charge_stop_soc),
+                "param3": "1" if params.mains_enabled else "0",
                 f"param{base_param + 4}": str(params.start_hour),
                 f"param{base_param + 5}": str(params.start_minute),
                 f"param{base_param + 6}": str(params.end_hour),
@@ -279,13 +274,12 @@ class OpenApiV1(GrowattApi):
                     "param1": "1" if params.backflow_enabled else "0",
                     "param2": str(params.anti_reverse_power_percentage),
                 }
-            elif device_type == DeviceType.MIN_TLX:
+            if device_type == DeviceType.MIN_TLX:
                 return {
                     "param1": str(params.backflow_mode),
                 }
-            else:
-                msg = f"Unsupported device type: {device_type}"
-                raise GrowattParameterError(msg)
+            msg = f"Unsupported device type: {device_type}"
+            raise GrowattParameterError(msg)
 
         @staticmethod
         def pv_onoff_to_params(params: "OpenApiV1.PvOnOffParams") -> dict:
@@ -1132,9 +1126,7 @@ class OpenApiV1(GrowattApi):
                 # Dict maps param positions to values
                 for pos, value in parameter_values.items():
                     param_pos = int(pos) if not isinstance(pos, int) else pos
-                    if (
-                        1 <= param_pos <= 19
-                    ):  # Validate parameter positions  # noqa: E501, PLR2004
+                    if 1 <= param_pos <= 19:  # Validate parameter positions
                         parameters[param_pos] = str(value)
 
         # IMPORTANT: Create a data dictionary with ALL parameters explicitly included
