@@ -36,7 +36,7 @@ api = growattServer.GrowattApi()
 login_response = api.login(username, user_pass)
 
 plant_list = api.plant_list(login_response["user"]["id"])
-# pp.pprint(plant_list)
+# pp.pprint(plant_list)  # noqa: ERA001
 
 print("***Totals for all plants***")  # noqa: T201
 pp.pprint(plant_list["totalData"])
@@ -51,7 +51,7 @@ for plant in plant_list["data"]:
     plant_id = plant["plantId"]
     plant_name = plant["plantName"]
     plant_info = api.plant_info(plant_id)
-    # pp.pprint(plant_info)
+    # pp.pprint(plant_info)  # noqa: ERA001
     print(f"***Info for Plant {plant_id} - {plant_name}***")  # noqa: T201
     # There are more values in plant_info, but these are some of the
     # useful/interesting ones

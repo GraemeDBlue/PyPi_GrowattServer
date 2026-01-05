@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Example script for reading device settings."""
 
 import datetime
@@ -51,7 +52,7 @@ device_type = device["deviceType"]
 # Get plant settings - This is performed for us inside
 # 'update_plant_settings' but you can get ALL of the settings using this
 current_settings = api.get_plant_settings(plant_id)
-# pp.pprint(current_settings)
+# pp.pprint(current_settings)  # noqa: ERA001
 
 
 # Change the timezone of the plant
@@ -64,7 +65,7 @@ print()  # noqa: T201
 
 
 # Set inverter time
-now = datetime.datetime.now()
+now = datetime.datetime.now(tz=datetime.UTC)
 dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
 time_settings = {"param1": dt_string}
 print(f"Setting inverter time to: {dt_string}")  # noqa: T201

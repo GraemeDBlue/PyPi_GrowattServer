@@ -41,7 +41,7 @@ api_token = os.environ.get("GROWATT_API_TOKEN") or input(
 )
 
 # test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
-# api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+# api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow  # noqa: ERA001
 
 try:
     # Initialize the API with token
@@ -51,7 +51,7 @@ try:
     plants = api.plant_list()
     print(f"Plants: Found {plants['count']} plants")  # noqa: T201
     plant_id = plants["plants"][0]["plant_id"]
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=datetime.UTC).date()
     devices = api.get_devices(plant_id)
 
     energy_data = None
@@ -65,7 +65,7 @@ try:
 
     if energy_data is None:
         msg = "No SPH_MIX device found to get energy data from."
-        raise Exception(msg)
+        raise RuntimeError(msg)  # noqa: TRY301
 
     solar_production = f"{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get('epvTotal')):.1f}"  # noqa: E501
     solar_production_pv1 = f"{safe_float(energy_data.get('epv1Today')):.1f}/{safe_float(energy_data.get('epv1Total')):.1f}"  # noqa: E501

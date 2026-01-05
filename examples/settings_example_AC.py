@@ -1,31 +1,32 @@
-"""Example script for reading AC device settings."""
+"""
+Example script for reading AC device settings.
+
+Sample script to set AC battery charging.
+
+Takes commandline arguments for terminal SOC, start time, end time,
+and whether to run, with default arguments if none are given.
+Tested on an SPA3000.
+"""  # noqa: N999
 
 import json
 import sys
 
 import growattServer
 
-"""
-Sample script to set AC battery charging
-Takes commandline arguments for terminal SOC, start time, end time,
-    and whether to run, with default arguments if none are given
-Tested on an SPA3000
-"""
-
 # check for SOC percent and whether to run
-if len(sys.argv) != 7:
+if len(sys.argv) != 7:  # noqa: PLR2004
     SOC = "40"
-    startH = "0"
-    startM = "40"
-    endH = "04"
-    endM = "30"
+    start_h = "0"
+    start_m = "40"
+    end_h = "04"
+    end_m = "30"
     run = "1"
 else:
     SOC = str(sys.argv[1])
-    startH = f"{int(sys.argv[2]):02.0f}"
-    startM = f"{int(sys.argv[3]):02.0f}"
-    endH = f"{int(sys.argv[4]):02.0f}"
-    endM = f"{int(sys.argv[5]):02.0f}"
+    start_h = f"{int(sys.argv[2]):02.0f}"
+    start_m = f"{int(sys.argv[3]):02.0f}"
+    end_h = f"{int(sys.argv[4]):02.0f}"
+    end_m = f"{int(sys.argv[5]):02.0f}"
     run = str(sys.argv[6])
 
 api = growattServer.GrowattApi()
@@ -47,10 +48,10 @@ if login_response["success"]:
     schedule_settings = [
         "100",  # Charging power %
         SOC,  # Stop charging at SoC %
-        startH,
-        startM,  # Schedule 1 - Start time
-        endH,
-        endM,  # Schedule 1 - End time
+        start_h,
+        start_m,  # Schedule 1 - Start time
+        end_h,
+        end_m,  # Schedule 1 - End time
         run,  # Schedule 1 - Enabled/Disabled (1 = Enabled)
         "00",
         "00",  # Schedule 2 - Start time
