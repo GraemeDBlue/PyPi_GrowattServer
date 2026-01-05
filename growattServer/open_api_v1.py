@@ -37,9 +37,9 @@ class DeviceType(Enum):
     @classmethod
     def get_url_prefix(cls, device_type) -> str:  # noqa: ANN001
         """Get the URL prefix for a given device type."""
-        if device_type == cls.SPH_MIX or device_type == cls.SPH_MIX.value:
+        if device_type in (cls.SPH_MIX, cls.SPH_MIX.value):
             return "mix"
-        elif device_type == cls.MIN_TLX or device_type == cls.MIN_TLX.value:  # noqa: RET505
+        elif device_type in (cls.MIN_TLX, cls.MIN_TLX.value):  # noqa: RET505
             return "tlx"
         else:
             msg = f"Unsupported device type: {device_type}"
@@ -290,56 +290,57 @@ class OpenApiV1(GrowattApi):
 
         @staticmethod
         def grid_voltage_to_params(params: "OpenApiV1.GridVoltageParams") -> dict:
-            """Convert GridVoltageParams to API parameters."""
+            """
+            Convert GridVoltageParams to API parameters.
+
+            Note: This currently only supports voltage_high.
+            voltage_low would require a different command.
+            """
             return {
-                "param1": str(params.voltage_high),  # For high voltage
-                # OR
-                "param1": str(
-                    params.voltage_low
-                ),  # For low voltage (different command)
+                "param1": str(params.voltage_high),
+                # Note: voltage_low requires different command, not implemented
             }
 
         @staticmethod
         def off_grid_to_params(params: "OpenApiV1.OffGridParams") -> dict:
-            """Convert OffGridParams to API parameters."""
+            """
+            Convert OffGridParams to API parameters.
+
+            Note: This currently only supports off_grid_enabled.
+            frequency and voltage would require different commands.
+            """
             return {
                 "param1": "1" if params.off_grid_enabled else "0",
-                # OR for frequency/voltage (different commands)
-                "param1": str(params.frequency),
-                # OR
-                "param1": str(params.voltage),
+                # Note: frequency and voltage require different commands, not implemented
             }
 
         @staticmethod
         def power_to_params(params: "OpenApiV1.PowerParams") -> dict:
-            """Convert PowerParams to API parameters."""
+            """
+            Convert PowerParams to API parameters.
+
+            Note: This currently only supports active_power.
+            reactive_power and power_factor would require different commands.
+            """
             return {
-                "param1": str(params.active_power),  # For active power
-                # OR
-                "param1": str(params.reactive_power),  # For reactive power
-                # OR
-                "param1": str(params.power_factor),  # For power factor
+                "param1": str(params.active_power),
+                # Note: reactive_power and power_factor require different commands, not implemented
             }
 
         @staticmethod
         def charge_discharge_to_params(
             params: "OpenApiV1.ChargeDischargeParams",
         ) -> dict:
-            """Convert ChargeDischargeParams to API parameters."""
+            """
+            Convert ChargeDischargeParams to API parameters.
+
+            Note: This currently only supports charge_power.
+            Other parameters (charge_stop_soc, discharge_power, discharge_stop_soc,
+            ac_charge_enabled) would require different commands.
+            """
             return {
-                "param1": str(params.charge_power),  # For charge_power command
-                # OR
-                "param1": str(params.charge_stop_soc),  # For charge_stop_soc command
-                # OR
-                "param1": str(params.discharge_power),  # For discharge_power command
-                # OR
-                "param1": str(
-                    params.discharge_stop_soc
-                ),  # For discharge_stop_soc command
-                # OR
-                "param1": "1"
-                if params.ac_charge_enabled
-                else "0",  # For ac_charge command
+                "param1": str(params.charge_power),
+                # Note: Other parameters require different commands, not implemented
             }
 
     class DeviceEnergyHistoryParams(NamedTuple):
