@@ -1,4 +1,5 @@
-"""Example script for MIN/TLX Growatt inverters using the public API.
+"""
+Example script for MIN/TLX Growatt inverters using the public API.
 
 This script demonstrates controlling a MID/TLX Growatt
 (MID-30KTL3-XH + APX battery) system.
@@ -22,68 +23,68 @@ try:
 
     # Plant info
     plants = api.plant_list()
-    print(f"Plants: Found {plants['count']} plants")
-    plant_id = plants['plants'][0]['plant_id']
+    print(f"Plants: Found {plants['count']} plants")  # noqa: T201
+    plant_id = plants["plants"][0]["plant_id"]
 
     # Devices
     devices = api.device_list(plant_id)
 
-    for device in devices['devices']:
-        print(device)
-        if device['device_type'] == growattServer.DeviceType.MIN_TLX.value:
-            inverter_sn = device['device_sn']
-            device_type = device['device_type']
-            print(f"Processing {device_type.name} inverter: {inverter_sn}")
+    for device in devices["devices"]:
+        print(device)  # noqa: T201
+        if device["device_type"] == growattServer.DeviceType.MIN_TLX.value:
+            inverter_sn = device["device_sn"]
+            device_type = device["device_type"]
+            print(f"Processing {device_type.name} inverter: {inverter_sn}")  # noqa: T201
 
             # Get device details
             inverter_data = api.min_detail(
                 device_sn=inverter_sn,
             )
-            print("Saving inverter data to inverter_data.json")
-            with open('inverter_data.json', 'w') as f:
+            print("Saving inverter data to inverter_data.json")  # noqa: T201
+            with open("inverter_data.json", "w") as f:
                 json.dump(inverter_data, f, indent=4, sort_keys=True)
 
             # Get energy data
             energy_data = api.min_energy(
-                device_sn=inverter_sn, 
+                device_sn=inverter_sn,
             )
-            print("Saving energy data to energy_data.json")
-            with open('energy_data.json', 'w') as f:
+            print("Saving energy data to energy_data.json")  # noqa: T201
+            with open("energy_data.json", "w") as f:
                 json.dump(energy_data, f, indent=4, sort_keys=True)
 
             # Get energy history
             energy_history_data = api.min_energy_history(
                 device_sn=inverter_sn,
             )
-            print("Saving energy history data to energy_history.json")
-            with open('energy_history.json', 'w') as f:
-                json.dump(energy_history_data.get('datas', []), f, indent=4, sort_keys=True)
+            print("Saving energy history data to energy_history.json")  # noqa: T201
+            with open("energy_history.json", "w") as f:
+                json.dump(energy_history_data.get("datas", []), f, indent=4, sort_keys=True)
 
             # Get settings
             settings_data = api.min_settings(
                  device_sn=inverter_sn,
             )
-            print("Saving settings data to settings_data.json")
-            with open('settings_data.json', 'w') as f:
+            print("Saving settings data to settings_data.json")  # noqa: T201
+            with open("settings_data.json", "w") as f:
                 json.dump(settings_data, f, indent=4, sort_keys=True)
 
             # Read time segments
             tou = api.read_time_segments(
-                 device_sn=inverter_sn, 
-                 device_type=device_type, 
+                 device_sn=inverter_sn,
+                 device_type=device_type,
                  settings_data=settings_data
             )
-            print("Time-of-Use Segments:")
-            with open('tou_data.json', 'w') as f:
+            print("Time-of-Use Segments:")  # noqa: T201
+            with open("tou_data.json", "w") as f:
                 json.dump(tou, f, indent=4, sort_keys=True)
 
             # Read discharge power
             discharge_power = api.common_read_parameter(
-                device_sn=inverter_sn, 
-                device_type=device_type, 
-                parameter_id='discharge_power'
+                device_sn=inverter_sn,
+                device_type=device_type,
+                parameter_id="discharge_power"
             )
-            print(f"Current discharge power: {discharge_power}%")
+            print(f"Current discharge power: {discharge_power}%")  # noqa: T201
 
             # Settings parameters - Uncomment to test
 
@@ -106,10 +107,10 @@ try:
 
 
 except growattServer.GrowattV1ApiError as e:
-    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")
+    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
 except growattServer.GrowattParameterError as e:
-    print(f"Parameter Error: {e}")
+    print(f"Parameter Error: {e}")  # noqa: T201
 except requests.exceptions.RequestException as e:
-    print(f"Network Error: {e}")
+    print(f"Network Error: {e}")  # noqa: T201
 except Exception as e:
-    print(f"Unexpected error: {e}")
+    print(f"Unexpected error: {e}")  # noqa: T201
