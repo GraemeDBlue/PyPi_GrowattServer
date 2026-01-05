@@ -2,6 +2,7 @@
 
 import datetime
 import hashlib
+import json
 import warnings
 from enum import IntEnum
 from random import randint
@@ -774,13 +775,16 @@ class GrowattApi:
 
         return response.json().get("obj", {})
 
-    def get_mix_inverter_settings(self, serial_number):
+    def get_mix_inverter_settings(self, serial_number: str) -> dict:
         """
-        Gets the inverter settings related to battery modes
-        Keyword arguments:
-        serial_number -- The serial number (device_sn) of the inverter
+        Get the inverter settings related to battery modes.
+
+        Args:
+            serial_number: The serial number (device_sn) of the inverter
+
         Returns:
-        A dictionary of settings
+            A dictionary of settings
+
         """
         default_params = {
             "op": "getMixSetParams",
@@ -788,8 +792,7 @@ class GrowattApi:
             "kind": 0,
         }
         response = self.session.get(self.get_url("newMixApi.do"), params=default_params)
-        data = json.loads(response.content.decode("utf-8"))
-        return data
+        return json.loads(response.content.decode("utf-8"))
 
     def dashboard_data(  # noqa: D417
         self,
@@ -1387,18 +1390,21 @@ class GrowattApi:
 
         return response.json()
 
-    def update_classic_inverter_setting(self, default_parameters, parameters):
+    def update_classic_inverter_setting(  # noqa: D417
+        self, default_parameters: dict, parameters: dict | list
+    ) -> dict:
         """
-        Applies settings for specified system based on serial number
-        See README for known working settings
+        Apply settings for specified system based on serial number.
+
+        See README for known working settings.
 
         Arguments:
-        default_params -- Default set of parameters for the setting call (dict)
-        parameters -- Parameters to be sent to the system (dict or list of str)
-                (array which will be converted to a dictionary)
+            default_params -- Default set of parameters for the setting call (dict)
+            parameters -- Parameters to be sent to the system (dict or list of str)
+                    (array which will be converted to a dictionary)
 
         Returns:
-        JSON response from the server whether the configuration was successful
+            JSON response from the server whether the configuration was successful
 
         """
         settings_parameters = parameters
