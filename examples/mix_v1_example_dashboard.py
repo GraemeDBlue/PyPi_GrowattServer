@@ -1,9 +1,10 @@
 
-from . import growattServer
-import json
-import requests
 import datetime
 import os
+
+import requests
+
+from . import growattServer
 
 
 def safe_float(val, default=0.0):
@@ -17,7 +18,7 @@ def safe_float(val, default=0.0):
         # If it's a string, try to parse
         if isinstance(val, str):
             # Remove any commas, spaces, etc.
-            val = val.replace(',', '').strip()
+            val = val.replace(",", "").strip()
             return float(val)
         # If it's a type that can be cast to float (e.g., numpy.float64)
         return float(val)
@@ -26,7 +27,7 @@ def safe_float(val, default=0.0):
 
 
 """
-# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API 
+# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API
 # You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
@@ -42,8 +43,8 @@ try:
 
     # Plant info
     plants = api.plant_list()
-    print(f"Plants: Found {plants['count']} plants")
-    plant_id = plants['plants'][0]['plant_id']
+    print(f"Plants: Found {plants['count']} plants")  # noqa: T201
+    plant_id = plants["plants"][0]["plant_id"]
     today = datetime.date.today()
     devices = api.get_devices(plant_id)
 
@@ -52,12 +53,13 @@ try:
         # Works automatically for MIN, MIX, or any future device type!
         device_type = device.device_type
         device_sn = device.device_sn
-        print(f"Device: {device_type} SN: {device_sn}")
+        print(f"Device: {device_type} SN: {device_sn}")  # noqa: T201
         energy_data = device.energy()
-        print(f"Energy: {energy_data}")
-        
+        print(f"Energy: {energy_data}")  # noqa: T201
+
     if energy_data is None:
-        raise Exception("No SPH_MIX device found to get energy data from.")
+        msg = "No SPH_MIX device found to get energy data from."
+        raise Exception(msg)
 
     solar_production = f'{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
     solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
@@ -73,40 +75,40 @@ try:
     self_consumption = f'{safe_float(energy_data.get("eselfToday")):.1f}/{safe_float(energy_data.get("eselfTotal")):.1f}'
 
     # Output the dashboard
-    print("\nGeneration overview             Today/Total(kWh)")
-    print(f'Solar production          {solar_production:>22}')
-    print(f' Solar production, PV1    {solar_production_pv1:>22}')
-    print(f' Solar production, PV2    {solar_production_pv2:>22}')
-    print(f'Energy Output             {energy_output:>22}')
-    print(f'System production         {system_production:>22}')
-    print(f'Self consumption          {self_consumption:>22}')
-    print(f'Load consumption          {load_consumption:>22}')
-    print(f'Battery Charged           {battery_charged:>22}')
-    print(f' Charged from grid        {battery_grid_charge:>22}')
-    print(f'Battery Discharged        {battery_discharged:>22}')
-    print(f'Import from grid          {imported_from_grid:>22}')
-    print(f'Export to grid            {exported_to_grid:>22}')
+    print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201
+    print(f"Solar production          {solar_production:>22}")  # noqa: T201
+    print(f" Solar production, PV1    {solar_production_pv1:>22}")  # noqa: T201
+    print(f" Solar production, PV2    {solar_production_pv2:>22}")  # noqa: T201
+    print(f"Energy Output             {energy_output:>22}")  # noqa: T201
+    print(f"System production         {system_production:>22}")  # noqa: T201
+    print(f"Self consumption          {self_consumption:>22}")  # noqa: T201
+    print(f"Load consumption          {load_consumption:>22}")  # noqa: T201
+    print(f"Battery Charged           {battery_charged:>22}")  # noqa: T201
+    print(f" Charged from grid        {battery_grid_charge:>22}")  # noqa: T201
+    print(f"Battery Discharged        {battery_discharged:>22}")  # noqa: T201
+    print(f"Import from grid          {imported_from_grid:>22}")  # noqa: T201
+    print(f"Export to grid            {exported_to_grid:>22}")  # noqa: T201
 
-    print("\nPower overview                          (Watts)")
-    print(f'AC Power                 {safe_float(energy_data.get("pac")):>22.1f}')
-    print(f'Self power               {safe_float(energy_data.get("pself")):>22.1f}')
-    print(f'Export power             {safe_float(energy_data.get("pacToGridTotal")):>22.1f}')
-    print(f'Import power             {safe_float(energy_data.get("pacToUserTotal")):>22.1f}')
-    print(f'Local load power         {safe_float(energy_data.get("pacToLocalLoad")):>22.1f}')
-    print(f'PV power                 {safe_float(energy_data.get("ppv")):>22.1f}')
-    print(f'PV #1 power              {safe_float(energy_data.get("ppv1")):>22.1f}')
-    print(f'PV #2 power              {safe_float(energy_data.get("ppv2")):>22.1f}')
-    print(f'Battery charge power     {safe_float(energy_data.get("bdc1ChargePower")):>22.1f}')
-    print(f'Battery discharge power  {safe_float(energy_data.get("bdc1DischargePower")):>22.1f}')
-    print(f'Battery SOC              {int(safe_float(energy_data.get("bmsSOC"))):>21}%')
+    print("\nPower overview                          (Watts)")  # noqa: T201
+    print(f'AC Power                 {safe_float(energy_data.get("pac")):>22.1f}')  # noqa: T201
+    print(f'Self power               {safe_float(energy_data.get("pself")):>22.1f}')  # noqa: T201
+    print(f'Export power             {safe_float(energy_data.get("pacToGridTotal")):>22.1f}')  # noqa: T201
+    print(f'Import power             {safe_float(energy_data.get("pacToUserTotal")):>22.1f}')  # noqa: T201
+    print(f'Local load power         {safe_float(energy_data.get("pacToLocalLoad")):>22.1f}')  # noqa: T201
+    print(f'PV power                 {safe_float(energy_data.get("ppv")):>22.1f}')  # noqa: T201
+    print(f'PV #1 power              {safe_float(energy_data.get("ppv1")):>22.1f}')  # noqa: T201
+    print(f'PV #2 power              {safe_float(energy_data.get("ppv2")):>22.1f}')  # noqa: T201
+    print(f'Battery charge power     {safe_float(energy_data.get("bdc1ChargePower")):>22.1f}')  # noqa: T201
+    print(f'Battery discharge power  {safe_float(energy_data.get("bdc1DischargePower")):>22.1f}')  # noqa: T201
+    print(f'Battery SOC              {int(safe_float(energy_data.get("bmsSOC"))):>21}%')  # noqa: T201
 
 except growattServer.GrowattV1ApiError as e:
-    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")
+    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
 except growattServer.GrowattParameterError as e:
-    print(f"Parameter Error: {e}")
+    print(f"Parameter Error: {e}")  # noqa: T201
 except requests.exceptions.RequestException as e:
-    print(f"Network Error: {e}")
-except Exception as e:
+    print(f"Network Error: {e}")  # noqa: T201
+except Exception as e:  # noqa: BLE001
     import traceback
-    print(f"Unexpected error: {e}")
+    print(f"Unexpected error: {e}")  # noqa: T201
     traceback.print_exc()

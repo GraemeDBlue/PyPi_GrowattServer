@@ -1,5 +1,6 @@
-import growattServer
 import getpass
+
+import growattServer
 
 """
 This is a simple script that demonstrates the various ways to initialise the library to set a User Agent
@@ -15,37 +16,37 @@ user_pass=getpass.getpass("Enter password:")
 
 api = growattServer.GrowattApi()
 login_response = api.login(username, user_pass)
-print("Default initialisation")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Default initialisation")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 
 api = growattServer.GrowattApi(True)
 login_response = api.login(username, user_pass)
-print("Add random ID to default User-Agent")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Add random ID to default User-Agent")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 
 api = growattServer.GrowattApi(False, "my-user-id")
 login_response = api.login(username, user_pass)
-print("Override default User-Agent")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Override default User-Agent")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 
 api = growattServer.GrowattApi(True, "my-user-id")
 login_response = api.login(username, user_pass)
-print("Override default User-Agent and add random ID")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Override default User-Agent and add random ID")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 
 api = growattServer.GrowattApi(False, growattServer.GrowattApi.agent_identifier + " - my-user-id")
 login_response = api.login(username, user_pass)
-print("Extend default User-Agent")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Extend default User-Agent")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 
 api = growattServer.GrowattApi(True, growattServer.GrowattApi.agent_identifier + " - my-user-id")
 login_response = api.login(username, user_pass)
-print("Extend default User-Agent and add random ID")
-print("User-Agent: %s\nLogged in User id: %s" % (api.agent_identifier, login_response['userId']))
-print("")
+print("Extend default User-Agent and add random ID")  # noqa: T201
+print("User-Agent: {}\nLogged in User id: {}".format(api.agent_identifier, login_response["userId"]))  # noqa: T201
+print()  # noqa: T201
 

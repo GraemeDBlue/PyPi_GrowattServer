@@ -33,7 +33,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def indent_print(to_output: str, indent: int) -> None:
-    """Print output with leading spaces for indentation.
+    """
+    Print output with leading spaces for indentation.
 
     Args:
         to_output: The string to print.
@@ -56,75 +57,71 @@ login_response = api.login(username, user_pass)
 plant_list = api.plant_list(login_response["user"]["id"])
 
 print("***Totals for all plants***")  # noqa: T201
-pp.pprint(plant_list["totalData"])  # noqa: T201
+pp.pprint(plant_list["totalData"])
 print()  # noqa: T201
 
 print("***List of plants***")  # noqa: T201
 for plant in plant_list["data"]:
-    indent_print("ID: %s, Name: %s" % (plant["plantId"], plant["plantName"]), 2)
-print()
+    indent_print(f"ID: {plant['plantId']}, Name: {plant['plantName']}", 2)
+print()  # noqa: T201
 
 for plant in plant_list["data"]:
     plant_id = plant["plantId"]
     plant_name = plant["plantName"]
     plant_info = api.plant_info(plant_id)
-    # pp.pprint(plant_info)
-    print("***Info for Plant %s - %s***" % (plant_id, plant_name))
-    # There are more values in plant_info, but these are some of the useful/interesting ones
-    indent_print("CO2 Reducion: %s" % (plant_info["Co2Reduction"]), 2)
-    indent_print("Nominal Power (w): %s" % (plant_info["nominal_Power"]), 2)
-    indent_print("Solar Energy Today (kw): %s" % (plant_info["todayEnergy"]), 2)
-    indent_print("Solar Energy Total (kw): %s" % (plant_info["totalEnergy"]), 2)
-    print()
+    print(f"***Info for Plant {plant_id} - {plant_name}***")  # noqa: T201
+    # There are more values in plant_info, but these are some of the
+    # useful/interesting ones
+    indent_print(f"CO2 Reducion: {plant_info['Co2Reduction']}", 2)
+    indent_print(f"Nominal Power (w): {plant_info['nominal_Power']}", 2)
+    indent_print(f"Solar Energy Today (kw): {plant_info['todayEnergy']}", 2)
+    indent_print(f"Solar Energy Total (kw): {plant_info['totalEnergy']}", 2)
+    print()  # noqa: T201
     indent_print("Devices in plant:", 2)
     for device in plant_info["deviceList"]:
         device_sn = device["deviceSn"]
         device_type = device["deviceType"]
-        indent_print("- Device - SN: %s, Type: %s" % (device_sn, device_type), 4)
+        indent_print(f"- Device - SN: {device_sn}, Type: {device_type}", 4)
 
-    print()
+    print()  # noqa: T201
     for device in plant_info["deviceList"]:
         device_sn = device["deviceSn"]
         device_type = device["deviceType"]
-        indent_print("**Device - SN: %s, Type: %s**" % (device_sn, device_type), 2)
+        indent_print(f"**Device - SN: {device_sn}, Type: {device_type}**", 2)
         # NOTE - This is the bit where we specifically only handle information on Mix devices - this won't work for non-mix devices
 
         # These two API calls return lots of duplicated information, but each also holds unique information as well
         mix_info = api.mix_info(device_sn, plant_id)
         pp.pprint(mix_info)
 
-        print("Saving inverter data to old_inverter_data.json")
+        print("Saving inverter data to old_inverter_data.json")  # noqa: T201
         with open("old_inverter_data.json", "w") as f:
             json.dump(mix_info, f, indent=4, sort_keys=True)
 
         mix_totals = api.mix_totals(device_sn, plant_id)
-        print("Saving energy data to old_energy_data.json")
+        print("Saving energy data to old_energy_data.json")  # noqa: T201
         with open("old_energy_data.json", "w") as f:
             json.dump(mix_totals, f, indent=4, sort_keys=True)
 
         # pp.pprint(mix_totals)
         indent_print("*TOTAL VALUES*", 4)
         indent_print("==Today Totals==", 4)
-        indent_print("Battery Charge (kwh): %s" % (mix_info["eBatChargeToday"]), 6)
-        indent_print(
-            "Battery Discharge (kwh): %s" % (mix_info["eBatDisChargeToday"]), 6
-        )
-        indent_print("Solar Generation (kwh): %s" % (mix_info["epvToday"]), 6)
-        indent_print("Local Load (kwh): %s" % (mix_totals["elocalLoadToday"]), 6)
-        indent_print("Export to Grid (kwh): %s" % (mix_totals["etoGridToday"]), 6)
+        indent_print(f"Battery Charge (kwh): {mix_info['eBatChargeToday']}", 6)
+        indent_print(f"Battery Discharge (kwh): {mix_info['eBatDisChargeToday']}", 6)
+        indent_print(f"Solar Generation (kwh): {mix_info['epvToday']}", 6)
+        indent_print(f"Local Load (kwh): {mix_totals['elocalLoadToday']}", 6)
+        indent_print(f"Export to Grid (kwh): {mix_totals['etoGridToday']}", 6)
         indent_print("==Overall Totals==", 4)
-        indent_print("Battery Charge: %s" % (mix_info["eBatChargeTotal"]), 6)
-        indent_print(
-            "Battery Discharge (kwh): %s" % (mix_info["eBatDisChargeTotal"]), 6
-        )
-        indent_print("Solar Generation (kwh): %s" % (mix_info["epvTotal"]), 6)
-        indent_print("Local Load (kwh): %s" % (mix_totals["elocalLoadTotal"]), 6)
-        indent_print("Export to Grid (kwh): %s" % (mix_totals["etogridTotal"]), 6)
-        print()
+        indent_print(f"Battery Charge: {mix_info['eBatChargeTotal']}", 6)
+        indent_print(f"Battery Discharge (kwh): {mix_info['eBatDisChargeTotal']}", 6)
+        indent_print(f"Solar Generation (kwh): {mix_info['epvTotal']}", 6)
+        indent_print(f"Local Load (kwh): {mix_totals['elocalLoadTotal']}", 6)
+        indent_print(f"Export to Grid (kwh): {mix_totals['etogridTotal']}", 6)
+        print()  # noqa: T201
 
         mix_detail = api.mix_detail(device_sn, plant_id)
 
-        print("Saving energy data to old_detail_data.json")
+        print("Saving energy data to old_detail_data.json")  # noqa: T201
         with open("old_detail_data.json", "w") as f:
             json.dump(mix_detail, f, indent=4, sort_keys=True)
         # pp.pprint(mix_detail)
@@ -140,7 +137,7 @@ for plant in plant_list["data"]:
         sysOutToday = 0.0
 
         chartData = mix_detail["chartData"]
-        for time_entry, data_points in chartData.items():
+        for data_points in chartData.values():
             # For each time entry convert it's wattage into kWh, this assumes that the wattage value is
             # the same for the whole 5 minute window (it's the only assumption we can make)
             # We Multiply the wattage by 5/60 (the number of minutes of the time window divided by the number of minutes in an hour)
@@ -165,25 +162,18 @@ for plant in plant_list["data"]:
 
         indent_print("*TODAY TOTALS BREAKDOWN*", 4)
         indent_print(
-            "Self generation total (batteries & solar - from API) (kwh): %s"
-            % (mix_detail["eCharge"]),
+            f"Self generation total (batteries & solar - from API) (kwh): {mix_detail['eCharge']}",
             6,
         )
+        indent_print(f"Load consumed from solar (kwh): {mix_detail['eChargeToday']}", 6)
+        indent_print(f"Load consumed from batteries (kwh): {mix_detail['echarge1']}", 6)
         indent_print(
-            "Load consumed from solar (kwh): %s" % (mix_detail["eChargeToday"]), 6
-        )
-        indent_print(
-            "Load consumed from batteries (kwh): %s" % (mix_detail["echarge1"]), 6
-        )
-        indent_print(
-            "Self consumption total (batteries & solar - from API) (kwh): %s"
-            % (mix_detail["eChargeToday1"]),
+            f"Self consumption total (batteries & solar - from API) (kwh): {mix_detail['eChargeToday1']}",
             6,
         )
-        indent_print("Load consumed from grid (kwh): %s" % (mix_detail["etouser"]), 6)
+        indent_print(f"Load consumed from grid (kwh): {mix_detail['etouser']}", 6)
         indent_print(
-            "Total imported from grid (Load + AC charging) (kwh): %s"
-            % (dashboard_data["etouser"].replace("kWh", "")),
+            f"Total imported from grid (Load + AC charging) (kwh): {dashboard_data['etouser'].replace('kWh', '')}",
             6,
         )
         calculated_consumption = (
@@ -192,13 +182,12 @@ for plant in plant_list["data"]:
             + float(mix_detail["etouser"])
         )
         indent_print(
-            "Load consumption (calculated) (kwh): %s"
-            % (round(calculated_consumption, 2)),
+            f"Load consumption (calculated) (kwh): {round(calculated_consumption, 2)}",
             6,
         )
-        indent_print("Load consumption (API) (kwh): %s" % (mix_detail["elocalLoad"]), 6)
+        indent_print(f"Load consumption (API) (kwh): {mix_detail['elocalLoad']}", 6)
 
-        indent_print("Exported (kwh): %s" % (mix_detail["eAcCharge"]), 6)
+        indent_print(f"Exported (kwh): {mix_detail['eAcCharge']}", 6)
 
         solar_to_battery = round(
             float(mix_info["epvToday"])
@@ -206,74 +195,66 @@ for plant in plant_list["data"]:
             - float(mix_detail["eChargeToday"]),
             2,
         )
-        indent_print(
-            "Solar battery charge (calculated) (kwh): %s" % (solar_to_battery), 6
-        )
+        indent_print(f"Solar battery charge (calculated) (kwh): {solar_to_battery}", 6)
         ac_to_battery = round(float(mix_info["eBatChargeToday"]) - solar_to_battery, 2)
-        indent_print("AC battery charge (calculated) (kwh): %s" % (ac_to_battery), 6)
-        print()
+        indent_print(f"AC battery charge (calculated) (kwh): {ac_to_battery}", 6)
+        print()  # noqa: T201
 
         indent_print("*TODAY TOTALS COMPARISONS*", 4)
 
         indent_print("Export to Grid (kwh) - TRUSTED:", 6)
-        indent_print("mix_totals['etoGridToday']: %s" % (mix_totals["etoGridToday"]), 8)
-        indent_print("mix_detail['eAcCharge']: %s" % (mix_detail["eAcCharge"]), 8)
+        indent_print(f"mix_totals['etoGridToday']: {mix_totals['etoGridToday']}", 8)
+        indent_print(f"mix_detail['eAcCharge']: {mix_detail['eAcCharge']}", 8)
         indent_print(
-            "mix_detail['calculatedPacToGridTodayKwh']: %s"
-            % (mix_detail["calculatedPacToGridTodayKwh"]),
+            f"mix_detail['calculatedPacToGridTodayKwh']: {mix_detail['calculatedPacToGridTodayKwh']}",
             8,
         )
-        print()
+        print()  # noqa: T201
 
         indent_print("Imported from Grid (kwh) - TRUSTED:", 6)
         indent_print(
-            "dashboard_data['etouser']: %s"
-            % (dashboard_data["etouser"].replace("kWh", "")),
+            f"dashboard_data['etouser']: {dashboard_data['etouser'].replace('kWh', '')}",
             8,
         )
         indent_print(
-            "mix_detail['calculatedPacToUserTodayKwh']: %s"
-            % (mix_detail["calculatedPacToUserTodayKwh"]),
+            f"mix_detail['calculatedPacToUserTodayKwh']: {mix_detail['calculatedPacToUserTodayKwh']}",
             8,
         )
-        print()
+        print()  # noqa: T201
 
         indent_print("Battery discharge (kwh) - TRUSTED:", 6)
         indent_print(
-            "mix_info['eBatDisChargeToday']: %s" % (mix_info["eBatDisChargeToday"]), 8
+            f"mix_info['eBatDisChargeToday']: {mix_info['eBatDisChargeToday']}", 8
         )
         indent_print(
-            "mix_totals['edischarge1Today']: %s" % (mix_totals["edischarge1Today"]), 8
+            f"mix_totals['edischarge1Today']: {mix_totals['edischarge1Today']}", 8
         )
-        indent_print("mix_detail['echarge1']: %s" % (mix_detail["echarge1"]), 8)
+        indent_print(f"mix_detail['echarge1']: {mix_detail['echarge1']}", 8)
         indent_print(
-            "mix_detail['calculatedPdischargeTodayKwh']: %s"
-            % (mix_detail["calculatedPdischargeTodayKwh"]),
+            f"mix_detail['calculatedPdischargeTodayKwh']: {mix_detail['calculatedPdischargeTodayKwh']}",
             8,
         )
-        print()
+        print()  # noqa: T201
 
         indent_print("Solar generation (kwh) - TRUSTED:", 6)
-        indent_print("mix_info['epvToday']: %s" % (mix_info["epvToday"]), 8)
-        indent_print("mix_totals['epvToday']: %s" % (mix_totals["epvToday"]), 8)
+        indent_print(f"mix_info['epvToday']: {mix_info['epvToday']}", 8)
+        indent_print(f"mix_totals['epvToday']: {mix_totals['epvToday']}", 8)
         indent_print(
-            "mix_detail['calculatedPpvTodayKwh']: %s"
-            % (mix_detail["calculatedPpvTodayKwh"]),
+            f"mix_detail['calculatedPpvTodayKwh']: {mix_detail['calculatedPpvTodayKwh']}",
             8,
         )
-        print()
+        print()  # noqa: T201
 
         indent_print("Load Consumption (kwh) - TRUSTED:", 6)
         indent_print(
-            "mix_totals['elocalLoadToday']: %s" % (mix_totals["elocalLoadToday"],), 8
+            f"mix_totals['elocalLoadToday']: {mix_totals['elocalLoadToday']}", 8
         )
-        indent_print("mix_detail['elocalLoad']: %s" % (mix_detail["elocalLoad"]), 8)
+        indent_print(f"mix_detail['elocalLoad']: {mix_detail['elocalLoad']}", 8)
         indent_print(
-            "mix_detail['calculatedSysOutTodayKwh']: %s"
-            % (mix_detail["calculatedSysOutTodayKwh"]),
+            f"mix_detail['calculatedSysOutTodayKwh']: {mix_detail['calculatedSysOutTodayKwh']}",
             8,
         )
-        print()
+        print()  # noqa: T201
 
         # This call gets all of the instantaneous values from the system e.g. current load, generation etc.
         mix_status = api.mix_system_status(device_sn, plant_id)
@@ -281,24 +262,22 @@ for plant in plant_list["data"]:
         # NOTE - There are some other values available in mix_status, however these are the most useful ones
         indent_print("*CURRENT VALUES*", 4)
         indent_print("==Batteries==", 4)
-        indent_print("Charging Batteries at (kw): %s" % (mix_status["chargePower"]), 6)
-        indent_print(
-            "Discharging Batteries at (kw): %s" % (mix_status["pdisCharge1"]), 6
-        )
-        indent_print("Batteries %%: %s" % (mix_status["SOC"]), 6)
+        indent_print(f"Charging Batteries at (kw): {mix_status['chargePower']}", 6)
+        indent_print(f"Discharging Batteries at (kw): {mix_status['pdisCharge1']}", 6)
+        indent_print(f"Batteries %: {mix_status['SOC']}", 6)
 
         indent_print("==PVs==", 4)
-        indent_print("PV1 wattage: %s" % (mix_status["pPv1"]), 6)
-        indent_print("PV2 wattage: %s" % (mix_status["pPv2"]), 6)
+        indent_print(f"PV1 wattage: {mix_status['pPv1']}", 6)
+        indent_print(f"PV2 wattage: {mix_status['pPv2']}", 6)
         calc_pv_total = (float(mix_status["pPv1"]) + float(mix_status["pPv2"])) / 1000
         indent_print(
-            "PV total wattage (calculated) - KW: %s" % (round(calc_pv_total, 2)), 6
+            f"PV total wattage (calculated) - KW: {round(calc_pv_total, 2)}", 6
         )
-        indent_print("PV total wattage (API) - KW: %s" % (mix_status["ppv"]), 6)
+        indent_print(f"PV total wattage (API) - KW: {mix_status['ppv']}", 6)
 
         indent_print("==Consumption==", 4)
-        indent_print("Local load/consumption - KW: %s" % (mix_status["pLocalLoad"]), 6)
+        indent_print(f"Local load/consumption - KW: {mix_status['pLocalLoad']}", 6)
 
         indent_print("==Import/Export==", 4)
-        indent_print("Importing from Grid - KW: %s" % (mix_status["pactouser"]), 6)
-        indent_print("Exporting to Grid - KW: %s" % (mix_status["pactogrid"]), 6)
+        indent_print(f"Importing from Grid - KW: {mix_status['pactouser']}", 6)
+        indent_print(f"Exporting to Grid - KW: {mix_status['pactogrid']}", 6)

@@ -1,11 +1,12 @@
-from . import growattServer
 import datetime
-import json
-import requests
 import os
 
+import requests
+
+from . import growattServer
+
 """
-# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API 
+# Example script controlling a MIX/SPH Growatt (SPH3~6k TL BL UP + battery) system using the public growatt API
 # You can obtain an API token from the Growatt API documentation or developer portal.
 """
 
@@ -21,8 +22,8 @@ try:
 
     # Plant info
     plants = api.plant_list()
-    print(f"Plants: Found {plants['count']} plants")
-    plant_id = plants['plants'][0]['plant_id']
+    print(f"Plants: Found {plants['count']} plants")  # noqa: T201
+    plant_id = plants["plants"][0]["plant_id"]
     today = datetime.date.today()
     devices = api.get_devices(plant_id)
 
@@ -30,7 +31,7 @@ try:
         # Works automatically for MIN, MIX, or any future device type!
         device_type = device.device_type
         device_sn = device.device_sn
-        print(f"Device: {device_type} SN: {device_sn}")
+        print(f"Device: {device_type} SN: {device_sn}")  # noqa: T201
         # details = device.details()
         # energy = device.energy()
         # settings = device.settings()
@@ -42,14 +43,14 @@ try:
         # print(f"Energy: {energy}")
         # print(f"Settings: {settings}")
         # print(f"History: {history}")
-        print(f"Read Parameter PV On/Off: {read_parameter}")
-        print(f"Read Time Segments: {read_time_segments}")
+        print(f"Read Parameter PV On/Off: {read_parameter}")  # noqa: T201
+        print(f"Read Time Segments: {read_time_segments}")  # noqa: T201
 
 except growattServer.GrowattV1ApiError as e:
-    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")
+    print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
 except growattServer.GrowattParameterError as e:
-    print(f"Parameter Error: {e}")
+    print(f"Parameter Error: {e}")  # noqa: T201
 except requests.exceptions.RequestException as e:
-    print(f"Network Error: {e}")
-except Exception as e:
-    print(f"Unexpected error: {e}")
+    print(f"Network Error: {e}")  # noqa: T201
+except Exception as e:  # noqa: BLE001
+    print(f"Unexpected error: {e}")  # noqa: T201
