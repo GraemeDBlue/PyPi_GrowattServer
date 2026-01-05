@@ -1,19 +1,20 @@
-from . import growattServer
-import datetime
+"""Example script for MIN/TLX Growatt inverters using the public API.
+
+This script demonstrates controlling a MID/TLX Growatt
+(MID-30KTL3-XH + APX battery) system.
+You can obtain an API token from the Growatt API documentation or
+developer portal.
+"""
+
 import json
+
 import requests
-import os
 
-"""
-# Example script controlling a MID/TLX Growatt (MID-30KTL3-XH + APX battery) system using the public growatt API 
-# You can obtain an API token from the Growatt API documentation or developer portal.
-"""
+from . import growattServer
 
-# Get the API token from user input or environment variable
-# api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
-
-# test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
-api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
+# Test token from official API docs
+# https://www.showdoc.com.cn/262556420217021/1494053950115877
+api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # noqa: S105
 
 try:
     # Initialize the API with token instead of using login
