@@ -17,7 +17,8 @@ from . import growattServer
 
 
 def safe_float(val: Any, default: float = 0.0) -> float:
-    """Convert a value to float safely, returning default on failure.
+    """
+    Convert a value to float safely, returning default on failure.
 
     Args:
         val: The value to convert to float.
@@ -57,7 +58,7 @@ try:
     plants = api.plant_list()
     print(f"Plants: Found {plants['count']} plants")  # noqa: T201
     plant_id = plants["plants"][0]["plant_id"]
-    today = datetime.date.today()
+    today = datetime.datetime.now(tz=datetime.UTC).date()  # noqa: DTZ005
     devices = api.get_devices(plant_id)
 
     energy_data = None
@@ -65,7 +66,7 @@ try:
         # Works automatically for MIN, MIX, or any future device type!
         energy_data = device.energy()
         print(f"Energy: {energy_data}")  # noqa: T201
-        
+
     if energy_data is None:
         msg = "No MIN_TLX device found to get energy data from."
         raise RuntimeError(msg)
@@ -78,19 +79,58 @@ try:
         if f"epv{i}Today" in energy_data
     )
 
-    solar_production = f'{safe_float(epv_today):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
-    solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
-    solar_production_pv2 = f'{safe_float(energy_data.get("epv2Today")):.1f}/{safe_float(energy_data.get("epv2Total")):.1f}'
-    energy_output = f'{float(energy_data["eacToday"]):.1f}/{float(energy_data["eacTotal"]):.1f}'
-    system_production = f'{float(energy_data["esystemToday"]):.1f}/{float(energy_data["esystemTotal"]):.1f}'
-    battery_charged = f'{float(energy_data["echargeToday"]):.1f}/{float(energy_data["echargeTotal"]):.1f}'
-    battery_grid_charge = f'{float(energy_data["eacChargeToday"]):.1f}/{float(energy_data["eacChargeTotal"]):.1f}'
-    battery_discharged = f'{float(energy_data["edischargeToday"]):.1f}/{float(energy_data["edischargeTotal"]):.1f}'
-    exported_to_grid = f'{float(energy_data["etoGridToday"]):.1f}/{float(energy_data["etoGridTotal"]):.1f}'
-    imported_from_grid = f'{float(energy_data["etoUserToday"]):.1f}/{float(energy_data["etoUserTotal"]):.1f}'
-    load_consumption = f'{float(energy_data["elocalLoadToday"]):.1f}/{float(energy_data["elocalLoadTotal"]):.1f}'
-    self_consumption = f'{float(energy_data["eselfToday"]):.1f}/{float(energy_data["eselfTotal"]):.1f}'
-    battery_charged = f'{float(energy_data["echargeToday"]):.1f}/{float(energy_data["echargeTotal"]):.1f}'
+    solar_production = (
+        f"{safe_float(epv_today):.1f}/"
+        f"{safe_float(energy_data.get('epvTotal')):.1f}"
+    )
+    solar_production_pv1 = (
+        f"{safe_float(energy_data.get('epv1Today')):.1f}/"
+        f"{safe_float(energy_data.get('epv1Total')):.1f}"
+    )
+    solar_production_pv2 = (
+        f"{safe_float(energy_data.get('epv2Today')):.1f}/"
+        f"{safe_float(energy_data.get('epv2Total')):.1f}"
+    )
+    energy_output = (
+        f"{float(energy_data['eacToday']):.1f}/"
+        f"{float(energy_data['eacTotal']):.1f}"
+    )
+    system_production = (
+        f"{float(energy_data['esystemToday']):.1f}/"
+        f"{float(energy_data['esystemTotal']):.1f}"
+    )
+    battery_charged = (
+        f"{float(energy_data['echargeToday']):.1f}/"
+        f"{float(energy_data['echargeTotal']):.1f}"
+    )
+    battery_grid_charge = (
+        f"{float(energy_data['eacChargeToday']):.1f}/"
+        f"{float(energy_data['eacChargeTotal']):.1f}"
+    )
+    battery_discharged = (
+        f"{float(energy_data['edischargeToday']):.1f}/"
+        f"{float(energy_data['edischargeTotal']):.1f}"
+    )
+    exported_to_grid = (
+        f"{float(energy_data['etoGridToday']):.1f}/"
+        f"{float(energy_data['etoGridTotal']):.1f}"
+    )
+    imported_from_grid = (
+        f"{float(energy_data['etoUserToday']):.1f}/"
+        f"{float(energy_data['etoUserTotal']):.1f}"
+    )
+    load_consumption = (
+        f"{float(energy_data['elocalLoadToday']):.1f}/"
+        f"{float(energy_data['elocalLoadTotal']):.1f}"
+    )
+    self_consumption = (
+        f"{float(energy_data['eselfToday']):.1f}/"
+        f"{float(energy_data['eselfTotal']):.1f}"
+    )
+    battery_charged = (
+        f"{float(energy_data['echargeToday']):.1f}/"
+        f"{float(energy_data['echargeTotal']):.1f}"
+    )
 
     # Output the dashboard
     print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201
