@@ -58,7 +58,7 @@ try:
     plants = api.plant_list()
     print(f"Plants: Found {plants['count']} plants")  # noqa: T201
     plant_id = plants["plants"][0]["plant_id"]
-    today = datetime.datetime.now(tz=datetime.UTC).date()  # noqa: DTZ005
+    today = datetime.datetime.now(tz=datetime.UTC).date()
     devices = api.get_devices(plant_id)
 
     energy_data = None
@@ -69,7 +69,7 @@ try:
 
     if energy_data is None:
         msg = "No MIN_TLX device found to get energy data from."
-        raise RuntimeError(msg)
+        raise RuntimeError(msg)  # noqa: TRY301
 
     # energy data does not contain epvToday for some reason, so we need to calculate it
     # Dynamically calculate epvToday by summing all epvXToday fields
@@ -150,19 +150,29 @@ try:
     print("\nPower overview                          (Watts)")  # noqa: T201
     print(f"AC Power                  {float(energy_data['pac']):>22.1f}")  # noqa: T201
     print(f"Self power                {float(energy_data['pself']):>22.1f}")  # noqa: T201
-    print(
-        f"Export power                {float(energy_data['pacToGridTotal']):>22.1f}")  # noqa: T201, E501
-    print(
-        f"Import power                {float(energy_data['pacToUserTotal']):>22.1f}")  # noqa: T201, E501
-    print(
-        f"Local load power            {float(energy_data['pacToLocalLoad']):>22.1f}")  # noqa: T201, E501
+    print(  # noqa: T201
+        f"Export power                "
+        f"{float(energy_data['pacToGridTotal']):>22.1f}"
+    )
+    print(  # noqa: T201
+        f"Import power                "
+        f"{float(energy_data['pacToUserTotal']):>22.1f}"
+    )
+    print(  # noqa: T201
+        f"Local load power            "
+        f"{float(energy_data['pacToLocalLoad']):>22.1f}"
+    )
     print(f"PV power                  {float(energy_data['ppv']):>22.1f}")  # noqa: T201
     print(f"PV #1 power               {float(energy_data['ppv1']):>22.1f}")  # noqa: T201
     print(f"PV #2 power               {float(energy_data['ppv2']):>22.1f}")  # noqa: T201
-    print(
-        f"Battery charge power        {float(energy_data['bdc1ChargePower']):>22.1f}")  # noqa: T201, E501
-    print(
-        f"Battery discharge power     {float(energy_data['bdc1DischargePower']):>22.1f}")  # noqa: T201, E501
+    print(  # noqa: T201
+        f"Battery charge power        "
+        f"{float(energy_data['bdc1ChargePower']):>22.1f}"
+    )
+    print(  # noqa: T201
+        f"Battery discharge power     "
+        f"{float(energy_data['bdc1DischargePower']):>22.1f}"
+    )
     print(f"Battery SOC               {int(energy_data['bdc1Soc']):>21}%")  # noqa: T201
 
 except growattServer.GrowattV1ApiError as e:
