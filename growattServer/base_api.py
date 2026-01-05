@@ -761,16 +761,41 @@ class GrowattApi:
         """
         date_str = self.__get_date_string(timespan, date)
 
-        response = self.session.post(
-            self.get_url("newMixApi.do"),
-            params={
-                "op": "getEnergyProdAndCons_KW",
-                "plantId": plant_id,
-                "mixId": mix_id,
-                "type": timespan.value,
-                "date": date_str,
-            },
-        )
+        response = self.session.post(self.get_url('newMixApi.do'), params={
+            'op': 'getEnergyProdAndCons_KW',
+            'plantId': plant_id,
+            'mixId': mix_id,
+            'type': timespan.value,
+            'date': date_str
+        })
+
+        return response.json().get('obj', {})
+
+    def get_mix_inverter_settings(self, serial_number):
+        """
+        Gets the inverter settings related to battery modes
+        Keyword arguments:
+        serial_number -- The serial number (device_sn) of the inverter
+        Returns:
+        A dictionary of settings
+        """
+
+        default_params = {
+            'op': 'getMixSetParams',
+            'serialNum': serial_number,
+            'kind': 0
+        }
+        response = self.session.get(self.get_url('newMixApi.do'), params=default_params)
+        data = json.loads(response.content.decode('utf-8'))
+        return data
+
+    def dashboard_data(self, plant_id, timespan=Timespan.hour, date=None):
+        """
+        Get 'dashboard' data for specified timespan
+        NOTE - All numerical values returned by this api call include units e.g. kWh or %
+             - Many of the 'total' values that are returned for a Mix system are inaccurate on the system this was tested against.
+               However, the statistics that are correct are not available on any other interface, plus these values may be accurate for
+               non-mix types of system. Where the values have been proven to be inaccurate they are commented below.
 
         return response.json().get("obj", {})
 
@@ -1367,5 +1392,33 @@ class GrowattApi:
         response = self.session.post(
             self.get_url("noahDeviceApi/noah/set"), data=settings_parameters
         )
+
+        return response.json()
+
+    def update_classic_inverter_setting(self, default_parameters, parameters):
+        """
+        Applies settings for specified system based on serial number
+        See README for known working settings
+
+        Arguments:
+        default_params -- Default set of parameters for the setting call (dict)
+        parameters -- Parameters to be sent to the system (dict or list of str)
+                (array which will be converted to a dictionary)
+
+        Returns:
+        JSON response from the server whether the configuration was successful
+        """
+        settings_parameters = parameters
+
+        # If we've been passed an array then convert it into a dictionary
+        if isinstance(parameters, list):
+            settings_parameters = {}
+            for index, param in enumerate(parameters, start=1):
+                settings_parameters['param' + str(index)] = param
+
+        settings_parameters = {**default_parameters, **settings_parameters}
+
+        response = self.session.post(self.get_url('tcpSet.do'),
+                                     params=settings_parameters)
 
         return response.json()

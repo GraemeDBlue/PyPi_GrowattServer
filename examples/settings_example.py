@@ -52,8 +52,11 @@ device_type = device["deviceType"]
 # Get plant settings - This is performed for us inside
 # 'update_plant_settings' but you can get ALL of the settings using this
 current_settings = api.get_plant_settings(plant_id)
-# pp.pprint(current_settings)  # noqa: ERA001
+#pp.pprint(current_settings)
 
+#Get mix inverter settings
+inverter_settings = api.get_mix_inverter_settings(device_sn)
+pp.pprint(inverter_settings)
 
 # Change the timezone of the plant
 plant_settings_changes = {"plantTimezone": "0"}
