@@ -14,7 +14,9 @@ import requests
 from . import growattServer
 
 
-def demonstrate_sph_mix_parameters(api, device_sn) -> None:
+def demonstrate_sph_mix_parameters(
+    api: growattServer.GrowattApi, device_sn: str
+) -> None:
     """Demonstrate parameter writing for SPH_MIX devices."""
     print(f"\n=== SPH_MIX Device Parameters for {device_sn} ===")  # noqa: T201
 
@@ -22,20 +24,20 @@ def demonstrate_sph_mix_parameters(api, device_sn) -> None:
         # 1. AC Charge Time Period
         print("Setting AC charge time period...")  # noqa: T201
         charge_params = api.MixAcChargeTimeParams(
-            charge_power=80,           # 80% charging power
-            charge_stop_soc=95,        # Stop at 95% SOC
-            mains_enabled=True,        # Enable mains charging
-            start_hour=14,             # Start at 14:00
+            charge_power=80,  # 80% charging power
+            charge_stop_soc=95,  # Stop at 95% SOC
+            mains_enabled=True,  # Enable mains charging
+            start_hour=14,  # Start at 14:00
             start_minute=0,
-            end_hour=16,               # End at 16:00
+            end_hour=16,  # End at 16:00
             end_minute=0,
-            enabled=True
+            enabled=True,
         )
         result = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.SPH_MIX,
             command="mix_ac_charge_time_period",
-            params=charge_params
+            params=charge_params,
         )
         print(f"AC charge time period result: {result}")  # noqa: T201
 
@@ -117,7 +119,9 @@ def demonstrate_sph_mix_parameters(api, device_sn) -> None:
         print(f"Error with SPH_MIX parameters: {e}")  # noqa: T201
 
 
-def demonstrate_min_tlx_parameters(api, device_sn) -> None:
+def demonstrate_min_tlx_parameters(
+    api: growattServer.GrowattApi, device_sn: str
+) -> None:
     """Demonstrate parameter writing for MIN_TLX devices."""
     print(f"\n=== MIN_TLX Device Parameters for {device_sn} ===")  # noqa: T201
 
@@ -127,15 +131,15 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
         time_params = api.TimeSegmentParams(
             segment_id=1,
             batt_mode=1,  # Battery First
-            start_time=time(8, 0),   # 08:00
-            end_time=time(16, 0),    # 16:00
-            enabled=True
+            start_time=time(8, 0),  # 08:00
+            end_time=time(16, 0),  # 16:00
+            enabled=True,
         )
         result = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="time_segment1",
-            params=time_params
+            params=time_params,
         )
         print(f"Time segment 1 result: {result}")  # noqa: T201
 
@@ -143,24 +147,24 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
         print("Setting backflow prevention...")  # noqa: T201
         backflow_params = api.BackflowSettingParams(
             backflow_enabled=True,
-            backflow_mode=1  # Enable meter mode for MIN_TLX
+            backflow_mode=1,  # Enable meter mode for MIN_TLX
         )
         result = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="backflow_setting",
-            params=backflow_params
+            params=backflow_params,
         )
         print(f"Backflow setting result: {result}")  # noqa: T201
 
         # 3. Charge/Discharge Parameters
         print("Setting charge/discharge parameters...")  # noqa: T201
         charge_discharge_params = api.ChargeDischargeParams(
-            charge_power=90,           # 90% charge power
-            charge_stop_soc=100,       # Charge to 100%
-            discharge_power=80,        # 80% discharge power
-            discharge_stop_soc=10,     # Stop at 10%
-            ac_charge_enabled=True     # Enable AC charging
+            charge_power=90,  # 90% charge power
+            charge_stop_soc=100,  # Charge to 100%
+            discharge_power=80,  # 80% discharge power
+            discharge_stop_soc=10,  # Stop at 10%
+            ac_charge_enabled=True,  # Enable AC charging
         )
 
         # Set charge power
@@ -168,7 +172,7 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="charge_power",
-            params=charge_discharge_params
+            params=charge_discharge_params,
         )
         print(f"Charge power result: {result}")  # noqa: T201
 
@@ -177,7 +181,7 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="discharge_power",
-            params=charge_discharge_params
+            params=charge_discharge_params,
         )
         print(f"Discharge power result: {result}")  # noqa: T201
 
@@ -188,22 +192,22 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="tlx_on_off",
-            params=pv_params
+            params=pv_params,
         )
         print(f"PV on/off result: {result}")  # noqa: T201
 
         # 5. Power Factor Settings
         print("Setting power factor...")  # noqa: T201
         power_params = api.PowerParams(
-            active_power=100,      # 100% active power
-            reactive_power=0,      # 0% reactive power
-            power_factor=1.0       # Unity power factor
+            active_power=100,  # 100% active power
+            reactive_power=0,  # 0% reactive power
+            power_factor=1.0,  # Unity power factor
         )
         result = api.write_parameter(
             device_sn=device_sn,
             device_type=growattServer.DeviceType.MIN_TLX,
             command="pv_power_factor",
-            params=power_params
+            params=power_params,
         )
         print(f"Power factor result: {result}")  # noqa: T201
 
@@ -214,7 +218,9 @@ def demonstrate_min_tlx_parameters(api, device_sn) -> None:
 def main() -> None:
     """Main demonstration function."""
     # Get the API token from user input or environment variable
-    api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
+    api_token = os.environ.get("GROWATT_API_TOKEN") or input(
+        "Enter your Growatt API token: "
+    )
 
     # Test token from official API docs (for testing only)
     # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
@@ -243,9 +249,9 @@ def main() -> None:
             device_type = device.device_type
             device_sn = device.device_sn
 
-            print(f"\n{'='*60}")  # noqa: T201
+            print(f"\n{'=' * 60}")  # noqa: T201
             print(f"Processing Device: {device_type.name} - SN: {device_sn}")  # noqa: T201
-            print(f"{'='*60}")  # noqa: T201
+            print(f"{'=' * 60}")  # noqa: T201
 
             if device_type == growattServer.DeviceType.SPH_MIX:
                 demonstrate_sph_mix_parameters(api, device_sn)
@@ -258,7 +264,9 @@ def main() -> None:
             print(f"\n--- Reading current settings for {device_sn} ---")  # noqa: T201
             try:
                 settings = device.settings()
-                print(f"Settings keys: {list(settings.keys())[:10]}...")  # Show first 10 keys  # noqa: T201
+                print(
+                    f"Settings keys: {list(settings.keys())[:10]}..."
+                )  # Show first 10 keys
 
                 # Show some relevant settings based on device type
                 if device_type == growattServer.DeviceType.SPH_MIX:
@@ -266,7 +274,9 @@ def main() -> None:
                         start_key = f"forcedChargeTimeStart{i}"
                         stop_key = f"forcedChargeTimeStop{i}"
                         if start_key in settings:
-                            print(f"  Charge period {i}: {settings.get(start_key)} - {settings.get(stop_key)}")  # noqa: T201
+                            print(
+                                f"  Charge period {i}: {settings.get(start_key)} - {settings.get(stop_key)}"
+                            )
 
                 elif device_type == growattServer.DeviceType.MIN_TLX:
                     for i in range(1, 4):
@@ -274,14 +284,16 @@ def main() -> None:
                         stop_key = f"forcedTimeStop{i}"
                         mode_key = f"time{i}Mode"
                         if start_key in settings:
-                            print(f"  Time segment {i}: {settings.get(start_key)} - {settings.get(stop_key)} (Mode: {settings.get(mode_key)})")  # noqa: T201
+                            print(
+                                f"  Time segment {i}: {settings.get(start_key)} - {settings.get(stop_key)} (Mode: {settings.get(mode_key)})"
+                            )
 
             except Exception as e:  # noqa: BLE001
                 print(f"Error reading settings: {e}")  # noqa: T201
 
-        print(f"\n{'='*60}")  # noqa: T201
+        print(f"\n{'=' * 60}")  # noqa: T201
         print("Parameter writing demonstration completed!")  # noqa: T201
-        print(f"{'='*60}")  # noqa: T201
+        print(f"{'=' * 60}")  # noqa: T201
 
     except growattServer.GrowattV1ApiError as e:
         print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
@@ -292,6 +304,7 @@ def main() -> None:
     except Exception as e:  # noqa: BLE001
         print(f"Unexpected error: {e}")  # noqa: T201
         import traceback
+
         traceback.print_exc()
 
 

@@ -1,3 +1,5 @@
+"""Example script for reading AC device settings."""
+
 import json
 import sys
 
@@ -29,8 +31,7 @@ else:
 api = growattServer.GrowattApi()
 
 # This part needs to be adapted by the user
-login_response = api.login("USERNAME_AS_STRING",
-                           "PASSWORD_AS_STRING")
+login_response = api.login("USERNAME_AS_STRING", "PASSWORD_AS_STRING")
 
 if login_response["success"]:
     # Get a list of growatt plants.
@@ -43,21 +44,29 @@ if login_response["success"]:
 
     # All parameters need to be given, including zeros
     # All parameters must be strings
-    schedule_settings = ["100",          # Charging power %
-                         SOC,            # Stop charging at SoC %
-                         startH, startM, # Schedule 1 - Start time
-                         endH, endM,     # Schedule 1 - End time
-                         run,            # Schedule 1 - Enabled/Disabled (1 = Enabled)
-                         "00","00",      # Schedule 2 - Start time
-                         "00","00",      # Schedule 2 - End time
-                         "0",            # Schedule 2 - Enabled/Disabled (1 = Enabled)
-                         "00","00",      # Schedule 3 - Start time
-                         "00","00",      # Schedule 3 - End time
-                         "0"]            # Schedule 3 - Enabled/Disabled (1 = Enabled)
+    schedule_settings = [
+        "100",  # Charging power %
+        SOC,  # Stop charging at SoC %
+        startH,
+        startM,  # Schedule 1 - Start time
+        endH,
+        endM,  # Schedule 1 - End time
+        run,  # Schedule 1 - Enabled/Disabled (1 = Enabled)
+        "00",
+        "00",  # Schedule 2 - Start time
+        "00",
+        "00",  # Schedule 2 - End time
+        "0",  # Schedule 2 - Enabled/Disabled (1 = Enabled)
+        "00",
+        "00",  # Schedule 3 - Start time
+        "00",
+        "00",  # Schedule 3 - End time
+        "0",
+    ]  # Schedule 3 - Enabled/Disabled (1 = Enabled)
 
-    response = api.update_ac_inverter_setting(device_sn,
-                                              "spa_ac_charge_time_period",
-                                              schedule_settings)
+    response = api.update_ac_inverter_setting(
+        device_sn, "spa_ac_charge_time_period", schedule_settings
+    )
 else:
     response = login_response
 print(json.dumps(response))  # noqa: T201

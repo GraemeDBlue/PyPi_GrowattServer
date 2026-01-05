@@ -1,3 +1,4 @@
+"""Example dashboard for MIX inverters using V1 API."""
 
 import datetime
 import os
@@ -7,7 +8,8 @@ import requests
 from . import growattServer
 
 
-def safe_float(val, default=0.0):
+def safe_float(val: str | float, default: float = 0.0) -> float:
+    """Safely convert a value to float with a default fallback."""
     try:
         # If already a float, return as is
         if isinstance(val, float):
@@ -32,7 +34,9 @@ def safe_float(val, default=0.0):
 """
 
 # Get the API token from user input or environment variable
-api_token = os.environ.get("GROWATT_API_TOKEN") or input("Enter your Growatt API token: ")
+api_token = os.environ.get("GROWATT_API_TOKEN") or input(
+    "Enter your Growatt API token: "
+)
 
 # test token from official API docs https://www.showdoc.com.cn/262556420217021/1494053950115877
 # api_token = "6eb6f069523055a339d71e5b1f6c88cc"  # gitleaks:allow
@@ -61,18 +65,18 @@ try:
         msg = "No SPH_MIX device found to get energy data from."
         raise Exception(msg)
 
-    solar_production = f'{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get("epvTotal")):.1f}'
-    solar_production_pv1 = f'{safe_float(energy_data.get("epv1Today")):.1f}/{safe_float(energy_data.get("epv1Total")):.1f}'
-    solar_production_pv2 = f'{safe_float(energy_data.get("epv2Today")):.1f}/{safe_float(energy_data.get("epv2Total")):.1f}'
-    energy_output = f'{safe_float(energy_data.get("eacToday")):.1f}/{safe_float(energy_data.get("eacTotal")):.1f}'
-    system_production = f'{safe_float(energy_data.get("esystemtoday")):.1f}/{safe_float(energy_data.get("esystemtotal")):.1f}'
-    battery_charged = f'{safe_float(energy_data.get("echarge1Today")):.1f}/{safe_float(energy_data.get("echarge1Total")):.1f}'
-    battery_grid_charge = f'{safe_float(energy_data.get("acChargeEnergyToday")):.1f}/{safe_float(energy_data.get("acChargeEnergyTotal")):.1f}'
-    battery_discharged = f'{safe_float(energy_data.get("edischarge1Today")):.1f}/{safe_float(energy_data.get("edischarge1Total")):.1f}'
-    exported_to_grid = f'{safe_float(energy_data.get("etoGridToday")):.1f}/{safe_float(energy_data.get("etogridTotal")):.1f}'
-    imported_from_grid = f'{safe_float(energy_data.get("etoUserToday")):.1f}/{safe_float(energy_data.get("etoUserTotal")):.1f}'
-    load_consumption = f'{safe_float(energy_data.get("elocalLoadToday")):.1f}/{safe_float(energy_data.get("elocalLoadTotal")):.1f}'
-    self_consumption = f'{safe_float(energy_data.get("eselfToday")):.1f}/{safe_float(energy_data.get("eselfTotal")):.1f}'
+    solar_production = f"{safe_float(energy_data.get('epvtoday')):.1f}/{safe_float(energy_data.get('epvTotal')):.1f}"
+    solar_production_pv1 = f"{safe_float(energy_data.get('epv1Today')):.1f}/{safe_float(energy_data.get('epv1Total')):.1f}"
+    solar_production_pv2 = f"{safe_float(energy_data.get('epv2Today')):.1f}/{safe_float(energy_data.get('epv2Total')):.1f}"
+    energy_output = f"{safe_float(energy_data.get('eacToday')):.1f}/{safe_float(energy_data.get('eacTotal')):.1f}"
+    system_production = f"{safe_float(energy_data.get('esystemtoday')):.1f}/{safe_float(energy_data.get('esystemtotal')):.1f}"
+    battery_charged = f"{safe_float(energy_data.get('echarge1Today')):.1f}/{safe_float(energy_data.get('echarge1Total')):.1f}"
+    battery_grid_charge = f"{safe_float(energy_data.get('acChargeEnergyToday')):.1f}/{safe_float(energy_data.get('acChargeEnergyTotal')):.1f}"
+    battery_discharged = f"{safe_float(energy_data.get('edischarge1Today')):.1f}/{safe_float(energy_data.get('edischarge1Total')):.1f}"
+    exported_to_grid = f"{safe_float(energy_data.get('etoGridToday')):.1f}/{safe_float(energy_data.get('etogridTotal')):.1f}"
+    imported_from_grid = f"{safe_float(energy_data.get('etoUserToday')):.1f}/{safe_float(energy_data.get('etoUserTotal')):.1f}"
+    load_consumption = f"{safe_float(energy_data.get('elocalLoadToday')):.1f}/{safe_float(energy_data.get('elocalLoadTotal')):.1f}"
+    self_consumption = f"{safe_float(energy_data.get('eselfToday')):.1f}/{safe_float(energy_data.get('eselfTotal')):.1f}"
 
     # Output the dashboard
     print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201
@@ -90,17 +94,27 @@ try:
     print(f"Export to grid            {exported_to_grid:>22}")  # noqa: T201
 
     print("\nPower overview                          (Watts)")  # noqa: T201
-    print(f'AC Power                 {safe_float(energy_data.get("pac")):>22.1f}')  # noqa: T201
-    print(f'Self power               {safe_float(energy_data.get("pself")):>22.1f}')  # noqa: T201
-    print(f'Export power             {safe_float(energy_data.get("pacToGridTotal")):>22.1f}')  # noqa: T201
-    print(f'Import power             {safe_float(energy_data.get("pacToUserTotal")):>22.1f}')  # noqa: T201
-    print(f'Local load power         {safe_float(energy_data.get("pacToLocalLoad")):>22.1f}')  # noqa: T201
-    print(f'PV power                 {safe_float(energy_data.get("ppv")):>22.1f}')  # noqa: T201
-    print(f'PV #1 power              {safe_float(energy_data.get("ppv1")):>22.1f}')  # noqa: T201
-    print(f'PV #2 power              {safe_float(energy_data.get("ppv2")):>22.1f}')  # noqa: T201
-    print(f'Battery charge power     {safe_float(energy_data.get("bdc1ChargePower")):>22.1f}')  # noqa: T201
-    print(f'Battery discharge power  {safe_float(energy_data.get("bdc1DischargePower")):>22.1f}')  # noqa: T201
-    print(f'Battery SOC              {int(safe_float(energy_data.get("bmsSOC"))):>21}%')  # noqa: T201
+    print(f"AC Power                 {safe_float(energy_data.get('pac')):>22.1f}")  # noqa: T201
+    print(f"Self power               {safe_float(energy_data.get('pself')):>22.1f}")  # noqa: T201
+    print(
+        f"Export power             {safe_float(energy_data.get('pacToGridTotal')):>22.1f}"
+    )
+    print(
+        f"Import power             {safe_float(energy_data.get('pacToUserTotal')):>22.1f}"
+    )
+    print(
+        f"Local load power         {safe_float(energy_data.get('pacToLocalLoad')):>22.1f}"
+    )
+    print(f"PV power                 {safe_float(energy_data.get('ppv')):>22.1f}")  # noqa: T201
+    print(f"PV #1 power              {safe_float(energy_data.get('ppv1')):>22.1f}")  # noqa: T201
+    print(f"PV #2 power              {safe_float(energy_data.get('ppv2')):>22.1f}")  # noqa: T201
+    print(
+        f"Battery charge power     {safe_float(energy_data.get('bdc1ChargePower')):>22.1f}"
+    )
+    print(
+        f"Battery discharge power  {safe_float(energy_data.get('bdc1DischargePower')):>22.1f}"
+    )
+    print(f"Battery SOC              {int(safe_float(energy_data.get('bmsSOC'))):>21}%")  # noqa: T201
 
 except growattServer.GrowattV1ApiError as e:
     print(f"API Error: {e} (Code: {e.error_code}, Message: {e.error_msg})")  # noqa: T201
@@ -110,5 +124,6 @@ except requests.exceptions.RequestException as e:
     print(f"Network Error: {e}")  # noqa: T201
 except Exception as e:  # noqa: BLE001
     import traceback
+
     print(f"Unexpected error: {e}")  # noqa: T201
     traceback.print_exc()

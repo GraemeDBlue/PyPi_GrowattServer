@@ -1,3 +1,4 @@
+"""Example dashboard for TLX inverters."""
 
 import getpass
 import sys
@@ -12,17 +13,19 @@ import growattServer
 
 
 # Prompt user for username
-username=input("Enter username:")
+username = input("Enter username:")
 
 # Prompt user to input password
-user_pass=getpass.getpass("Enter password:")
+user_pass = getpass.getpass("Enter password:")
 
 # Login, emulating the Growatt app
 user_agent = "ShinePhone/8.1.17 (iPhone; iOS 15.6.1; Scale/2.00)"
 api = growattServer.GrowattApi(agent_identifier=user_agent)
 login_response = api.login(username, user_pass)
 if not login_response["success"]:
-    print(f"Failed to log in, msg: {login_response['msg']}, error: {login_response['error']}")  # noqa: T201
+    print(
+        f"Failed to log in, msg: {login_response['msg']}, error: {login_response['error']}"
+    )
     sys.exit()
 
 # Get plant(s)
@@ -56,14 +59,16 @@ for device in devices:
             continue
 
         # Battery info
-        batt_info = api.tlx_battery_info_detailed(plant_id, device["deviceSn"]).get("data")
+        batt_info = api.tlx_battery_info_detailed(plant_id, device["deviceSn"]).get(
+            "data"
+        )
 
         if float(batt_info["chargeOrDisPower"]) > 0:
-            bdcChargePower =  float(batt_info["chargeOrDisPower"])
+            bdcChargePower = float(batt_info["chargeOrDisPower"])
             bdcDischargePower = 0
         else:
             bdcChargePower = 0
-            bdcDischargePower =  float(batt_info["chargeOrDisPower"])
+            bdcDischargePower = float(batt_info["chargeOrDisPower"])
             bdcDischargePower = -bdcDischargePower
 
         battery_data = {
@@ -71,24 +76,28 @@ for device in devices:
             "bdcChargePower": bdcChargePower,
             "bdcDischargePower": bdcDischargePower,
             "dischargeTotal": batt_info["dischargeTotal"],
-            "soc": batt_info["soc"]
+            "soc": batt_info["soc"],
         }
         batteries_info.append(battery_data)
 
 
-solar_production     = f'{float(energy_overview["epvToday"]):.1f}/{float(energy_overview["epvTotal"]):.1f}'
-solar_production_pv1 = f'{float(inverter_detail["epv1Today"]):.1f}/{float(inverter_detail["epv1Total"]):.1f}'
-solar_production_pv2 = f'{float(inverter_detail["epv2Today"]):.1f}/{float(inverter_detail["epv2Total"]):.1f}'
-energy_output        = f'{float(inverter_detail["eacToday"]):.1f}/{float(inverter_detail["eacTotal"]):.1f}'
-system_production    = f'{float(inverter_detail["esystemToday"]):.1f}/{float(inverter_detail["esystemTotal"]):.1f}'
-battery_charged      = f'{float(inverter_detail["echargeToday"]):.1f}/{float(inverter_detail["echargeTotal"]):.1f}'
-battery_grid_charge  = f'{float(inverter_detail["eacChargeToday"]):.1f}/{float(inverter_detail["eacChargeTotal"]):.1f}'
-battery_discharged   = f'{float(inverter_detail["edischargeToday"]):.1f}/{float(inverter_detail["edischargeTotal"]):.1f}'
-exported_to_grid     = f'{float(inverter_detail["etoGridToday"]):.1f}/{float(inverter_detail["etoGridTotal"]):.1f}'
-imported_from_grid   = f'{float(inverter_detail["etoUserToday"]):.1f}/{float(inverter_detail["etoUserTotal"]):.1f}'
-load_consumption     = f'{float(inverter_detail["elocalLoadToday"]):.1f}/{float(inverter_detail["elocalLoadTotal"]):.1f}'
-self_consumption     = f'{float(inverter_detail["eselfToday"]):.1f}/{float(inverter_detail["eselfTotal"]):.1f}'
-battery_charged      = f'{float(inverter_detail["echargeToday"]):.1f}/{float(inverter_detail["echargeTotal"]):.1f}'
+solar_production = (
+    f"{float(energy_overview['epvToday']):.1f}/{float(energy_overview['epvTotal']):.1f}"
+)
+solar_production_pv1 = f"{float(inverter_detail['epv1Today']):.1f}/{float(inverter_detail['epv1Total']):.1f}"
+solar_production_pv2 = f"{float(inverter_detail['epv2Today']):.1f}/{float(inverter_detail['epv2Total']):.1f}"
+energy_output = (
+    f"{float(inverter_detail['eacToday']):.1f}/{float(inverter_detail['eacTotal']):.1f}"
+)
+system_production = f"{float(inverter_detail['esystemToday']):.1f}/{float(inverter_detail['esystemTotal']):.1f}"
+battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"
+battery_grid_charge = f"{float(inverter_detail['eacChargeToday']):.1f}/{float(inverter_detail['eacChargeTotal']):.1f}"
+battery_discharged = f"{float(inverter_detail['edischargeToday']):.1f}/{float(inverter_detail['edischargeTotal']):.1f}"
+exported_to_grid = f"{float(inverter_detail['etoGridToday']):.1f}/{float(inverter_detail['etoGridTotal']):.1f}"
+imported_from_grid = f"{float(inverter_detail['etoUserToday']):.1f}/{float(inverter_detail['etoUserTotal']):.1f}"
+load_consumption = f"{float(inverter_detail['elocalLoadToday']):.1f}/{float(inverter_detail['elocalLoadTotal']):.1f}"
+self_consumption = f"{float(inverter_detail['eselfToday']):.1f}/{float(inverter_detail['eselfTotal']):.1f}"
+battery_charged = f"{float(inverter_detail['echargeToday']):.1f}/{float(inverter_detail['echargeTotal']):.1f}"
 
 print("\nGeneration overview             Today/Total(kWh)")  # noqa: T201
 print(f"Solar production          {solar_production:>22}")  # noqa: T201
@@ -105,25 +114,35 @@ print(f"Import from grid          {imported_from_grid:>22}")  # noqa: T201
 print(f"Export to grid            {exported_to_grid:>22}")  # noqa: T201
 
 print("\nPower overview                          (Watts)")  # noqa: T201
-print(f'AC Power                 {float(inverter_detail["pac"]):>22.1f}')  # noqa: T201
-print(f'Self power               {float(inverter_detail["pself"]):>22.1f}')  # noqa: T201
-print(f'Export power             {float(inverter_detail["pacToGridTotal"]):>22.1f}')  # noqa: T201
-print(f'Import power             {float(inverter_detail["pacToUserTotal"]):>22.1f}')  # noqa: T201
-print(f'Local load power         {float(inverter_detail["pacToLocalLoad"]):>22.1f}')  # noqa: T201
-print(f'PV power                 {float(inverter_detail["ppv"]):>22.1f}')  # noqa: T201
-print(f'PV #1 power              {float(inverter_detail["ppv1"]):>22.1f}')  # noqa: T201
-print(f'PV #2 power              {float(inverter_detail["ppv2"]):>22.1f}')  # noqa: T201
-print(f'Battery charge power     {float(system_status["chargePower"])*1000:>22.1f}')  # noqa: T201
+print(f"AC Power                 {float(inverter_detail['pac']):>22.1f}")  # noqa: T201
+print(f"Self power               {float(inverter_detail['pself']):>22.1f}")  # noqa: T201
+print(f"Export power             {float(inverter_detail['pacToGridTotal']):>22.1f}")  # noqa: T201
+print(f"Import power             {float(inverter_detail['pacToUserTotal']):>22.1f}")  # noqa: T201
+print(f"Local load power         {float(inverter_detail['pacToLocalLoad']):>22.1f}")  # noqa: T201
+print(f"PV power                 {float(inverter_detail['ppv']):>22.1f}")  # noqa: T201
+print(f"PV #1 power              {float(inverter_detail['ppv1']):>22.1f}")  # noqa: T201
+print(f"PV #2 power              {float(inverter_detail['ppv2']):>22.1f}")  # noqa: T201
+print(f"Battery charge power     {float(system_status['chargePower']) * 1000:>22.1f}")  # noqa: T201
 if len(batteries_info) > 0:
-    print(f'Batt #1 charge power     {float(batteries_info[0]["bdcChargePower"]):>22.1f}')  # noqa: T201
+    print(
+        f"Batt #1 charge power     {float(batteries_info[0]['bdcChargePower']):>22.1f}"
+    )
 if len(batteries_info) > 1:
-    print(f'Batt #2 charge power     {float(batteries_info[1]["bdcChargePower"]):>22.1f}')  # noqa: T201
-print(f'Battery discharge power      {float(system_status["pdisCharge"])*1000:>18.1f}')  # noqa: T201
+    print(
+        f"Batt #2 charge power     {float(batteries_info[1]['bdcChargePower']):>22.1f}"
+    )
+print(
+    f"Battery discharge power      {float(system_status['pdisCharge']) * 1000:>18.1f}"
+)
 if len(batteries_info) > 0:
-    print(f'Batt #1 discharge power  {float(batteries_info[0]["bdcDischargePower"]):>22.1f}')  # noqa: T201
+    print(
+        f"Batt #1 discharge power  {float(batteries_info[0]['bdcDischargePower']):>22.1f}"
+    )
 if len(batteries_info) > 1:
-    print(f'Batt #2 discharge power  {float(batteries_info[1]["bdcDischargePower"]):>22.1f}')  # noqa: T201
+    print(
+        f"Batt #2 discharge power  {float(batteries_info[1]['bdcDischargePower']):>22.1f}"
+    )
 if len(batteries_info) > 0:
-    print(f'Batt #1 SOC              {int(batteries_info[0]["soc"]):>21}%')  # noqa: T201
+    print(f"Batt #1 SOC              {int(batteries_info[0]['soc']):>21}%")  # noqa: T201
 if len(batteries_info) > 1:
-    print(f'Batt #2 SOC              {int(batteries_info[1]["soc"]):>21}%')  # noqa: T201
+    print(f"Batt #2 SOC              {int(batteries_info[1]['soc']):>21}%")  # noqa: T201

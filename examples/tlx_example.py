@@ -1,3 +1,5 @@
+"""Example script for TLX inverter systems."""
+
 import datetime
 import getpass
 import json
@@ -24,10 +26,10 @@ import growattServer
 """
 
 # Prompt user for username
-username=input("Enter username:")
+username = input("Enter username:")
 
 # Prompt user to input password
-user_pass=getpass.getpass("Enter password:")
+user_pass = getpass.getpass("Enter password:")
 
 user_agent = "ShinePhone/8.1.17 (iPhone; iOS 15.6.1; Scale/2.00)"
 api = growattServer.GrowattApi(agent_identifier=user_agent)
@@ -68,8 +70,12 @@ for device in devices:
         # returned in enabled settings so we enable it manually here instead
         enabled_settings["enable"]["on_grid_discharge_stop_soc"] = "1"
         enabled_keys = enabled_settings["enable"].keys()
-        available_settings = {k: v for k, v in all_settings.items() if k in enabled_keys}
-        print("System settings:", json.dumps(available_settings, indent=4, sort_keys=True))  # noqa: T201
+        available_settings = {
+            k: v for k, v in all_settings.items() if k in enabled_keys
+        }
+        print(
+            "System settings:", json.dumps(available_settings, indent=4, sort_keys=True)
+        )
 
         # System status
         data = api.tlx_system_status(plant_id, inverter_sn)
@@ -81,14 +87,20 @@ for device in devices:
 
         # Energy production & consumption
         data = api.tlx_energy_prod_cons(plant_id, inverter_sn)
-        print("Energy production & consumption:", json.dumps(data, indent=4, sort_keys=True))  # noqa: T201
+        print(
+            "Energy production & consumption:",
+            json.dumps(data, indent=4, sort_keys=True),
+        )
 
     elif device["deviceType"] == "bat":
         # Battery info
         batt_info = api.tlx_battery_info(device["deviceSn"])
         print("Battery info:", json.dumps(batt_info, indent=4, sort_keys=True))  # noqa: T201
         batt_info_detailed = api.tlx_battery_info_detailed(plant_id, device["deviceSn"])
-        print("Battery info: detailed", json.dumps(batt_info_detailed, indent=4, sort_keys=True))  # noqa: T201
+        print(
+            "Battery info: detailed",
+            json.dumps(batt_info_detailed, indent=4, sort_keys=True),
+        )
 
 
 # Examples of updating settings, uncomment to use
