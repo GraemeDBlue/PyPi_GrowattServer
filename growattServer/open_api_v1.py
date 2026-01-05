@@ -1777,7 +1777,11 @@ class GrowattDevice:
     def common_write_time_segment(
         self,
         command: str,
-        params: "OpenApiV1.TimeSegmentParams | OpenApiV1.MixAcDischargeTimeParams | OpenApiV1.MixAcChargeTimeParams",
+        params: (
+            "OpenApiV1.TimeSegmentParams | "
+            "OpenApiV1.MixAcDischargeTimeParams | "
+            "OpenApiV1.MixAcChargeTimeParams"
+        ),
     ) -> dict:
         """Write a time segment parameter to the device."""
         return self._api.write_time_segment(
