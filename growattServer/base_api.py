@@ -168,7 +168,7 @@ class GrowattApi:
             )
         return data
 
-    def plant_list(self, user_id):
+    def plant_list(self, user_id: str) -> list:
         """
         Get a list of plants connected to this account.
 
@@ -190,9 +190,10 @@ class GrowattApi:
 
         return response.json().get("back", [])
 
-    def plant_energy_overview(self, plant_id: str) -> dict:
+    def plant_energy_overview(self) -> dict:
         """
-        Fetches energy overview for a plant.
+        Fetch energy overview for a plant.
+
         Replace this stub with actual API logic.
         """
         # Example return structure
@@ -202,14 +203,21 @@ class GrowattApi:
             "current_power": 0.0,
         }
 
-    def plant_detail(self, plant_id, timespan, date=None):
+    def plant_detail(
+        self,
+        plant_id: str,
+        timespan: Timespan,
+        date: datetime.datetime | None = None,
+    ) -> dict:
         """
         Get plant details for specified timespan.
 
         Args:
             plant_id (str): The ID of the plant.
-            timespan (Timespan): The ENUM value conforming to the time window you want e.g. hours from today, days, or months.
-            date (datetime, optional): The date you are interested in. Defaults to datetime.datetime.now().
+            timespan (Timespan): The ENUM value conforming to the time
+                window you want e.g. hours from today, days, or months.
+            date (datetime, optional): The date you are interested in.
+                Defaults to datetime.datetime.now().
 
         Returns:
             dict: A dictionary containing the plant details.
