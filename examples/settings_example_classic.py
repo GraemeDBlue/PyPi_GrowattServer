@@ -41,7 +41,7 @@ device_sn = device["deviceSn"]
 device_type = device["deviceType"]
 
 # Turn inverter on
-print("Turning on inverter: %s" % (device_sn))
+print(f"Turning on inverter: {device_sn}")  # noqa: T201
 
 # Set up the default parameters
 default_parameters = {
@@ -55,4 +55,4 @@ parameters = {
     "command_2": "",  # Empty string for command_2 as not used
 }
 response = api.update_classic_inverter_setting(default_parameters, parameters)
-print(response)
+print(response)  # noqa: T201

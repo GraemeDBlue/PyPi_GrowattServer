@@ -761,15 +761,18 @@ class GrowattApi:
         """
         date_str = self.__get_date_string(timespan, date)
 
-        response = self.session.post(self.get_url('newMixApi.do'), params={
-            'op': 'getEnergyProdAndCons_KW',
-            'plantId': plant_id,
-            'mixId': mix_id,
-            'type': timespan.value,
-            'date': date_str
-        })
+        response = self.session.post(
+            self.get_url("newMixApi.do"),
+            params={
+                "op": "getEnergyProdAndCons_KW",
+                "plantId": plant_id,
+                "mixId": mix_id,
+                "type": timespan.value,
+                "date": date_str,
+            },
+        )
 
-        return response.json().get('obj', {})
+        return response.json().get("obj", {})
 
     def get_mix_inverter_settings(self, serial_number):
         """
@@ -779,25 +782,14 @@ class GrowattApi:
         Returns:
         A dictionary of settings
         """
-
         default_params = {
-            'op': 'getMixSetParams',
-            'serialNum': serial_number,
-            'kind': 0
+            "op": "getMixSetParams",
+            "serialNum": serial_number,
+            "kind": 0,
         }
-        response = self.session.get(self.get_url('newMixApi.do'), params=default_params)
-        data = json.loads(response.content.decode('utf-8'))
+        response = self.session.get(self.get_url("newMixApi.do"), params=default_params)
+        data = json.loads(response.content.decode("utf-8"))
         return data
-
-    def dashboard_data(self, plant_id, timespan=Timespan.hour, date=None):
-        """
-        Get 'dashboard' data for specified timespan
-        NOTE - All numerical values returned by this api call include units e.g. kWh or %
-             - Many of the 'total' values that are returned for a Mix system are inaccurate on the system this was tested against.
-               However, the statistics that are correct are not available on any other interface, plus these values may be accurate for
-               non-mix types of system. Where the values have been proven to be inaccurate they are commented below.
-
-        return response.json().get("obj", {})
 
     def dashboard_data(  # noqa: D417
         self,
@@ -1407,6 +1399,7 @@ class GrowattApi:
 
         Returns:
         JSON response from the server whether the configuration was successful
+
         """
         settings_parameters = parameters
 
@@ -1414,11 +1407,12 @@ class GrowattApi:
         if isinstance(parameters, list):
             settings_parameters = {}
             for index, param in enumerate(parameters, start=1):
-                settings_parameters['param' + str(index)] = param
+                settings_parameters["param" + str(index)] = param
 
         settings_parameters = {**default_parameters, **settings_parameters}
 
-        response = self.session.post(self.get_url('tcpSet.do'),
-                                     params=settings_parameters)
+        response = self.session.post(
+            self.get_url("tcpSet.do"), params=settings_parameters
+        )
 
         return response.json()
