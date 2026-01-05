@@ -752,9 +752,11 @@ class GrowattApi:
         'unit2' -- Unit of measurement e.g kW
 
 
-        NOTE - It is possible to calculate the PV generation that went into charging the batteries by performing the following calculation:
-        Solar to Battery = Solar Generation - Export to Grid - Load consumption from solar
-                           epvToday (from mix_info) - eAcCharge - eChargeToday
+        NOTE - It is possible to calculate the PV generation that went into
+        charging the batteries by performing the following calculation:
+        Solar to Battery = Solar Generation - Export to Grid -
+            Load consumption from solar
+        epvToday (from mix_info) - eAcCharge - eChargeToday
 
         """
         date_str = self.__get_date_string(timespan, date)
@@ -798,8 +800,10 @@ class GrowattApi:
                 (Default datetime.datetime.now())
 
         Returns:
-        A chartData object where each entry is for a specific 5 minute window e.g. 00:05 and 00:10 respectively (below)
-        NOTE: The keys are interpreted differently, the examples below describe what they are used for in a 'Mix' system
+        A chartData object where each entry is for a specific 5 minute
+            window e.g. 00:05 and 00:10 respectively (below)
+        NOTE: The keys are interpreted differently, the examples below
+            describe what they are used for in a 'Mix' system
         'chartData': {   '00:05': {   'pacToUser' -- Power from battery in kW
                                       'ppv' -- Solar generation in kW
                                       'sysOut' -- Load consumption in kW
@@ -812,25 +816,44 @@ class GrowattApi:
                           ......
                      }
         'chartDataUnit' -- Unit of measurement e.g. 'kW',
-        'eAcCharge' -- Energy exported to the grid in kWh e.g. '20.5kWh' (not accurate for Mix systems)
-        'eCharge' -- System production in kWh = Self-consumption + Exported to Grid e.g '23.1kWh' (not accurate for Mix systems - actually showing the total 'load consumption'
-        'eChargeToday1' -- Self-consumption of PPV (possibly including excess diverted to batteries) in kWh e.g. '2.6kWh' (not accurate for Mix systems)
-        'eChargeToday2' -- Total self-consumption (PPV consumption(eChargeToday2Echarge1) + Battery Consumption(echarge1)) e.g. '10.1kWh' (not accurate for Mix systems)
-        'eChargeToday2Echarge1' -- Self-consumption of PPV only e.g. '0.8kWh' (not accurate for Mix systems)
+        'eAcCharge' -- Energy exported to the grid in kWh e.g. '20.5kWh'
+            (not accurate for Mix systems)
+        'eCharge' -- System production in kWh = Self-consumption +
+            Exported to Grid e.g '23.1kWh' (not accurate for Mix systems -
+            actually showing the total 'load consumption'
+        'eChargeToday1' -- Self-consumption of PPV (possibly including
+            excess diverted to batteries) in kWh e.g. '2.6kWh'
+            (not accurate for Mix systems)
+        'eChargeToday2' -- Total self-consumption (PPV consumption
+            (eChargeToday2Echarge1) + Battery Consumption(echarge1))
+            e.g. '10.1kWh' (not accurate for Mix systems)
+        'eChargeToday2Echarge1' -- Self-consumption of PPV only
+            e.g. '0.8kWh' (not accurate for Mix systems)
         'echarge1' -- Self-consumption from Battery only e.g. '9.3kWh'
-        'echargeToat' -- Not used on Dashboard view, likely to be total battery discharged e.g. '152.1kWh'
-        'elocalLoad' -- Total load consumption (etouser + eChargeToday2) e.g. '20.3kWh', (not accurate for Mix systems)
-        'etouser'-- Energy imported from grid today (includes both directly used by load and AC battery charging e.g. '10.2kWh'
-        'keyNames' -- Keys to be used for the graph data e.g. ['Solar', 'Load Consumption', 'Export To Grid', 'From Battery']
+        'echargeToat' -- Not used on Dashboard view, likely to be total
+            battery discharged e.g. '152.1kWh'
+        'elocalLoad' -- Total load consumption (etouser + eChargeToday2)
+            e.g. '20.3kWh', (not accurate for Mix systems)
+        'etouser'-- Energy imported from grid today (includes both
+            directly used by load and AC battery charging e.g. '10.2kWh'
+        'keyNames' -- Keys to be used for the graph data
+            e.g. ['Solar', 'Load Consumption', 'Export To Grid', 'From Battery']
         'photovoltaic' -- Same as eChargeToday2Echarge1 e.g. '0.8kWh'
-        'ratio1' -- % of 'Solar production' that is self-consumed e.g. '11.3%' (not accurate for Mix systems)
-        'ratio2' -- % of 'Solar production' that is exported e.g. '88.7%' (not accurate for Mix systems)
-        'ratio3' -- % of 'Load consumption' that is self consumption e.g. '49.8%' (not accurate for Mix systems)
-        'ratio4' -- % of 'Load consumption' that is imported from the grid e.g '50.2%' (not accurate for Mix systems)
-        'ratio5' -- % of Self consumption that is from batteries e.g. '92.1%' (not accurate for Mix systems)
-        'ratio6' -- % of Self consumption that is directly from Solar e.g. '7.9%' (not accurate for Mix systems)
+        'ratio1' -- % of 'Solar production' that is self-consumed
+            e.g. '11.3%' (not accurate for Mix systems)
+        'ratio2' -- % of 'Solar production' that is exported
+            e.g. '88.7%' (not accurate for Mix systems)
+        'ratio3' -- % of 'Load consumption' that is self consumption
+            e.g. '49.8%' (not accurate for Mix systems)
+        'ratio4' -- % of 'Load consumption' that is imported from the grid
+            e.g '50.2%' (not accurate for Mix systems)
+        'ratio5' -- % of Self consumption that is from batteries
+            e.g. '92.1%' (not accurate for Mix systems)
+        'ratio6' -- % of Self consumption that is directly from Solar
+            e.g. '7.9%' (not accurate for Mix systems)
 
-        NOTE: Does not return any data for a tlx system. Use plant_energy_data() instead.
+        NOTE: Does not return any data for a tlx system.
+            Use plant_energy_data() instead.
 
         """
         date_str = self.__get_date_string(timespan, date)
@@ -893,9 +916,10 @@ class GrowattApi:
         return response.json().get("obj", {})
 
     def inverter_list(self, plant_id: str) -> list:
-        """Use device_list, it's more descriptive since the list contains more than inverters."""
+        """Use device_list, more descriptive than inverter_list."""
         warnings.warn(
-            "This function may be deprecated in the future because naming is not correct, use device_list instead",
+            "This function may be deprecated in the future because naming "
+            "is not correct, use device_list instead",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -915,7 +939,8 @@ class GrowattApi:
         device_list = self.plant_info(plant_id).get("deviceList", [])
 
         if not device_list:
-            # for tlx systems, the device_list in plant is empty, so use __get_all_devices() instead
+            # for tlx systems, the device_list in plant is empty,
+            # so use __get_all_devices() instead
             device_list = self.__get_all_devices(plant_id)
 
         return device_list
@@ -946,7 +971,7 @@ class GrowattApi:
 
     def is_plant_noah_system(self, plant_id: str) -> dict:  # noqa: D417
         """
-        Return a dictionary containing if noah devices are configured for the specified plant.
+        Return dict with noah device configuration for specified plant.
 
         Keyword Arguments:
             plant_id -- The id of the plant you want the noah devices of (str)
@@ -955,9 +980,11 @@ class GrowattApi:
         'msg'
         'result'    -- True or False
         'obj'   -- An Object containing if noah devices are configured
-            'isPlantNoahSystem' -- Is the specified plant a noah system (True or False)
+            'isPlantNoahSystem' -- Is the specified plant a noah system
+                (True or False)
             'plantId'   -- The ID of the plant
-            'isPlantHaveNoah'   -- Are noah devices configured in the specified plant (True or False)
+            'isPlantHaveNoah'   -- Are noah devices configured in the
+                specified plant (True or False)
             'deviceSn'  -- Serial number of the configured noah device
             'plantName' -- Friendly name of the plant
 
@@ -981,7 +1008,8 @@ class GrowattApi:
         'result'    -- True or False
         'obj' -- An Object containing the noah device status
             'chargePower'   -- Battery charging rate in watt e.g. '200Watt'
-            'workMode'  -- Workingmode of the battery (0 = Load First, 1 = Battery First)
+            'workMode'  -- Workingmode of the battery
+                (0 = Load First, 1 = Battery First)
             'soc'   -- Statement of charge (remaining battery %)
             'associatedInvSn'   -- ???
             'batteryNum'    -- Numbers of batterys
@@ -1017,29 +1045,39 @@ class GrowattApi:
         'result'    -- True or False
         'obj' -- An Object containing the noah device informations
             'neoList'   -- A List containing Objects
-            'unitList'  -- A Object containing currency units e.g. "Euro": "euro", "DOLLAR": "dollar"
+            'unitList'  -- A Object containing currency units
+                e.g. "Euro": "euro", "DOLLAR": "dollar"
             'noah'  -- A Object containing the folowing
-                'time_segment'  -- A List containing Objects with configured "Operation Mode"
-                    NOTE: The keys are generated numerical, the values are generated with folowing syntax "[workingmode (0 = Load First, 1 = Battery First)]_[starttime]_[endtime]_[output power]"
+                'time_segment'  -- A List containing Objects with
+                    configured "Operation Mode"
+                    NOTE: The keys are generated numerical, the values are
+                    generated with syntax "[workingmode (0 = Load First,
+                    1 = Battery First)]_[starttime]_[endtime]_[output power]"
                     'time_segment': {
-                        'time_segment1': "0_0:0_8:0_150", ([Load First]_[00:00]_[08:00]_[150 watt])
-                        'time_segment2': "1_8:0_18:0_0", ([Battery First]_[08:00]_[18:00]_[0 watt])
+                        'time_segment1': "0_0:0_8:0_150",
+                            ([Load First]_[00:00]_[08:00]_[150 watt])
+                        'time_segment2': "1_8:0_18:0_0",
+                            ([Battery First]_[08:00]_[18:00]_[0 watt])
                         ....
                      }
                 'batSns'    -- A List containing all battery Serial Numbers
                 'associatedInvSn'   -- ???
                 'plantId'   -- The ID of the plant
-                'chargingSocHighLimit'  -- Configured "Battery Management" charging upper limit
-                'chargingSocLowLimit'   -- Configured "Battery Management" charging lower limit
+                'chargingSocHighLimit'  -- Configured "Battery Management"
+                    charging upper limit
+                'chargingSocLowLimit'   -- Configured "Battery Management"
+                    charging lower limit
                 'defaultPower'  -- Configured "System Default Output Power"
                 'version'   -- The Firmware Version of the noah device
                 'deviceSn'  -- The Serial number of the noah device
-                'formulaMoney'  -- Configured "Select Currency" energy cost per kWh e.g. '0.22'
+                'formulaMoney'  -- Configured "Select Currency" energy cost
+                    per kWh e.g. '0.22'
                 'alias' -- Friendly name of the noah device
                 'model' -- Model Name of the noah device
                 'plantName' -- Friendly name of the plant
                 'tempType'  -- ???
-                'moneyUnitText' -- Configured "Select Currency" (Value from the unitList) e.G. "euro"
+                'moneyUnitText' -- Configured "Select Currency"
+                    (Value from the unitList) e.G. "euro"
             'plantList' -- A List containing Objects containing the folowing
                 'plantId'   -- The ID of the plant
                 'plantImgName'  -- Friendly name of the plant Image
@@ -1072,14 +1110,18 @@ class GrowattApi:
                 if None - fetched for you
 
         Returns:
-        A response from the server stating whether the configuration was successful or not
+        A response from the server stating whether the configuration was
+            successful or not
 
         """
-        # If no existing settings have been provided then get them from the growatt server
+        # If no existing settings have been provided then get them from
+        # the growatt server
         if current_settings is None:
             current_settings = self.plant_settings(plant_id)
 
-        # These are the parameters that the form requires, without these an error is thrown. Pre-populate their values with the current values
+        # These are the parameters that the form requires, without these
+        # an error is thrown. Pre-populate their values with the current
+        # values
         form_settings = {
             "plantCoal": (None, str(current_settings["formulaCoal"])),
             "plantSo2": (None, str(current_settings["formulaSo2"])),
