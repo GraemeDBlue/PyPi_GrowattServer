@@ -26,6 +26,7 @@ its inaccuracy.
 import getpass
 import json
 import pprint
+from pathlib import Path
 
 from . import growattServer
 
@@ -97,15 +98,15 @@ for plant in plant_list["data"]:
         pp.pprint(mix_info)
 
         print("Saving inverter data to old_inverter_data.json")  # noqa: T201
-        with open("old_inverter_data.json", "w") as f:
+        with Path("old_inverter_data.json").open("w") as f:
             json.dump(mix_info, f, indent=4, sort_keys=True)
 
         mix_totals = api.mix_totals(device_sn, plant_id)
         print("Saving energy data to old_energy_data.json")  # noqa: T201
-        with open("old_energy_data.json", "w") as f:
+        with Path("old_energy_data.json").open("w") as f:
             json.dump(mix_totals, f, indent=4, sort_keys=True)
 
-        # pp.pprint(mix_totals)
+        # pp.pprint(mix_totals)  # noqa: ERA001
         indent_print("*TOTAL VALUES*", 4)
         indent_print("==Today Totals==", 4)
         indent_print(f"Battery Charge (kwh): {mix_info['eBatChargeToday']}", 6)
@@ -124,9 +125,9 @@ for plant in plant_list["data"]:
         mix_detail = api.mix_detail(device_sn, plant_id)
 
         print("Saving energy data to old_detail_data.json")  # noqa: T201
-        with open("old_detail_data.json", "w") as f:
+        with Path("old_detail_data.json").open("w") as f:
             json.dump(mix_detail, f, indent=4, sort_keys=True)
-        # pp.pprint(mix_detail)
+        # pp.pprint(mix_detail)  # noqa: ERA001
 
         # Some of the 'totals' values that are returned by this function do not align  # noqa: E501
         # to what we would expect, however the graph data always seems to be accurate.
@@ -136,37 +137,37 @@ for plant in plant_list["data"]:
         # and 'import from grid' (etouser) which seem to be calculated from one-another
         # It would appear that 'etouser' is calculated on the backend incorrectly  # noqa: E501
         # for systems that use AC battery charged (e.g. during cheap nighttime rates)
-        pacToGridToday = 0.0
-        pacToUserToday = 0.0
-        pdischargeToday = 0.0
-        ppvToday = 0.0
-        sysOutToday = 0.0
+        pac_to_grid_today = 0.0
+        pac_to_user_today = 0.0
+        pdischarge_today = 0.0
+        ppv_today = 0.0
+        sys_out_today = 0.0
 
-        chartData = mix_detail["chartData"]
-        for data_points in chartData.values():
+        chart_data = mix_detail["chartData"]
+        for data_points in chart_data.values():
             # For each time entry convert it's wattage into kWh, this assumes  # noqa: E501
             # that the wattage value is the same for the whole 5 minute window  # noqa: E501
             # (it's the only assumption we can make)
             # We Multiply the wattage by 5/60 (the number of minutes of the time  # noqa: E501
             # window divided by the number of minutes in an hour) to give us the  # noqa: E501
             # equivalent kWh reading for that 5 minute window
-            pacToGridToday += float(data_points["pacToGrid"]) * (5 / 60)
-            pacToUserToday += float(data_points["pacToUser"]) * (5 / 60)
-            pdischargeToday += float(data_points["pdischarge"]) * (5 / 60)
-            ppvToday += float(data_points["ppv"]) * (5 / 60)
-            sysOutToday += float(data_points["sysOut"]) * (5 / 60)
+            pac_to_grid_today += float(data_points["pacToGrid"]) * (5 / 60)
+            pac_to_user_today += float(data_points["pacToUser"]) * (5 / 60)
+            pdischarge_today += float(data_points["pdischarge"]) * (5 / 60)
+            ppv_today += float(data_points["ppv"]) * (5 / 60)
+            sys_out_today += float(data_points["sysOut"]) * (5 / 60)
 
-        mix_detail["calculatedPacToGridTodayKwh"] = round(pacToGridToday, 2)
-        mix_detail["calculatedPacToUserTodayKwh"] = round(pacToUserToday, 2)
-        mix_detail["calculatedPdischargeTodayKwh"] = round(pdischargeToday, 2)
-        mix_detail["calculatedPpvTodayKwh"] = round(ppvToday, 2)
-        mix_detail["calculatedSysOutTodayKwh"] = round(sysOutToday, 2)
+        mix_detail["calculatedPacToGridTodayKwh"] = round(pac_to_grid_today, 2)
+        mix_detail["calculatedPacToUserTodayKwh"] = round(pac_to_user_today, 2)
+        mix_detail["calculatedPdischargeTodayKwh"] = round(pdischarge_today, 2)
+        mix_detail["calculatedPpvTodayKwh"] = round(ppv_today, 2)
+        mix_detail["calculatedSysOutTodayKwh"] = round(sys_out_today, 2)
 
         # Option to print mix_detail again now we've made the additions
-        # pp.pprint(mix_detail)
+        # pp.pprint(mix_detail)  # noqa: ERA001
 
         dashboard_data = api.dashboard_data(plant_id)
-        # pp.pprint(dashboard_data)
+        # pp.pprint(dashboard_data)  # noqa: ERA001
 
         indent_print("*TODAY TOTALS BREAKDOWN*", 4)
         indent_print(
@@ -267,7 +268,7 @@ for plant in plant_list["data"]:
         # This call gets all of the instantaneous values from the system
         # e.g. current load, generation etc.
         mix_status = api.mix_system_status(device_sn, plant_id)
-        # pp.pprint(mix_status)
+        # pp.pprint(mix_status)  # noqa: ERA001
         # NOTE - There are some other values available in mix_status,
         # however these are the most useful ones
         indent_print("*CURRENT VALUES*", 4)
